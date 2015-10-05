@@ -1,5 +1,7 @@
 An R package for named capture regular expressions
 
+[[https://travis-ci.org/tdhock/namedCapture][https://travis-ci.org/tdhock/namedCapture.png?branch=master]]
+
 Since R-2.14, the base functions =regexpr= and =gregexpr= support
 named capture regular expression via the excellent Perl-Compatible
 Regular Expressions (PCRE) C library. However their output is a bunch
