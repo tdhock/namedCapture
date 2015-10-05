@@ -1,7 +1,8 @@
 \name{str_match_all_named}
 \alias{str_match_all_named}
 \title{str match all named}
-
+\description{Parse several occurances of pattern from each of several subject
+strings using named capturing regular expressions.}
 \usage{str_match_all_named(subject.vec, pattern, type.list = NULL)}
 \arguments{
   \item{subject.vec}{character vector of subjects.}

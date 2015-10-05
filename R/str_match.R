@@ -1,6 +1,6 @@
 str_match_named <- function
-## Parse the first occurance of pattern from each of several subject
-## strings using a named capture regular expression.
+### Parse the first occurance of pattern from each of several subject
+### strings using a named capture regular expression.
 (subject.vec,
 ### character vector of subjects.
  pattern,
@@ -33,8 +33,8 @@ str_match_named <- function
 }
 
 str_match_all_named <- function
-## Parse several occurances of pattern from each of several subject
-## strings using named capturing regular expressions.
+### Parse several occurances of pattern from each of several subject
+### strings using named capturing regular expressions.
 (subject.vec,
 ### character vector of subjects.
  pattern,

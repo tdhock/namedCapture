@@ -1,7 +1,8 @@
 \name{str_match_named}
 \alias{str_match_named}
 \title{str match named}
-
+\description{Parse the first occurance of pattern from each of several subject
+strings using a named capture regular expression.}
 \usage{str_match_named(subject.vec, pattern, type.list = NULL)}
 \arguments{
   \item{subject.vec}{character vector of subjects.}
