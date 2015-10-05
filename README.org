@@ -59,11 +59,11 @@ devtools::install_github("tdhock/namedCapture")
   ## If there is a capture group named "name" then it will be used for
   ## the rownames of the result.
   name.value.vec <- c(
-    "sampleType=monocyte   assayType=H3K27me3    cost=5",
+    "  sampleType=monocyte   assayType=H3K27me3    cost=5",
     "sampleType=monocyte assayType=H3K27ac",
-    "sampleType=Myeloidcell cost=30.5  assayType=H3K4me3")
+    " sampleType=Myeloidcell cost=30.5  assayType=H3K4me3")
   name.value.pattern <- paste0(
-    "(?<name>.*?)",
+    "(?<name>[^ ]+?)",
     "=",
     "(?<value>[^ ]+)")
   str_match_all_named(name.value.vec, name.value.pattern)
