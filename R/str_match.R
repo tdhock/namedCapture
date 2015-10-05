@@ -75,7 +75,7 @@ apply_type_funs <- function
  ){
   stopifnot(is.character(match.mat))
   stopifnot(is.matrix(match.mat))
-  if("name" %in% colnames(match.mat)){
+  if(is.null(rownames(match.mat)) && "name" %in% colnames(match.mat)){
     rownames(match.mat) <- match.mat[, "name"]
     match.mat <- match.mat[, colnames(match.mat) != "name", drop=FALSE]
   }
