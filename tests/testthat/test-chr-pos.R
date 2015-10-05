@@ -1,11 +1,11 @@
 context("chr pos")
 
 subject <- 
-  c("chr10:213,054,000-213,055,000",
-    "chrM:111,000-222,000",
-    "foo bar",
-    NA,
-    "chr1:110-111 chr2:220-222")
+  c(ten="chr10:213,054,000-213,055,000",
+    M="chrM:111,000-222,000",
+    no.match="foo bar",
+    missing=NA,
+    two="chr1:110-111 chr2:220-222")
 
 pattern.not.greedy <- paste0(
   "(?<chrom>chr.*?)",
@@ -20,6 +20,7 @@ test_that("str_match_named returns character matrix", {
     chrom=c("chr10", "chrM", NA, NA, "chr1"),
     chromStart=c("213,054,000", "111,000", NA, NA, "110"),
     chromEnd=c("213,055,000", "222,000", NA, NA, "111"))
+  rownames(expected) <- names(subject)
   expect_identical(computed, expected)
 })
 
@@ -31,6 +32,7 @@ test_that("str_match_named returns data.frame", {
     chrom=c("chr10", "chrM", NA, NA, "chr1"),
     chromStart=as.integer(c(213054000, 111000, NA, NA, 110)),
     chromEnd=as.integer(c(213055000, 222000, NA, NA, 111)))
+  rownames(expected) <- names(subject)
   expect_identical(computed, expected)
 })
 
@@ -44,6 +46,7 @@ test_that("str_match_all_named returns list of character matrices", {
     cbind(chrom=c("chr1", "chr2"),
           chromStart=c("110", "220"),
           chromEnd=c("111", "222")))
+  names(expected) <- names(subject)
   expect_identical(computed, expected)
 })
 
@@ -60,7 +63,8 @@ test_that("str_match_all_named returns list of data.frames", {
                chromStart=as.integer(c("110", "220")),
                chromEnd=as.integer(c("111", "222"))))
   ##expect_identical(computed, expected)#doesn't work, names on computed chrom.
-  expect_equal(length(computed), length(expected))
+  names(expected) <- names(subject)
+  expect_equal(names(computed), names(expected))
   for(i in seq_along(computed)){
     computed.df <- computed[[i]]
     expected.df <- expected[[i]]
