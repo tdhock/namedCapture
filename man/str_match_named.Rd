@@ -12,9 +12,11 @@ strings using a named capture regular expression.}
 
 \value{A data.frame with one row for each subject and one column for each
 capture group if type.list is a list of functions. Otherwise a
-character matrix the first column of which is the entire match. If
-the pattern contains a group named "name" then it will be used for
-the rownames.}
+character matrix. If subject.vec has names then they will be used
+for the rownames of the returned data.frame or character
+matrix. Otherwise if there is a group named "name" then it will
+not be returned as a column, and will instead be used for the
+rownames.}
 
 \author{Toby Dylan Hocking}
 

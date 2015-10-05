@@ -22,9 +22,11 @@ str_match_named <- function
   apply_type_funs(m, type.list)
 ### A data.frame with one row for each subject and one column for each
 ### capture group if type.list is a list of functions. Otherwise a
-### character matrix the first column of which is the entire match. If
-### the pattern contains a group named "name" then it will be used for
-### the rownames.
+### character matrix. If subject.vec has names then they will be used
+### for the rownames of the returned data.frame or character
+### matrix. Otherwise if there is a group named "name" then it will
+### not be returned as a column, and will instead be used for the
+### rownames.
 }
 
 str_match_all_named <- function
@@ -60,9 +62,11 @@ str_match_all_named <- function
   result.list
 ### A list of data.frames with one row for each subject and one column
 ### for each capture group if type.list is a list of
-### functions. Otherwise a list of character matrices the first column
-### of which is the entire match. If the pattern contains a group
-### named "name" then it will be used for the rownames.
+### functions. Otherwise a list of character matrices. If pattern
+### contains a group named "name" then it will not be returned as a
+### column, and will instead be used for the rownames of the
+### data.frames or matrices. If subject.vec has names, they will be
+### used as the names of the returned list.
 }
 
 apply_type_funs <- function
@@ -93,7 +97,8 @@ apply_type_funs <- function
   }
 ### If type.list is a list of functions, then return a data.frame
 ### whose columns are defined by calling the functions in type.list on
-### the corresponding column of match.mat. Otherwise just return
-### match.mat. If match.mat has a column named "name" then it will be
-### used for the rownames, and that column will not be returned.
+### the corresponding column of match.mat. Otherwise just return a
+### character matrix. If match.mat does not already have rownames, and
+### it has a column named "name", then that column will be used for
+### the rownames, and that column will not be returned.
 }
