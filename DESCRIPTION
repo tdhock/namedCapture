@@ -1,0 +1,9 @@
+Package: namedCapture
+Maintainer: Toby Dylan Hocking <tdhock5@gmail.com>
+Author: Toby Dylan Hocking
+Version: 2015.10.05
+License: GPL-3
+Title: Named capture regular expressions
+Description: Named capture regular expression support is provided by 
+ base R functions regexpr and gregexpr. This package provides user-friendly
+ wrappers, str_match_perl and str_match_all_perl.

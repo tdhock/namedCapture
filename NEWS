@@ -1,0 +1,5 @@
+2015.10.05
+
+first version forked from str_match*perl in my .Rprofile. There are
+two differences: the "name" group is used for rownames, and the entire
+match is not returned (only the groups).
