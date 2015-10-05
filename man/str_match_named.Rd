@@ -1,8 +1,8 @@
-\name{str_match_perl}
-\alias{str_match_perl}
-\title{str match perl}
+\name{str_match_named}
+\alias{str_match_named}
+\title{str match named}
 
-\usage{str_match_perl(subject.vec, pattern, type.list = NULL)}
+\usage{str_match_named(subject.vec, pattern, type.list = NULL)}
 \arguments{
   \item{subject.vec}{character vector of subjects.}
   \item{pattern}{named capture regular expression (character vector of length 1).}

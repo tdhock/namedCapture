@@ -5,7 +5,7 @@
 type.list.}
 \usage{apply_type_funs(match.mat, type.list)}
 \arguments{
-  \item{match.mat}{character matrix (matches X 1 full match + several groups).}
+  \item{match.mat}{character matrix (matches X groups).}
   \item{type.list}{named list of functions to apply to captured groups.}
 }
 
@@ -13,7 +13,7 @@ type.list.}
 whose columns are defined by calling the functions in type.list on
 the corresponding column of match.mat. Otherwise just return
 match.mat. If match.mat has a column named "name" then it will be
-used for the rownames.}
+used for the rownames, and that column will not be returned.}
 
 \author{Toby Dylan Hocking}
 
