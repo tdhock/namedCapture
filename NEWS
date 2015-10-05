@@ -1,5 +1,8 @@
 2015.10.05
 
 first version forked from str_match*perl in my .Rprofile. There are
-two differences: the "name" group is used for rownames, and the entire
-match is not returned (only the groups).
+several differences: 
+- the "name" group is used for rownames, 
+- the entire match is not returned (only the groups),
+- str_match_named is vectorized (str_match_perl was not),
+- names are taken from subject if present.
