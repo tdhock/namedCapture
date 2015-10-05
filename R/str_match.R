@@ -12,19 +12,14 @@ str_match_named <- function
   stopifnot(is.character(pattern))
   stopifnot(length(pattern)==1)
   vec.with.attrs <- regexpr(pattern, subject.vec, perl=TRUE)
-  result.list <- list()
-  for(i in seq_along(vec.with.attrs)){
-    first <- attr(vec.with.attrs,"capture.start")[i,]
-    last <- attr(vec.with.attrs,"capture.length")[i,]-1+first
-    result.list[[i]] <- if(is.na(vec.with.attrs[i]) || vec.with.attrs[i]==-1){
-      rep(NA, length(first))
-    }else{
-      substring(subject.vec[i], first, last)
-    }
-  }
-  result <- do.call(rbind, result.list)
-  colnames(result) <- attr(vec.with.attrs, "capture.names")
-  apply_type_funs(result, type.list)
+  group.names <- attr(vec.with.attrs, "capture.names")
+  first <- attr(vec.with.attrs, "capture.start")
+  last <- attr(vec.with.attrs, "capture.length")-1+first
+  subs <- substring(subject.vec, first, last)
+  m <- matrix(subs, length(subject.vec), length(group.names),
+              dimnames=list(names(subject.vec), group.names))
+  m[vec.with.attrs == -1, ] <- NA
+  apply_type_funs(m, type.list)
 ### A data.frame with one row for each subject and one column for each
 ### capture group if type.list is a list of functions. Otherwise a
 ### character matrix the first column of which is the entire match. If
@@ -61,6 +56,7 @@ str_match_all_named <- function
     }
     result.list[[i]] <- apply_type_funs(m, type.list)
   }
+  names(result.list) <- names(subject.vec)
   result.list
 ### A list of data.frames with one row for each subject and one column
 ### for each capture group if type.list is a list of
