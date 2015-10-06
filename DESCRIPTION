@@ -4,8 +4,7 @@ Author: Toby Dylan Hocking
 Version: 2015.10.05
 License: GPL-3
 Title: Named capture regular expressions
-Description: Named capture regular expression support is provided by 
- base R functions regexpr and gregexpr. This package provides user-friendly
- wrappers, str_match_perl and str_match_all_perl.
+Description:  User-friendly wrappers for 
+ named capture regular expressions.
 Depends: R (>= 2.14)
 Suggests: testthat
