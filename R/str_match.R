@@ -46,15 +46,17 @@ str_match_all_named <- function
   result.list <- list()
   for(i in seq_along(parsed)){
     vec.with.attrs <- parsed[[i]]
-    names <- attr(vec.with.attrs, "capture.names")
-    if(vec.with.attrs[1]==-1 || is.null(names)){
+    first.start <- vec.with.attrs[1]
+    no.match <- first.start == -1
+    subject.is.na <- is.na(first.start)
+    if(no.match || subject.is.na){
       m <- matrix(character(), nrow=0)
     }else{
       first <- attr(vec.with.attrs, "capture.start")
       last <- attr(vec.with.attrs, "capture.length")-1+first
       subs <- substring(subject.vec[i], first, last)
-      m <- matrix(subs, ncol=length(names))
-      colnames(m) <- names
+      m <- matrix(subs, nrow=nrow(first))
+      colnames(m) <- attr(vec.with.attrs, "capture.names")
     }
     result.list[[i]] <- apply_type_funs(m, type.list)
   }
