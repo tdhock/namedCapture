@@ -1,3 +1,7 @@
+2015.10.07
+
+stop with informative errors for pathological subjects and patterns.
+
 2015.10.05
 
 first version forked from str_match*perl in my .Rprofile. There are

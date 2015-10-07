@@ -9,15 +9,16 @@ str_match_named <- function
 ### named list of functions to apply to captured groups.
  ){
   stopifnot(is.character(subject.vec))
+  stopifnot(0 < length(subject.vec))
   stopifnot(is.character(pattern))
   stopifnot(length(pattern)==1)
   vec.with.attrs <- regexpr(pattern, subject.vec, perl=TRUE)
-  group.names <- attr(vec.with.attrs, "capture.names")
+  capture.names <- names_or_error(vec.with.attrs)
   first <- attr(vec.with.attrs, "capture.start")
   last <- attr(vec.with.attrs, "capture.length")-1+first
   subs <- substring(subject.vec, first, last)
-  m <- matrix(subs, length(subject.vec), length(group.names),
-              dimnames=list(names(subject.vec), group.names))
+  m <- matrix(subs, length(subject.vec), length(capture.names),
+              dimnames=list(names(subject.vec), capture.names))
   m[vec.with.attrs == -1, ] <- NA
   apply_type_funs(m, type.list)
 ### A data.frame with one row for each subject and one column for each
@@ -40,9 +41,11 @@ str_match_all_named <- function
 ### named list of functions to apply to captured groups.
  ){
   stopifnot(is.character(subject.vec))
+  stopifnot(0 < length(subject.vec))
   stopifnot(is.character(pattern))
   stopifnot(length(pattern)==1)
   parsed <- gregexpr(pattern, subject.vec, perl=TRUE)
+  capture.names <- names_or_error(parsed[[1]])
   result.list <- list()
   for(i in seq_along(parsed)){
     vec.with.attrs <- parsed[[i]]
@@ -56,7 +59,7 @@ str_match_all_named <- function
       last <- attr(vec.with.attrs, "capture.length")-1+first
       subs <- substring(subject.vec[i], first, last)
       m <- matrix(subs, nrow=nrow(first))
-      colnames(m) <- attr(vec.with.attrs, "capture.names")
+      colnames(m) <- capture.names
     }
     result.list[[i]] <- apply_type_funs(m, type.list)
   }
@@ -103,4 +106,18 @@ apply_type_funs <- function
 ### character matrix. If match.mat does not already have rownames, and
 ### it has a column named "name", then that column will be used for
 ### the rownames, and that column will not be returned.
+}
+
+names_or_error <- function
+### Extract capture group names. Stop with an error if there are no
+### capture groups, or if there are any capture groups without names.
+(vec.with.attrs
+### Output from g?regexpr.
+ ){
+  capture.names <- attr(vec.with.attrs, "capture.names")
+  if(!is.character(capture.names) || any(capture.names == "")){
+    stop("pattern must contain named capture groups (?<name>subpattern)")
+  }
+  capture.names
+### Character vector.
 }

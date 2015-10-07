@@ -1,7 +1,7 @@
 Package: namedCapture
 Maintainer: Toby Dylan Hocking <tdhock5@gmail.com>
 Author: Toby Dylan Hocking
-Version: 2015.10.05
+Version: 2015.10.07
 License: GPL-3
 Title: Named capture regular expressions
 Description:  User-friendly wrappers for 
