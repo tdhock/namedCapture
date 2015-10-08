@@ -33,3 +33,7 @@ test_that("subject of length 0 is an error", {
     str_match_named(character(), "(?<name>.)")
   }, "0 < length(subject.vec) is not TRUE", fixed=TRUE)
 })
+
+test_that("still works if NA first element", {
+  str_match_all_named(c(NA, "foobar"), "(?<name>foo)")
+})
