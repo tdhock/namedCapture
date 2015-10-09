@@ -34,6 +34,12 @@ test_that("subject of length 0 is an error", {
   }, "0 < length(subject.vec) is not TRUE", fixed=TRUE)
 })
 
-test_that("still works if NA first element", {
-  str_match_all_named(c(NA, "foobar"), "(?<name>foo)")
+test_that("still works if NA first and only name", {
+  subject <- c(missing=NA, nomatch="", match="foobar")
+  result.list <- str_match_all_named(subject, "(?<name>foo)")
+  expected.list <- list(
+    missing=matrix(character(), 0, 0),
+    nomatch=matrix(character(), 0, 0),
+    match=matrix(character(), 1, 0, dimnames=list("foo")))
+  expect_identical(result.list, expected.list)
 })
