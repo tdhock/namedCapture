@@ -10,7 +10,7 @@ test_that("no capture groups is an error", {
   }, "(?<name>subpattern)", fixed=TRUE)
 })
 
-test_that("no named capture groups is an error", {
+test_that("any capture group without a name is an error", {
   expect_error({
     str_match_named(subject.vec, "(o)(?<name>o)")
   }, "(?<name>subpattern)", fixed=TRUE)
