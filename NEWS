@@ -1,3 +1,8 @@
+2015.10.15
+
+Test optional groups, set NA before calling substring to avoid "NAs
+introduced by coercion" warning.
+
 2015.10.07
 
 stop with informative errors for pathological subjects and patterns.
