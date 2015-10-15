@@ -47,7 +47,6 @@ str_match_all_named <- function
   stopifnot(is.character(pattern))
   stopifnot(length(pattern)==1)
   parsed <- gregexpr(pattern, subject.vec, perl=TRUE)
-  capture.names <- names_or_error(parsed[[1]])
   result.list <- list()
   for(i in seq_along(parsed)){
     vec.with.attrs <- parsed[[i]]
@@ -61,7 +60,7 @@ str_match_all_named <- function
       last <- attr(vec.with.attrs, "capture.length")-1+first
       subs <- substring(subject.vec[i], first, last)
       m <- matrix(subs, nrow=nrow(first))
-      colnames(m) <- capture.names
+      colnames(m) <- names_or_error(vec.with.attrs)
     }
     result.list[[i]] <- apply_type_funs(m, type.list)
   }
