@@ -13,13 +13,15 @@ str_match_named <- function
   stopifnot(is.character(pattern))
   stopifnot(length(pattern)==1)
   vec.with.attrs <- regexpr(pattern, subject.vec, perl=TRUE)
+  no.match <- vec.with.attrs == -1
   capture.names <- names_or_error(vec.with.attrs)
   first <- attr(vec.with.attrs, "capture.start")
+  first[no.match] <- NA
   last <- attr(vec.with.attrs, "capture.length")-1+first
+  last[no.match] <- NA
   subs <- substring(subject.vec, first, last)
   m <- matrix(subs, length(subject.vec), length(capture.names),
               dimnames=list(names(subject.vec), capture.names))
-  m[vec.with.attrs == -1, ] <- NA
   apply_type_funs(m, type.list)
 ### A data.frame with one row for each subject and one column for each
 ### capture group if type.list is a list of functions. Otherwise a
