@@ -5,7 +5,9 @@ NA subjects, but this is now fixed.
 
 When type.list is supplied, data.frame(stringsAsFactors=FALSE) is now
 used to create the data.frame from the character match groups
-matrix. This allows simple numerical conversions
+matrix. This allows simple numerical conversions using functions like
+as.numeric and as.integer (before, we got unexpected results since
+those functions take the factor ID number).
 
 2015.10.15
 
