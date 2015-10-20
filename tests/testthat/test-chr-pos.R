@@ -36,6 +36,18 @@ test_that("str_match_named returns data.frame", {
   expect_equivalent(computed, expected)
 })
 
+test_that("str_match_named converts with as.integer", {
+  no.commas <- gsub(",", "", subject)
+  conversion.list <- list(chromStart=as.integer, chromEnd=as.integer)
+  computed <- str_match_named(no.commas, pattern.not.greedy, conversion.list)
+  expected <- data.frame(
+    chrom=c("chr10", "chrM", NA, NA, "chr1"),
+    chromStart=as.integer(c(213054000, 111000, NA, NA, 110)),
+    chromEnd=as.integer(c(213055000, 222000, NA, NA, 111)))
+  rownames(expected) <- names(subject)
+  expect_equivalent(computed, expected)
+})
+
 test_that("str_match_all_named returns list of character matrices", {
   computed <- str_match_all_named(subject, pattern.not.greedy)
   expected <- list(
@@ -65,3 +77,5 @@ test_that("str_match_all_named returns list of data.frames", {
   names(expected) <- names(subject)
   expect_equivalent(computed, expected)
 })
+
+
