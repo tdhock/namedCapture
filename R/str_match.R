@@ -13,7 +13,7 @@ str_match_named <- function
   stopifnot(is.character(pattern))
   stopifnot(length(pattern)==1)
   vec.with.attrs <- regexpr(pattern, subject.vec, perl=TRUE)
-  no.match <- vec.with.attrs == -1
+  no.match <- vec.with.attrs == -1 | is.na(subject.vec)
   capture.names <- names_or_error(vec.with.attrs)
   first <- attr(vec.with.attrs, "capture.start")
   first[no.match] <- NA
