@@ -3,6 +3,10 @@
 str_match_named was sometimes incorrectly issuing a warning when given
 NA subjects, but this is now fixed.
 
+When type.list is supplied, data.frame(stringsAsFactors=FALSE) is now
+used to create the data.frame from the character match groups
+matrix. This allows simple numerical conversions
+
 2015.10.15
 
 Test optional groups, set NA before calling substring to avoid "NAs

@@ -90,7 +90,7 @@ apply_type_funs <- function
     match.mat <- match.mat[, colnames(match.mat) != "name", drop=FALSE]
   }
   if(is.list(type.list)){
-    df <- data.frame(match.mat)
+    df <- data.frame(match.mat, stringsAsFactors=FALSE)
     for(col.name in names(type.list)){
       if(col.name %in% names(df)){
         type.fun <- type.list[[col.name]]

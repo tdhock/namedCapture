@@ -31,21 +31,23 @@ test_that("str_match_named returns data.frame", {
   expected <- data.frame(
     chrom=c("chr10", "chrM", NA, NA, "chr1"),
     chromStart=as.integer(c(213054000, 111000, NA, NA, 110)),
-    chromEnd=as.integer(c(213055000, 222000, NA, NA, 111)))
+    chromEnd=as.integer(c(213055000, 222000, NA, NA, 111)),
+    stringsAsFactors=FALSE)
   rownames(expected) <- names(subject)
   expect_equivalent(computed, expected)
 })
 
 test_that("str_match_named converts with as.integer", {
   no.commas <- gsub(",", "", subject)
-  conversion.list <- list(chromStart=as.integer, chromEnd=as.integer)
+  conversion.list <- list(chromStart=as.integer, chromEnd=as.numeric)
   computed <- str_match_named(no.commas, pattern.not.greedy, conversion.list)
   expected <- data.frame(
     chrom=c("chr10", "chrM", NA, NA, "chr1"),
     chromStart=as.integer(c(213054000, 111000, NA, NA, 110)),
-    chromEnd=as.integer(c(213055000, 222000, NA, NA, 111)))
+    chromEnd=as.numeric(c(213055000, 222000, NA, NA, 111)),
+    stringsAsFactors=FALSE)
   rownames(expected) <- names(subject)
-  expect_equivalent(computed, expected)
+  expect_identical(computed, expected)
 })
 
 test_that("str_match_all_named returns list of character matrices", {
@@ -67,15 +69,18 @@ test_that("str_match_all_named returns list of data.frames", {
   conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
   computed <- str_match_all_named(subject, pattern.not.greedy, conversion.list)
   expected <- list(
-    data.frame(chrom="chr10", chromStart=213054000L, chromEnd=213055000L),
-    data.frame(chrom="chrM", chromStart=111000L, chromEnd=222000L),
+    data.frame(chrom="chr10", chromStart=213054000L, chromEnd=213055000L,
+               stringsAsFactors=FALSE),
+    data.frame(chrom="chrM", chromStart=111000L, chromEnd=222000L,
+               stringsAsFactors=FALSE),
     data.frame(),
     data.frame(),
     data.frame(chrom=c("chr1", "chr2"),
                chromStart=as.integer(c("110", "220")),
-               chromEnd=as.integer(c("111", "222"))))
+               chromEnd=as.integer(c("111", "222")),
+               stringsAsFactors=FALSE))
   names(expected) <- names(subject)
-  expect_equivalent(computed, expected)
+  expect_identical(computed, expected)
 })
 
 
