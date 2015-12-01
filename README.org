@@ -1,6 +1,7 @@
 An R package for named capture regular expressions
 
-[[https://travis-ci.org/tdhock/namedCapture][https://travis-ci.org/tdhock/namedCapture.png?branch=master]]
+| [[file:tests/testthat][tests]]    | [[https://travis-ci.org/tdhock/namedCapture][https://travis-ci.org/tdhock/namedCapture.png?branch=master]]            |
+| [[https://github.com/jimhester/covr][coverage]] | [[https://coveralls.io/r/tdhock/namedCapture?branch%3Dmaster][https://coveralls.io/repos/tdhock/namedCapture/badge.svg?branch=master]] |
 
 Since R-2.14, the base functions =regexpr= and =gregexpr= support
 named capture regular expressions via the excellent Perl-Compatible
