@@ -43,3 +43,15 @@ test_that("still works if NA first and only name", {
     match=matrix(character(), 1, 0, dimnames=list("foo")))
   expect_identical(result.list, expected.list)
 })
+
+test_that("informative error when converter is not function", {
+  pattern.not.greedy <- paste0(
+    "(?<chrom>chr.*?)",
+    ":",
+    "(?<chromStart>.*?)",
+    "-",
+    "(?<chromEnd>[0-9,]*)")
+  expect_error({
+    str_match_named("chr2:300-400", pattern.not.greedy, list(chromStart="foo"))
+  }, "must be a named list of functions")
+})
