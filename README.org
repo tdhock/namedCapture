@@ -19,6 +19,11 @@ useful.
 - =stringr::str_match= implements extracting capture groups. But since
   it uses the stringi package (an interface to the [[http://userguide.icu-project.org/strings/regexp][ICU]] library), [[https://github.com/hadley/stringr/pull/16][it
   does not support named capture]].
+- [[https://github.com/MangoTheCat/rematch2][rematch2::re_match]] and [[https://github.com/qinwf/re2r][re2r::re2_match]] provide similar functionality
+  to =namedCapture::str_match_named=. The main difference is that re2r
+  uses the RE2 C++ library (worse case polynomial time complexity),
+  but rematch2 and namedCapture use base R (PCRE C library, exponential
+  worst case time complexity).
 - https://github.com/tdhock/revector provides fast C code for a
   *vector* of named capture regular expressions (namedCapture and base
   R and only provide functions for a single regular expression).
