@@ -94,7 +94,25 @@ apply_type_funs <- function
     for(col.name in names(type.list)){
       if(col.name %in% names(df)){
         type.fun <- type.list[[col.name]]
-        df[[col.name]] <- type.fun(df[[col.name]])
+        tryCatch({
+          fun.result <- type.fun(df[[col.name]])
+        }, error=function(e){
+          stop(
+            "type.list must be ",
+            "list(group.name=function(character.vector)any.vector)")
+        })
+        if(!is.atomic(fun.result)){
+          stop(col.name, " type.list function must return atomic vector")
+        }
+        if(length(fun.result) != nrow(df)){
+          stop(
+            col.name,
+            " type.list function returned vector of length ",
+            length(fun.result),
+            " but expected length ",
+            nrow(df))
+        }
+        df[[col.name]] <- fun.result
       }
     }
     df
