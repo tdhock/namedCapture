@@ -44,14 +44,42 @@ test_that("still works if NA first and only name", {
   expect_identical(result.list, expected.list)
 })
 
+pattern.not.greedy <- paste0(
+  "(?<chrom>chr.*?)",
+  ":",
+  "(?<chromStart>.*?)",
+  "-",
+  "(?<chromEnd>[0-9,]*)")
+
 test_that("informative error when converter is not function", {
-  pattern.not.greedy <- paste0(
-    "(?<chrom>chr.*?)",
-    ":",
-    "(?<chromStart>.*?)",
-    "-",
-    "(?<chromEnd>[0-9,]*)")
   expect_error({
     str_match_named("chr2:300-400", pattern.not.greedy, list(chromStart="foo"))
-  }, "must be a named list of functions")
+  }, "type.list must be list(group.name=function(character.vector)any.vector)",
+               fixed=TRUE)
+})
+
+test_that("informative error when converter fun has zero args", {
+  expect_error({
+    str_match_named("chr2:300-400", pattern.not.greedy, list(
+      chromStart=function()y))
+  }, "type.list must be list(group.name=function(character.vector)any.vector)",
+               fixed=TRUE)
+})
+
+test_that("informative error when converter returns wrong length", {
+  expect_error({
+    str_match_named(
+      c("chr2:300-400", "chr2:300-400"),
+      pattern.not.greedy, list(
+      chromStart=function(x)"foo"))
+  }, "chromStart type.list function returned vector of length 1 but expected length 2")
+})
+
+test_that("informative error when converter returns non-atomic", {
+  expect_error({
+    str_match_named(
+      c("chr2:300-400", "chr2:300-400"),
+      pattern.not.greedy, list(
+      chromStart=function(x)list(foo=200)))
+  }, "chromStart type.list function must return atomic vector")
 })
