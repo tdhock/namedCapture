@@ -16,6 +16,11 @@ useful.
 - =regexec= and =regmatches= in base R implement extracting capture
   groups but the =regexec= man page indicates that perl=TRUE (and thus
   named capture) is not implemented.
+- from R-3.4.0, =utils::strcapture= is a user-friendly alternative to
+  =namedCapture::str_match_named= (extract first match from each
+  subject), but there is still no alternative for
+  =namedCapture::str_match_all_named= (extract all matches from each
+  subject).
 - =stringr::str_match= implements extracting capture groups. But since
   it uses the stringi package (an interface to the [[http://userguide.icu-project.org/strings/regexp][ICU]] library), [[https://github.com/hadley/stringr/pull/16][it
   does not support named capture]].
