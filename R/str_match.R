@@ -31,6 +31,7 @@ str_match_named <- structure(function
 ### not be returned as a column, and will instead be used for the
 ### rownames.
 }, ex=function(){
+
   library(namedCapture)
   chr.pos.vec <- c(
     "chr10:213,054,000-213,055,000",
@@ -51,6 +52,7 @@ str_match_named <- structure(function
   conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
   (match.df <- str_match_named(chr.pos.vec, chr.pos.pattern, conversion.list))
   str(match.df)
+  
 })
 
 str_match_all_named <- structure(function
@@ -95,6 +97,7 @@ str_match_all_named <- structure(function
 ### data.frames or matrices. If subject.vec has names, they will be
 ### used as the names of the returned list.
 }, ex=function(){
+
   library(namedCapture)
   chr.pos.vec <- c(
     "chr10:213,054,000-213,055,000",
@@ -129,6 +132,7 @@ str_match_all_named <- structure(function
     "=",
     "(?<value>[^ ]+)")
   str_match_all_named(name.value.vec, name.value.pattern)
+  
 })
 
 apply_type_funs <- function

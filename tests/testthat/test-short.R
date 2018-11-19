@@ -12,11 +12,11 @@ subject <- c(
 test_that("str_match_named_short returns character matrix", {
   computed <- str_match_named_short(
     subject,
-    "(?<chrom>chr.*?)",
+    chrom="chr.*?",
     ":",
-    "(?<chromStart>.*?)",
+    chromStart=".*?", 
     "-",
-    "(?<chromEnd>[0-9,]*)")
+    chromEnd="[0-9,]*")
   expected <- cbind(
     chrom=c("chr10", "chrNA", NA, NA, "chr1"),
     chromStart=c("213,054,000", "111,000", NA, NA, "110"),
@@ -29,13 +29,11 @@ test_that("str_match_named_short returns data.frame", {
   keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
   computed <- str_match_named_short(
     subject, 
-    "(?<chrom>chr.*?)",
+    chrom="chr.*?",
     ":",
-    "(?<chromStart>.*?)",
+    chromStart=".*?", keep.digits,
     "-",
-    "(?<chromEnd>[0-9,]*)",
-    chromStart=keep.digits,
-    chromEnd=keep.digits)
+    chromEnd="[0-9,]*", keep.digits)
   expected <- data.frame(
     chrom=c("chr10", "chrNA", NA, NA, "chr1"),
     chromStart=as.integer(c(213054000, 111000, NA, NA, 110)),
@@ -48,11 +46,11 @@ test_that("str_match_named_short returns data.frame", {
 test_that("str_match_all_named_short returns character matrix", {
   computed <- str_match_all_named_short(
     subject, 
-    "(?<chrom>chr.*?)",
+    chrom="chr.*?",
     ":",
-    "(?<chromStart>.*?)",
+    chromStart=".*?", 
     "-",
-    "(?<chromEnd>[0-9,]*)")
+    chromEnd="[0-9,]*")
   r <- function(chrom, chromStart, chromEnd){
     cbind(chrom=chrom, chromStart=chromStart, chromEnd=chromEnd)
   }
@@ -78,13 +76,11 @@ test_that("str_match_all_named_short returns data.frame", {
   conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
   computed <- str_match_all_named_short(
     subject, 
-    "(?<chrom>chr.*?)",
+    chrom="chr.*?",
     ":",
-    "(?<chromStart>.*?)",
+    chromStart=".*?", keep.digits,
     "-",
-    "(?<chromEnd>[0-9,]*)",
-    chromStart=keep.digits,
-    chromEnd=keep.digits)
+    chromEnd="[0-9,]*", keep.digits)
   expected <- rbind(
     data.frame(
       chrom="chr10", chromStart=213054000L, chromEnd=213055000L,
@@ -100,4 +96,90 @@ test_that("str_match_all_named_short returns data.frame", {
   expect_identical(computed, expected)
 })
 
-## TODO error messages.
+test_that("str_match_named_short errors for one argument", {
+  expect_error({
+    str_match_named_short("foo")
+  }, "must have at least two arguments: subject, name=pattern, fun, ...")
+})
+
+test_that("str_match_all_named_short errors for one argument", {
+  expect_error({
+    str_match_all_named_short("foo")
+  }, "must have at least two arguments: subject, name=pattern, fun, ...")
+})
+
+test_that("str_match_named_short errors for multi-dim patterns", {
+  expect_error({
+    str_match_named_short("foo", c("bar", "baz"))
+  }, "patterns must be character vectors of length 1")
+})
+
+test_that("str_match_all_named_short errors for multi-dim patterns", {
+  expect_error({
+    str_match_all_named_short("foo", c("bar", "baz"))
+  }, "patterns must be character vectors of length 1")
+})
+
+test_that("str_match_named_short errors for 0-length patterns", {
+  expect_error({
+    str_match_named_short("foo", character())
+  }, "patterns must be character vectors of length 1")
+})
+
+test_that("str_match_all_named_short errors for 0-length patterns", {
+  expect_error({
+    str_match_all_named_short("foo", character())
+  }, "patterns must be character vectors of length 1")
+})
+
+test_that("str_match_named_short errors for non char/fun args", {
+  expect_error({
+    str_match_named_short("foo", "bar", 1)
+  }, "arguments must be character (subject/patterns) or functions (for converting extracted character vectors to other types)", fixed=TRUE)
+})
+
+test_that("str_match_all_named_short errors for non char/fun args", {
+  expect_error({
+    str_match_all_named_short("foo", "bar", 1)
+  }, "arguments must be character (subject/patterns) or functions (for converting extracted character vectors to other types)", fixed=TRUE)
+})
+
+test_that("str_match_named_short errors for two funs in a row", {
+  expect_error({
+    str_match_named_short("foo", g="bar", as.integer, as.numeric)
+  },
+  "too many functions; up to one function may follow each named pattern")
+})
+
+test_that("str_match_all_named_short errors for two funs in a row", {
+  expect_error({
+    str_match_all_named_short("foo", g="bar", as.integer, as.numeric)
+  },
+  "too many functions; up to one function may follow each named pattern")
+})
+
+test_that("str_match_named_short errors for fun at start", {
+  expect_error({
+    str_match_named_short("foo", as.numeric)
+  },
+  "too many functions; up to one function may follow each named pattern")
+})
+
+test_that("str_match_all_named_short errors for fun at start", {
+  expect_error({
+    str_match_all_named_short("foo", as.numeric)
+  },
+  "too many functions; up to one function may follow each named pattern")
+})
+
+test_that("str_match_named_short errors for NA pattern", {
+  expect_error({
+    str_match_named_short("foo", g="bar", NA_character_, "baz")
+  }, "patterns must not be missing/NA")
+})
+
+test_that("str_match_all_named_short errors for NA pattern", {
+  expect_error({
+    str_match_all_named_short("foo", g="bar", NA_character_, "baz")
+  }, "patterns must not be missing/NA")
+})
