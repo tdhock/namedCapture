@@ -42,6 +42,24 @@ devtools::install_github("tdhock/namedCapture")
 
 ** Usage examples
 
+There are four main functions provided in namedCapture:
+
+|                 | Extract first match     | Extract each match          |
+|-----------------+-------------------------+-----------------------------|
+| Three arguments | =str_match_named=       | =str_match_all_named=       |
+| Variable args   | =str_match_named_short= | =str_match_all_named_short= |
+
+*** Three argument syntax
+
+The functions on the first row take exactly three arguments:
+- =subject= is the character vector from which we want to extract
+  tabular data.
+- =pattern= is the (character scalar) regular expression with named
+  capture groups used for extraction.
+- =fun.list= is a list with names that correspond to capture groups,
+  and values are functions used to convert the extracted character
+  data to other (typically numeric) types.
+
 #+BEGIN_SRC R
   library(namedCapture)
   chr.pos.vec <- c(
@@ -63,12 +81,150 @@ devtools::install_github("tdhock/namedCapture")
   conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
   (match.df <- str_match_named(chr.pos.vec, chr.pos.pattern, conversion.list))
   str(match.df)
-  
+
   ## Use str_match_all_named to get ALL matches in each subject (not
   ## just the first match).
-  (match.df.list <- str_match_all_named(chr.pos.vec, chr.pos.pattern, conversion.list))
-  str(match.df.list)
-  
+  str_match_all_named(chr.pos.vec, chr.pos.pattern, conversion.list)
+#+END_SRC
+
+Running the =str_match_named= code above yields the following. Note
+how the resulting data.frame contains one row for each subject, and
+one column for each named capture group defined in the regular
+expression pattern. Types are defined by the specified conversion
+functions; missing values indicate missing subjects or no match.
+
+#+BEGIN_SRC R-transcript
+> (match.df <- str_match_named(chr.pos.vec, chr.pos.pattern, conversion.list))
+  chrom chromStart  chromEnd
+1 chr10  213054000 213055000
+2  chrM     111000    222000
+3  <NA>         NA        NA
+4  <NA>         NA        NA
+5  chr1        110       111
+> str(match.df)
+'data.frame':	5 obs. of  3 variables:
+ $ chrom     : chr  "chr10" "chrM" NA NA ...
+ $ chromStart: int  213054000 111000 NA NA 110
+ $ chromEnd  : int  213055000 222000 NA NA 111
+> 
+#+END_SRC
+
+As shown below, running the =str_match_all_named= code extracts all
+matches from each subject. The result is a list with one element for
+each subject. Each list element is a data.frame with one row for each
+match.
+
+#+BEGIN_SRC R-transcript
+> str_match_all_named(chr.pos.vec, chr.pos.pattern, conversion.list)
+[[1]]
+  chrom chromStart  chromEnd
+1 chr10  213054000 213055000
+
+[[2]]
+  chrom chromStart chromEnd
+1  chrM     111000   222000
+
+[[3]]
+data frame with 0 columns and 0 rows
+
+[[4]]
+data frame with 0 columns and 0 rows
+
+[[5]]
+  chrom chromStart chromEnd
+1  chr1        110      111
+2  chr2        220      222
+
+> 
+#+END_SRC
+
+*** Variable argument syntax
+
+The namedCapture package also provides =str_match*short= functions
+which take a variable number of arguments and allow for a shorter,
+less repetitive, and thus more user-friendly syntax:
+- The first argument must be the subject character vector.
+- The other arguments must be patterns (character strings) or
+  functions.
+- If a pattern is named, we use the argument name in R for the capture
+  group name in the regex.
+- All patterns are pasted together in the order that they appear in
+  the argument list.
+- Each function is used to convert the text extracted by the previous
+  named pattern/group.
+
+#+BEGIN_SRC R
+  str_match_named_short(
+    chr.pos.vec, 
+    chrom="chr.*?",
+    ":",
+    chromStart=".*?", keep.digits,
+    "-",
+    chromEnd="[0-9,]*", keep.digits)
+  str_match_all_named_short(
+    chr.pos.vec, 
+    chrom="chr.*?",
+    ":",
+    chromStart=".*?", keep.digits,
+    "-",
+    chromEnd="[0-9,]*", keep.digits)
+#+END_SRC
+
+The =str_match_named_short= code below yields the same result as the
+=str_match_named= code in the previous section: a data.frame with one
+row for each subject, and one column for each named capture group.
+
+#+BEGIN_SRC R-transcript
+> str_match_named_short(
++   chr.pos.vec, 
++   chrom="chr.*?",
++   ":",
++   chromStart=".*?", keep.digits,
++   "-",
++   chromEnd="[0-9,]*", keep.digits)
+  chrom chromStart  chromEnd
+1 chr10  213054000 213055000
+2  chrM     111000    222000
+3  <NA>         NA        NA
+4  <NA>         NA        NA
+5  chr1        110       111
+> 
+#+END_SRC
+
+The =str_match_all_named_short= code below yields a data.frame with
+one row for each match in the subject, and one column for each named
+capture group. Note that multiple elements in the subject are treated
+as separate lines -- internally paste(,collapse="\n") is called to
+create a length-1 character vector which is used as the subject in
+=str_match_all_named=.
+
+#+BEGIN_SRC R-transcript
+> str_match_all_named_short(
++   chr.pos.vec, 
++   chrom="chr.*?",
++   ":",
++   chromStart=".*?", keep.digits,
++   "-",
++   chromEnd="[0-9,]*", keep.digits)
+  chrom chromStart  chromEnd
+1 chr10  213054000 213055000
+2  chrM     111000    222000
+3  chr1        110       111
+4  chr2        220       222
+> 
+#+END_SRC
+
+*** Set row names using "name" group
+
+The example below illustrates two features of namedCapture functions
+that provide named output:
+- if the subject character vector has names, they will be used to name
+  the output (rownames for =str_match_named= and list names for
+  =str_match_all_named=).
+- if the pattern has a group named =name=, then it will be used for
+  the rownames of the output.
+
+#+BEGIN_SRC R
   ## If there is a capture group named "name" then it will be used for
   ## the rownames of the result.
   name.value.vec <- c(
@@ -79,7 +235,45 @@ devtools::install_github("tdhock/namedCapture")
     "(?<name>[^ ]+?)",
     "=",
     "(?<value>[^ ]+)")
-  str_match_all_named(name.value.vec, name.value.pattern)
+  (match.list <- str_match_all_named(name.value.vec, name.value.pattern))
+  match.list$H3K4me3["cost",]
+#+END_SRC
+
+The code/output below illustrates the usage of =str_match_all_named=
+with a named subject, which results in list with the same names. Each
+element is a data.frame with rownames defined by the =name= capture
+group, so it is easy to select the captured text by name.
+
+#+BEGIN_SRC R-transcript
+> name.value.vec <- c(
++   H3K27me3="  sampleType=monocyte   assayType=H3K27me3    cost=5",
++   H3K27ac="sampleType=monocyte assayType=H3K27ac",
++   H3K4me3=" sampleType=Myeloidcell cost=30.5  assayType=H3K4me3")
+> name.value.pattern <- paste0(
++   "(?<name>[^ ]+?)",
++   "=",
++   "(?<value>[^ ]+)")
+> (match.list <- str_match_all_named(name.value.vec, name.value.pattern))
+$H3K27me3
+           value     
+sampleType "monocyte"
+assayType  "H3K27me3"
+cost       "5"       
+
+$H3K27ac
+           value     
+sampleType "monocyte"
+assayType  "H3K27ac" 
+
+$H3K4me3
+           value        
+sampleType "Myeloidcell"
+cost       "30.5"       
+assayType  "H3K4me3"    
+
+> match.list$H3K4me3["cost",]
+[1] "30.5"
+> 
 #+END_SRC
 
 ** Named capture regular expressions tutorial
