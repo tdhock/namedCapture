@@ -140,7 +140,7 @@ data frame with 0 columns and 0 rows
 
 *** Variable argument syntax
 
-The namedCapture package also provides =str_match*short= functions
+The namedCapture package also provides =str_match*variable= functions
 which take a variable number of arguments and allow for a shorter,
 less repetitive, and thus more user-friendly syntax:
 - The first argument must be the subject character vector.
@@ -191,12 +191,13 @@ row for each subject, and one column for each named capture group.
 > 
 #+END_SRC
 
-The =str_match_all_variable= code below yields a data.frame with
-one row for each match in the subject, and one column for each named
+The =str_match_all_variable= code below yields a data.frame with one
+row for each match in the subject, and one column for each named
 capture group. Note that multiple elements in the subject are treated
 as separate lines -- internally paste(,collapse="\n") is called to
 create a length-1 character vector which is used as the subject in
-=str_match_all_named=.
+=str_match_all_named=. This is for the common case of doing readLines
+and then extracting all matches of a certain regex in that file. 
 
 #+BEGIN_SRC R-transcript
 > str_match_all_variable(
@@ -216,13 +217,15 @@ create a length-1 character vector which is used as the subject in
 
 *** Set row names using "name" group
 
-The example below illustrates two features of namedCapture functions
-that provide named output:
+The example below illustrates some other features of namedCapture
+functions:
 - if the subject character vector has names, they will be used to name
   the output (rownames for =str_match_named= and list names for
   =str_match_all_named=).
 - if the pattern has a group named =name=, then it will be used for
-  the rownames of the output.
+  the rownames of the output. (if the subject names were not used)
+- if no type conversion functions are provided, return values are
+  character matrices. (instead of data.frame)
 
 #+BEGIN_SRC R
   ## If there is a capture group named "name" then it will be used for
@@ -241,7 +244,7 @@ that provide named output:
 
 The code/output below illustrates the usage of =str_match_all_named=
 with a named subject, which results in list with the same names. Each
-element is a data.frame with rownames defined by the =name= capture
+element is a character matrix with rownames defined by the =name= capture
 group, so it is easy to select the captured text by name.
 
 #+BEGIN_SRC R-transcript
