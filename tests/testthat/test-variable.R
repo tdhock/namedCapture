@@ -135,13 +135,13 @@ test_that("str_match_all_variable errors for 0-length patterns", {
 test_that("str_match_variable errors for non char/fun args", {
   expect_error({
     str_match_variable("foo", "bar", 1)
-  }, "arguments must be character (subject/patterns) or functions (for converting extracted character vectors to other types)", fixed=TRUE)
+  }, "arguments must be", fixed=TRUE)
 })
 
 test_that("str_match_all_variable errors for non char/fun args", {
   expect_error({
     str_match_all_variable("foo", "bar", 1)
-  }, "arguments must be character (subject/patterns) or functions (for converting extracted character vectors to other types)", fixed=TRUE)
+  }, "arguments must be", fixed=TRUE)
 })
 
 test_that("str_match_variable errors for two funs in a row", {
@@ -183,3 +183,46 @@ test_that("str_match_all_variable errors for NA pattern", {
     str_match_all_variable("foo", g="bar", NA_character_, "baz")
   }, "patterns must not be missing/NA")
 })
+
+range.pattern <- list(
+  "[[]",
+  task1="[0-9]+", as.integer,
+  "(?:-",#begin optional end of range.
+  taskN="[0-9]+", as.integer,
+  ")?", #end is optional.
+  "[]]")
+full.pattern <- list(
+  job="[0-9]+", as.integer,
+  "_",
+  "(?:",#begin alternate
+  task="[0-9]+", as.integer,
+  "|",#either one task(above) or range(below)
+  range.pattern,
+  ")",#end alternate
+  "(?:[.]",
+  type=".*",
+  ")?")
+subject.vec <- c(
+  "13937810_25",
+  "13937810_25.batch",
+  "13937810_25.extern",
+  "14022192_[1-3]",
+  "14022204_[4]")
+all.args <- list(subject.vec, full.pattern)
+test_that("nested lists are OK", {
+  task.df <- do.call(str_match_variable, all.args)
+  expect_identical(
+    names(task.df),
+    c("job", "task", "task1", "taskN", "type"))
+  expect_identical(task.df$job, as.integer(c(
+    13937810, 13937810, 13937810, 14022192, 14022204)))
+  expect_identical(task.df$task, as.integer(c(
+    25, 25, 25, NA, NA)))
+  expect_identical(task.df$task1, as.integer(c(
+    NA, NA, NA, 1, 4)))
+  expect_identical(task.df$taskN, as.integer(c(
+    NA, NA, NA, 3, NA)))
+  expect_identical(task.df$type, c(
+    "", "batch", "extern", "", ""))
+})
+
