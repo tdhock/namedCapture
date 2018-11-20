@@ -24,6 +24,7 @@ used as the names of the returned list.}
 
 
 \examples{
+
 library(namedCapture)
 chr.pos.vec <- c(
   "chr10:213,054,000-213,055,000",
@@ -58,4 +59,5 @@ name.value.pattern <- paste0(
   "=",
   "(?<value>[^ ]+)")
 str_match_all_named(name.value.vec, name.value.pattern)
+
 }

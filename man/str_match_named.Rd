@@ -24,6 +24,7 @@ rownames.}
 
 
 \examples{
+
 library(namedCapture)
 chr.pos.vec <- c(
   "chr10:213,054,000-213,055,000",
@@ -44,4 +45,5 @@ keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
 conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
 (match.df <- str_match_named(chr.pos.vec, chr.pos.pattern, conversion.list))
 str(match.df)
+
 }
