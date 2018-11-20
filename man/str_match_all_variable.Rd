@@ -1,9 +1,9 @@
-\name{str_match_all_named_short}
-\alias{str_match_all_named_short}
-\title{str match all named short}
+\name{str_match_all_variable}
+\alias{str_match_all_variable}
+\title{str match all variable}
 \description{Extract each occurance of a named capture regex pattern from one
 subject string.}
-\usage{str_match_all_named_short(...)}
+\usage{str_match_all_variable(...)}
 \arguments{
   \item{\dots}{subject, name1=pattern1, fun1, etc, which creates the regex
 (?<name1>pattern1) and uses fun1 for conversion. See
@@ -31,11 +31,11 @@ chr.pos.vec <- c(
   NA, # neither will this.
   "chr1:110-111 chr2:220-222") # two possible matches.
 keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
-## str_match_all_named_short treats elements of subject as separate
+## str_match_all_variable treats elements of subject as separate
 ## lines (and ignores NA elements). Named arguments are used to
 ## create named capture groups, and conversion functions such as
 ## keep.digits are used to convert the previously named group.
-(match.df <- str_match_all_named_short(
+(match.df <- str_match_all_variable(
   chr.pos.vec, 
   chrom="chr.*?",
   ":",

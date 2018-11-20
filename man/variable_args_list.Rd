@@ -1,8 +1,8 @@
-\name{short_args_list}
-\alias{short_args_list}
-\title{short args list}
+\name{variable_args_list}
+\alias{variable_args_list}
+\title{variable args list}
 \description{Parse the variable-length short argument list.}
-\usage{short_args_list(...)}
+\usage{variable_args_list(...)}
 \arguments{
   \item{\dots}{character vectors or functions (for converting extracted character
 vectors to other types). The first element must be the subject

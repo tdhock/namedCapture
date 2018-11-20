@@ -1,6 +1,6 @@
 library(testthat)
 library(namedCapture)
-context("short syntax")
+context("variable args syntax")
 
 subject <- c(
   ten="chr10:213,054,000-213,055,000",
@@ -9,8 +9,8 @@ subject <- c(
   missing=NA,
   two="chr1:110-111 chr2:220-222")
 
-test_that("str_match_named_short returns character matrix", {
-  computed <- str_match_named_short(
+test_that("str_match_variable returns character matrix", {
+  computed <- str_match_variable(
     subject,
     chrom="chr.*?",
     ":",
@@ -25,9 +25,9 @@ test_that("str_match_named_short returns character matrix", {
   expect_identical(computed, expected)
 })
 
-test_that("str_match_named_short returns data.frame", {
+test_that("str_match_variable returns data.frame", {
   keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
-  computed <- str_match_named_short(
+  computed <- str_match_variable(
     subject, 
     chrom="chr.*?",
     ":",
@@ -43,8 +43,8 @@ test_that("str_match_named_short returns data.frame", {
   expect_equivalent(computed, expected)
 })
 
-test_that("str_match_all_named_short returns character matrix", {
-  computed <- str_match_all_named_short(
+test_that("str_match_all_variable returns character matrix", {
+  computed <- str_match_all_variable(
     subject, 
     chrom="chr.*?",
     ":",
@@ -62,8 +62,8 @@ test_that("str_match_all_named_short returns character matrix", {
   expect_identical(computed, expected)
 })
 
-test_that("str_match_all_named_short removes missing subjects", {
-  computed <- str_match_all_named_short(
+test_that("str_match_all_variable removes missing subjects", {
+  computed <- str_match_all_variable(
     subject, 
     "(?<na>NA)")
   ## There should be only one NA (not two) because chrNA matches but
@@ -71,10 +71,10 @@ test_that("str_match_all_named_short removes missing subjects", {
   expect_identical(computed, cbind(na="NA"))
 })
 
-test_that("str_match_all_named_short returns data.frame", {
+test_that("str_match_all_variable returns data.frame", {
   keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
   conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
-  computed <- str_match_all_named_short(
+  computed <- str_match_all_variable(
     subject, 
     chrom="chr.*?",
     ":",
@@ -96,90 +96,90 @@ test_that("str_match_all_named_short returns data.frame", {
   expect_identical(computed, expected)
 })
 
-test_that("str_match_named_short errors for one argument", {
+test_that("str_match_variable errors for one argument", {
   expect_error({
-    str_match_named_short("foo")
+    str_match_variable("foo")
   }, "must have at least two arguments: subject, name=pattern, fun, ...")
 })
 
-test_that("str_match_all_named_short errors for one argument", {
+test_that("str_match_all_variable errors for one argument", {
   expect_error({
-    str_match_all_named_short("foo")
+    str_match_all_variable("foo")
   }, "must have at least two arguments: subject, name=pattern, fun, ...")
 })
 
-test_that("str_match_named_short errors for multi-dim patterns", {
+test_that("str_match_variable errors for multi-dim patterns", {
   expect_error({
-    str_match_named_short("foo", c("bar", "baz"))
+    str_match_variable("foo", c("bar", "baz"))
   }, "patterns must be character vectors of length 1")
 })
 
-test_that("str_match_all_named_short errors for multi-dim patterns", {
+test_that("str_match_all_variable errors for multi-dim patterns", {
   expect_error({
-    str_match_all_named_short("foo", c("bar", "baz"))
+    str_match_all_variable("foo", c("bar", "baz"))
   }, "patterns must be character vectors of length 1")
 })
 
-test_that("str_match_named_short errors for 0-length patterns", {
+test_that("str_match_variable errors for 0-length patterns", {
   expect_error({
-    str_match_named_short("foo", character())
+    str_match_variable("foo", character())
   }, "patterns must be character vectors of length 1")
 })
 
-test_that("str_match_all_named_short errors for 0-length patterns", {
+test_that("str_match_all_variable errors for 0-length patterns", {
   expect_error({
-    str_match_all_named_short("foo", character())
+    str_match_all_variable("foo", character())
   }, "patterns must be character vectors of length 1")
 })
 
-test_that("str_match_named_short errors for non char/fun args", {
+test_that("str_match_variable errors for non char/fun args", {
   expect_error({
-    str_match_named_short("foo", "bar", 1)
+    str_match_variable("foo", "bar", 1)
   }, "arguments must be character (subject/patterns) or functions (for converting extracted character vectors to other types)", fixed=TRUE)
 })
 
-test_that("str_match_all_named_short errors for non char/fun args", {
+test_that("str_match_all_variable errors for non char/fun args", {
   expect_error({
-    str_match_all_named_short("foo", "bar", 1)
+    str_match_all_variable("foo", "bar", 1)
   }, "arguments must be character (subject/patterns) or functions (for converting extracted character vectors to other types)", fixed=TRUE)
 })
 
-test_that("str_match_named_short errors for two funs in a row", {
+test_that("str_match_variable errors for two funs in a row", {
   expect_error({
-    str_match_named_short("foo", g="bar", as.integer, as.numeric)
+    str_match_variable("foo", g="bar", as.integer, as.numeric)
   },
   "too many functions; up to one function may follow each named pattern")
 })
 
-test_that("str_match_all_named_short errors for two funs in a row", {
+test_that("str_match_all_variable errors for two funs in a row", {
   expect_error({
-    str_match_all_named_short("foo", g="bar", as.integer, as.numeric)
+    str_match_all_variable("foo", g="bar", as.integer, as.numeric)
   },
   "too many functions; up to one function may follow each named pattern")
 })
 
-test_that("str_match_named_short errors for fun at start", {
+test_that("str_match_variable errors for fun at start", {
   expect_error({
-    str_match_named_short("foo", as.numeric)
+    str_match_variable("foo", as.numeric)
   },
   "too many functions; up to one function may follow each named pattern")
 })
 
-test_that("str_match_all_named_short errors for fun at start", {
+test_that("str_match_all_variable errors for fun at start", {
   expect_error({
-    str_match_all_named_short("foo", as.numeric)
+    str_match_all_variable("foo", as.numeric)
   },
   "too many functions; up to one function may follow each named pattern")
 })
 
-test_that("str_match_named_short errors for NA pattern", {
+test_that("str_match_variable errors for NA pattern", {
   expect_error({
-    str_match_named_short("foo", g="bar", NA_character_, "baz")
+    str_match_variable("foo", g="bar", NA_character_, "baz")
   }, "patterns must not be missing/NA")
 })
 
-test_that("str_match_all_named_short errors for NA pattern", {
+test_that("str_match_all_variable errors for NA pattern", {
   expect_error({
-    str_match_all_named_short("foo", g="bar", NA_character_, "baz")
+    str_match_all_variable("foo", g="bar", NA_character_, "baz")
   }, "patterns must not be missing/NA")
 })

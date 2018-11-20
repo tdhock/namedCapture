@@ -1,4 +1,4 @@
-str_match_all_named_short <- structure(function
+str_match_all_variable <- structure(function
 ### Extract each occurance of a named capture regex pattern from one
 ### subject string.
 (...
@@ -9,7 +9,7 @@ str_match_all_named_short <- structure(function
 ### subject string formed by pasting together the subject character
 ### vector using newlines as the separator.
 ){
-  L <- short_args_list(...)
+  L <- variable_args_list(...)
   subject <- paste(
     L$subject.vec[!is.na(L$subject.vec)],
     collapse="\n")
@@ -26,11 +26,11 @@ str_match_all_named_short <- structure(function
     NA, # neither will this.
     "chr1:110-111 chr2:220-222") # two possible matches.
   keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
-  ## str_match_all_named_short treats elements of subject as separate
+  ## str_match_all_variable treats elements of subject as separate
   ## lines (and ignores NA elements). Named arguments are used to
   ## create named capture groups, and conversion functions such as
   ## keep.digits are used to convert the previously named group.
-  (match.df <- str_match_all_named_short(
+  (match.df <- str_match_all_variable(
     chr.pos.vec, 
     chrom="chr.*?",
     ":",
@@ -41,7 +41,7 @@ str_match_all_named_short <- structure(function
 
 })
 
-str_match_named_short <- structure(function
+str_match_variable <- structure(function
 ### Extract the first occurance of a named capture regex pattern from
 ### each of several subject strings.
 (...
@@ -49,7 +49,7 @@ str_match_named_short <- structure(function
 ### (?<name1>pattern1) and uses fun1 for conversion. See
 ### ?short_arg_list for details.
 ){
-  L <- short_args_list(...)
+  L <- variable_args_list(...)
   str_match_named(L$subject.vec, L$pattern, L$fun.list)
 ### matrix or data.frame with one row for each subject, and one column
 ### for each named group, see ?str_match_named for details.
@@ -63,11 +63,11 @@ str_match_named_short <- structure(function
     NA, # neither will this.
     "chr1:110-111 chr2:220-222") # two possible matches.
   keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
-  ## str_match_named_short finds the first match in each element of
+  ## str_match_variable finds the first match in each element of
   ## the subject character vector. Named arguments are used to create
   ## named capture groups, and conversion functions such as
   ## keep.digits are used to convert the previously named group.
-  (match.df <- str_match_named_short(
+  (match.df <- str_match_variable(
     chr.pos.vec, 
     chrom="chr.*?",
     ":",
@@ -78,7 +78,7 @@ str_match_named_short <- structure(function
   
 })
 
-short_args_list <- function
+variable_args_list <- function
 ### Parse the variable-length short argument list.
 (...
 ### character vectors or functions (for converting extracted character

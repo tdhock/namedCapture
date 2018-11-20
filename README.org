@@ -47,7 +47,7 @@ There are four main functions provided in namedCapture:
 |                 | Extract first match     | Extract each match          |
 |-----------------+-------------------------+-----------------------------|
 | Three arguments | =str_match_named=       | =str_match_all_named=       |
-| Variable args   | =str_match_named_short= | =str_match_all_named_short= |
+| Variable args   | =str_match_variable= | =str_match_all_variable= |
 
 *** Three argument syntax
 
@@ -154,14 +154,14 @@ less repetitive, and thus more user-friendly syntax:
   named pattern/group.
 
 #+BEGIN_SRC R
-  str_match_named_short(
+  str_match_variable(
     chr.pos.vec, 
     chrom="chr.*?",
     ":",
     chromStart=".*?", keep.digits,
     "-",
     chromEnd="[0-9,]*", keep.digits)
-  str_match_all_named_short(
+  str_match_all_variable(
     chr.pos.vec, 
     chrom="chr.*?",
     ":",
@@ -170,12 +170,12 @@ less repetitive, and thus more user-friendly syntax:
     chromEnd="[0-9,]*", keep.digits)
 #+END_SRC
 
-The =str_match_named_short= code below yields the same result as the
+The =str_match_variable= code below yields the same result as the
 =str_match_named= code in the previous section: a data.frame with one
 row for each subject, and one column for each named capture group.
 
 #+BEGIN_SRC R-transcript
-> str_match_named_short(
+> str_match_variable(
 +   chr.pos.vec, 
 +   chrom="chr.*?",
 +   ":",
@@ -191,7 +191,7 @@ row for each subject, and one column for each named capture group.
 > 
 #+END_SRC
 
-The =str_match_all_named_short= code below yields a data.frame with
+The =str_match_all_variable= code below yields a data.frame with
 one row for each match in the subject, and one column for each named
 capture group. Note that multiple elements in the subject are treated
 as separate lines -- internally paste(,collapse="\n") is called to
@@ -199,7 +199,7 @@ create a length-1 character vector which is used as the subject in
 =str_match_all_named=.
 
 #+BEGIN_SRC R-transcript
-> str_match_all_named_short(
+> str_match_all_variable(
 +   chr.pos.vec, 
 +   chrom="chr.*?",
 +   ":",

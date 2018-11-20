@@ -1,9 +1,9 @@
-\name{str_match_named_short}
-\alias{str_match_named_short}
-\title{str match named short}
+\name{str_match_variable}
+\alias{str_match_variable}
+\title{str match variable}
 \description{Extract the first occurance of a named capture regex pattern from
 each of several subject strings.}
-\usage{str_match_named_short(...)}
+\usage{str_match_variable(...)}
 \arguments{
   \item{\dots}{subject, name1=pattern1, fun1, etc, which creates the regex
 (?<name1>pattern1) and uses fun1 for conversion. See
@@ -28,11 +28,11 @@ chr.pos.vec <- c(
   NA, # neither will this.
   "chr1:110-111 chr2:220-222") # two possible matches.
 keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
-## str_match_named_short finds the first match in each element of
+## str_match_variable finds the first match in each element of
 ## the subject character vector. Named arguments are used to create
 ## named capture groups, and conversion functions such as
 ## keep.digits are used to convert the previously named group.
-(match.df <- str_match_named_short(
+(match.df <- str_match_variable(
   chr.pos.vec, 
   chrom="chr.*?",
   ":",
