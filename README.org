@@ -151,7 +151,7 @@ less repetitive, and thus more user-friendly syntax:
 - All patterns are pasted together in the order that they appear in
   the argument list.
 - Each function is used to convert the text extracted by the previous
-  named pattern/group.
+  named pattern/group. 
 
 #+BEGIN_SRC R
   str_match_variable(
@@ -169,6 +169,11 @@ less repetitive, and thus more user-friendly syntax:
     "-",
     chromEnd="[0-9,]*", keep.digits)
 #+END_SRC
+
+Note in the code above how the group name, regex pattern, and
+corresponding type conversion function are all on the same line --
+this is encouraged in order to clarify/simplify the definition of
+complex regular expressions.
 
 The =str_match_variable= code below yields the same result as the
 =str_match_named= code in the previous section: a data.frame with one
@@ -212,6 +217,68 @@ and then extracting all matches of a certain regex in that file.
 2  chrM     111000    222000
 3  chr1        110       111
 4  chr2        220       222
+> 
+#+END_SRC
+
+Finally, sometimes it is simpler/clearer to define complicated
+patterns in terms of previously defined sub-patterns. Therefore the
+*_variable functions also accept lists as arguments. (which are parsed
+recursively) For example, consider the following code block:
+
+#+BEGIN_SRC R
+  subject.vec <- c(
+    "13937810_25",
+    "13937810_25.batch",
+    "13937810_25.extern",
+    "14022192_[1-3]",
+    "14022204_[4]")
+  ## range.pattern matches "25" or "[4]" or "[1-3]"
+  range.pattern <- list(
+    "[[]",
+    task1="[0-9]+", as.integer,
+    "(?:-",#begin optional end of range.
+    taskN="[0-9]+", as.integer,
+    ")?", #end is optional.
+    "[]]")
+  task.pattern <- list(
+    "(?:",#begin alternate
+    task="[0-9]+", as.integer,
+    "|",#either one task(above) or range(below)
+    range.pattern,
+    ")")#end alternate
+  (task.dt <- str_match_variable(
+    subject.vec,
+    job="[0-9]+", as.integer,
+    "_",
+    task.pattern,
+    "(?:[.]",
+    type=".*",
+    ")?"))
+#+END_SRC
+
+The code block starts by defining a sub-pattern which matches =[4]= or
+=[1-3]=, and saving it in a variable called =range.pattern=. It is
+then used to define a second sub-pattern called =task.pattern= which
+matches the above, and alternately matches digits without square
+brackets, e.g. =25=. Then finally =task.pattern= is used to
+clarify/simplify the call to =str_match_variable=, which yields the
+output below.
+
+#+BEGIN_SRC R-transcript
+> (task.dt <- str_match_variable(
++   subject.vec,
++   job="[0-9]+", as.integer,
++   "_",
++   task.pattern,
++   "(?:[.]",
++   type=".*",
++   ")?"))
+       job task task1 taskN   type
+1 13937810   25    NA    NA       
+2 13937810   25    NA    NA  batch
+3 13937810   25    NA    NA extern
+4 14022192   NA     1     3       
+5 14022204   NA     4    NA       
 > 
 #+END_SRC
 
