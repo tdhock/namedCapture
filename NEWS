@@ -1,3 +1,7 @@
+2018.11.20
+
+*_variable functions accept lists which are parsed recursively.
+
 2018.11.19
 
 *_variable functions which use variable number of arguments.

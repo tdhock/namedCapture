@@ -1,7 +1,7 @@
 Package: namedCapture
 Maintainer: Toby Dylan Hocking <toby.hocking@r-project.org>
 Author: Toby Dylan Hocking
-Version: 2018.11.19
+Version: 2018.11.20
 License: GPL-3
 Title: Named Capture Regular Expressions
 Description:  User-friendly wrappers for 

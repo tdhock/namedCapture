@@ -89,7 +89,8 @@ variable_args_list <- function
 ### pattern. All patterns are pasted together to obtain the final
 ### pattern used for matching. Each named pattern may be followed by
 ### at most one function which is used to convert the previous named
-### pattern.
+### pattern. Patterns may also be lists, which are parsed recursively
+### for convenience.
 ){
   arg.list <- list(...)
   if(length(arg.list) < 2){
@@ -102,10 +103,11 @@ variable_args_list <- function
     fun.list=list())
   pattern.list <- list()
   var.arg.list <- arg.list[-1]
-  name.vec <- names(var.arg.list)
   prev.name <- NULL
-  for(var.arg.i in seq_along(var.arg.list)){
-    var.arg <- var.arg.list[[var.arg.i]]
+  while(length(var.arg.list)){
+    var.arg <- var.arg.list[[1]]
+    pattern.name <- names(var.arg.list)[1]
+    var.arg.list <- var.arg.list[-1]
     if(is.character(var.arg)){
       if(length(var.arg) != 1){
         print(var.arg)
@@ -114,19 +116,14 @@ variable_args_list <- function
       if(is.na(var.arg)){
         stop("patterns must not be missing/NA")
       }
-      pattern.name <- name.vec[[var.arg.i]]
-      pattern.list[[paste(var.arg.i)]] <- if(
+      pattern.list[[length(pattern.list)+1L]] <- if(
         is.character(pattern.name) && 0 < nchar(pattern.name)){
         paste0("(?<", pattern.name, ">", var.arg, ")")
       }else{
         var.arg
       }
       prev.name <- pattern.name
-    }else{
-      if(!is.function(var.arg)){
-        print(var.arg)
-        stop("arguments must be character (subject/patterns) or functions (for converting extracted character vectors to other types)")
-      }
+    }else if(is.function(var.arg)){
       if(is.null(prev.name)){
         stop(
           "too many functions; ",
@@ -134,6 +131,11 @@ variable_args_list <- function
       }
       out.list$fun.list[[prev.name]] <- var.arg
       prev.name <- NULL
+    }else if(is.list(var.arg)){
+      var.arg.list <- c(var.arg, var.arg.list)
+    }else{
+      print(var.arg)
+      stop("arguments must be character (subject/patterns), functions (for converting extracted character vectors to other types), or list (parsed recursively)")
     }
   }
   out.list$pattern <- paste(pattern.list, collapse="")
