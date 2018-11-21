@@ -29,6 +29,18 @@ useful.
   uses the RE2 C++ library (worse case polynomial time complexity),
   but rematch2 and namedCapture use base R (PCRE C library, exponential
   worst case time complexity).
+- [[https://tidyr.tidyverse.org/reference/separate.html][tidyr::separate]] and [[https://tidyr.tidyverse.org/reference/extract.html][tidyr::extract]] provide similar functionality to
+  =namedCapture::df_match_variable= but with a few differences:
+  - named capture is supported in =df_match_variable= but not in =tidyr=.
+  - regex is used in =separate= for the group separator, whereas regex
+    is used in =df_match_variable= and =extract= for the entire text
+    (including groups).
+  - group names are specified using the =into= argument of =separate=
+    and =extract=, whereas group names are specified using R argument
+    names / capture group names in =df_match_variable=.
+  - =type.convert(as.is=TRUE)= is always used to define types in
+    =separate= and =extract=, whereas any function can be used to
+    define types in =df_match_variable=.
 - https://github.com/tdhock/revector provides fast C code for a
   *vector* of named capture regular expressions (namedCapture and base
   R and only provide functions for a single regular expression).
@@ -281,6 +293,54 @@ output below.
 4 14022192   NA     1     3       
 5 14022204   NA     4    NA       
 > 
+#+END_SRC
+
+*** Tidy variable argument syntax for data.frame/data.table
+
+#+BEGIN_SRC R
+  subject.df <- data.frame(
+    position=c(
+      "chr10:213,054,000-213,055,000",
+      "chrM:111,000-222,000",
+      "this will not match",
+      NA, # neither will this.
+      "chr1:110-111 chr2:220-222"), # two possible matches.
+    JobID=c(
+      "13937810_25",
+      "13937810_25.batch",
+      "13937810_25.extern",
+      "14022192_[1-3]",
+      "14022204_[4]"))
+  range.pattern <- list(
+    "[[]",
+    task1="[0-9]+", as.integer,
+    "(?:-",#begin optional end of range.
+    taskN="[0-9]+", as.integer,
+    ")?", #end is optional.
+    "[]]")
+  ## task.pattern matches "25" or range.pattern.
+  task.pattern <- list(
+    "(?:",#begin alternate
+    task="[0-9]+", as.integer,
+    "|",#either one task(above) or range(below)
+    range.pattern,
+    ")")#end alternate
+  (task.df <- df_match_variable(
+    subject.df,
+    JobID=list(
+      job="[0-9]+", as.integer,
+      "_",
+      task.pattern,
+      "(?:[.]",
+      type=".*",
+      ")?"),
+    position=list(
+      chrom="chr.*?",
+      ":",
+      chromStart=".*?", 
+      "-",
+      chromEnd="[0-9,]*")))
+
 #+END_SRC
 
 *** Set row names using "name" group

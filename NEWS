@@ -1,20 +1,24 @@
-2018.11.20
+2018.11.21 PR#6
+
+df_match_variable
+
+2018.11.20 PR#5
 
 *_variable functions accept lists which are parsed recursively.
 
-2018.11.19
+2018.11.19 PR#4
 
 *_variable functions which use variable number of arguments.
 
-2017.06.01
+2017.06.01 PR#3
 
 examples.
 
-2017.01.15
+2017.01.15 PR#2
 
 Informative errors when type.list is unusual.
 
-2015.12.01
+2015.12.01 PR#1
 
 Coveralls badge, 100% test coverage via jimhester/covr.
 

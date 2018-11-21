@@ -4,7 +4,7 @@ context("NA subjects")
 
 N <- 1e5
 subject.vec <- c("this will match", rep(NA, N))
-pattern <- paste0("(?<name>ill)(?<rest>.*)")
+pattern <- paste0("(?<first>ill)(?<rest>.*)")
 
 test_that("NA subjects do not cause warnings", {
   ## Sometimes the C code underly regexpr will return large ints in
@@ -16,7 +16,9 @@ test_that("NA subjects do not cause warnings", {
     computed.mat <- str_match_named(subject.vec, pattern)
   })
   expected.mat <- matrix(
-    c(" match", rep(NA, N)),
-    dimnames=list(c("ill", rep(NA, N)), "rest"))
+    c("ill", " match"),
+    N+1, 2, byrow=TRUE)
+  expected.mat[2:nrow(expected.mat), ] <- NA
+  colnames(expected.mat) <- c("first", "rest")
   expect_identical(computed.mat, expected.mat)
 })

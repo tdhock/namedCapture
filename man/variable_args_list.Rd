@@ -12,7 +12,8 @@ a named argument in R, we will add a name tag in the regex
 pattern. All patterns are pasted together to obtain the final
 pattern used for matching. Each named pattern may be followed by
 at most one function which is used to convert the previous named
-pattern.}
+pattern. Patterns may also be lists, which are parsed recursively
+for convenience.}
 }
 
 \value{List with three named elements: subject.vec is the subject
