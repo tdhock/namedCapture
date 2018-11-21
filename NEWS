@@ -2,6 +2,10 @@
 
 df_match_variable
 
+more informative error messages for str_match*named functions.
+
+Suggest data.table for testing.
+
 2018.11.20 PR#5
 
 *_variable functions accept lists which are parsed recursively.
