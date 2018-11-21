@@ -63,7 +63,8 @@ test_that("df_match_variable returns data.frame with rownames", {
     "213,054,000", "111,000", NA, NA, "110"))
   expect_identical(match.df$position.chromEnd, c(
     "213,055,000", "222,000", NA, NA, "111"))
-  expect_identical(rownames(match.df), rownames(subject.df))
+  expect_identical(rownames(match.df), c(
+    "ten", "chrNA", "no.match", "missing", "two"))
 })
 
 no.rownames <- data.frame(
@@ -231,7 +232,7 @@ test_that("df_match_variable does not take rownames from first pattern", {
     213054000, 111000, 1, 4, 110)))
   expect_identical(match.df$position.chromEnd, as.integer(c(
     213055000, 222000, 2, 5, 111)))
-  expect_identical(rownames(match.df), rownames(named.uniq.chr))
+  expect_identical(rownames(match.df), c("foo", "bar", "baz", "sars", "last"))
 })
 
 test_that("df_match_variable does not take rownames from second pattern", {
@@ -259,7 +260,7 @@ test_that("df_match_variable does not take rownames from second pattern", {
     213054000, 111000, 1, 4, 110)))
   expect_identical(match.df$position.chromEnd, as.integer(c(
     213055000, 222000, 2, 5, 111)))
-  expect_identical(rownames(match.df), rownames(named.uniq.chr))
+  expect_identical(rownames(match.df), c("foo", "bar", "baz", "sars", "last"))
 })
 
 test_that("error for two name groups with un-named subject", {
@@ -303,7 +304,7 @@ test_that("take names from named subject even with two named groups", {
     213054000, 111000, 1, 4, 110)))
   expect_identical(match.df$position.chromEnd, as.integer(c(
     213055000, 222000, 2, 5, 111)))
-  expect_identical(rownames(match.df), rownames(named.uniq.chr))
+  expect_identical(rownames(match.df), c("foo", "bar", "baz", "sars", "last"))
 })
 
 test_that("error for no pattern", {
@@ -338,7 +339,7 @@ test_that("error for non-df subject", {
 
 test_that("error for non-df subject", {
   expect_error({
-    df_match_variable(c("foo", "bar"), )
+    df_match_variable(c("foo", "bar"), foo="bar")
   }, "subject must be a data.frame with character columns to match")
 })
 
