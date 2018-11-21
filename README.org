@@ -652,8 +652,8 @@ functions:
   =str_match_all_named=).
 - if the pattern has a group named =name=, then it will be used for
   the rownames of the output. (if the subject names were not used)
-- if no type conversion functions are provided, return values are
-  character matrices. (instead of data.frame)
+- if no type conversion functions are provided, =str_= functions
+  return character matrices. (instead of data.frame)
 
 #+BEGIN_SRC R
   ## If there is a capture group named "name" then it will be used for
@@ -705,6 +705,69 @@ assayType  "H3K4me3"
 > match.list$H3K4me3["cost",]
 [1] "30.5"
 > 
+#+END_SRC
+
+The =df_match_variable= function also sets the rownames of the
+resulting data.frame based on the capture group named =name=:
+
+#+BEGIN_SRC R-transcript
+> (match.df <- df_match_variable(
++   pos.df,
++   position=list(
++     name="chr.*?",
++     ":",
++     chromStart=".*?", to.int,
++     "-",
++     chromEnd="[0-9,]*", to.int),
++   Elapsed=list(
++     hours="[0-9]+", as.integer,
++     ":",
++     minutes="[0-9]+", as.integer,
++     ":",
++     seconds="[0-9]+", as.integer)))
+                           position  Elapsed position.chromStart
+chr10 chr10:213,054,000-213,055,000 07:04:42           213054000
+chrNA         chrNA:111,000-222,000 07:04:42              111000
+chr2                       chr2:1-2 07:04:49                   1
+chr3                       chr3:4-5 00:00:00                   4
+chr1      chr1:110-111 chr2:220-222 00:00:00                 110
+      position.chromEnd Elapsed.hours Elapsed.minutes Elapsed.seconds
+chr10         213055000             7               4              42
+chrNA            222000             7               4              42
+chr2                  2             7               4              49
+chr3                  5             0               0               0
+chr1                111             0               0               0
+> 
+#+END_SRC
+
+The demo code you can paste into your R terminal is below:
+
+#+BEGIN_SRC R
+  pos.df <- data.frame(
+    position=c(
+      "chr10:213,054,000-213,055,000",
+      "chrNA:111,000-222,000",
+      "chr2:1-2",
+      "chr3:4-5",
+      "chr1:110-111 chr2:220-222"),
+    Elapsed = c(
+      "07:04:42", "07:04:42", "07:04:49",
+      "00:00:00", "00:00:00"),
+    stringsAsFactors=FALSE)
+  (match.df <- df_match_variable(
+    pos.df,
+    position=list(
+      name="chr.*?",
+      ":",
+      chromStart=".*?", to.int,
+      "-",
+      chromEnd="[0-9,]*", to.int),
+    Elapsed=list(
+      hours="[0-9]+", as.integer,
+      ":",
+      minutes="[0-9]+", as.integer,
+      ":",
+      seconds="[0-9]+", as.integer)))
 #+END_SRC
 
 ** Named capture regular expressions tutorial
