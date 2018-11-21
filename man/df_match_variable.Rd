@@ -1,8 +1,15 @@
 \name{df_match_variable}
 \alias{df_match_variable}
 \title{df match variable}
-\description{Use str_match_variable on each column/pattern indicated in
-... (argument names are interpreted as column names of subject).}
+\description{Extract text from several columns of a data.frame, using a
+different named capture regular expression for each column. Uses
+str_match_variable on each column/pattern indicated in
+... (argument names are interpreted as column names of subject;
+argument values are passed as the pattern to
+str_match_variable). Each pattern is typically specified as a list
+of length-1 character vectors (pasted together to obtain a regular
+expression) and functions (used to convert the captured text to
+other types).}
 \usage{df_match_variable(subject, ...)}
 \arguments{
   \item{subject}{data.frame with character columns of subjects for matching.}

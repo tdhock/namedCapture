@@ -1,6 +1,13 @@
-df_match_variable <- structure(function
-### Use str_match_variable on each column/pattern indicated in
-### ... (argument names are interpreted as column names of subject).
+df_match_variable <- structure(function 
+### Extract text from several columns of a data.frame, using a
+### different named capture regular expression for each column. Uses
+### str_match_variable on each column/pattern indicated in
+### ... (argument names are interpreted as column names of subject;
+### argument values are passed as the pattern to
+### str_match_variable). Each pattern is typically specified as a list
+### of length-1 character vectors (pasted together to obtain a regular
+### expression) and functions (used to convert the captured text to
+### other types).
 (subject,
 ### data.frame with character columns of subjects for matching.
   ...
@@ -46,7 +53,7 @@ df_match_variable <- structure(function
 ### the value is created via cbind so if subject is something else
 ### like a data.table then the value is too).
 }, ex=function(){
-
+  
   library(namedCapture)
   (sacct.df <- data.frame(
     JobID = c(
