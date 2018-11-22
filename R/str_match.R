@@ -1,3 +1,22 @@
+### Error if subject or pattern incorrect type.
+check_subject_pattern <- function(subject.vec, pattern){
+  if(!(
+    is.character(subject.vec) && 
+    0 < length(subject.vec)
+  )){
+    str(subject.vec)
+    stop("subject.vec should be a character vector with length>0")
+  }
+  if(!(
+    is.character(pattern) && 
+    length(pattern) == 1 &&
+    !is.na(pattern)
+  )){
+    str(pattern)
+    stop("pattern should be a character scalar (not missing/NA)")
+  }
+}
+
 str_match_named <- structure(function
 ### Parse the first occurance of pattern from each of several subject
 ### strings using a named capture regular expression.
@@ -7,11 +26,8 @@ str_match_named <- structure(function
 ### named capture regular expression (character vector of length 1).
  type.list=NULL
 ### named list of functions to apply to captured groups.
- ){
-  stopifnot(is.character(subject.vec))
-  stopifnot(0 < length(subject.vec))
-  stopifnot(is.character(pattern))
-  stopifnot(length(pattern)==1)
+){
+  check_subject_pattern(subject.vec, pattern)
   vec.with.attrs <- regexpr(pattern, subject.vec, perl=TRUE)
   no.match <- vec.with.attrs == -1 | is.na(subject.vec)
   capture.names <- names_or_error(vec.with.attrs)
@@ -65,10 +81,7 @@ str_match_all_named <- structure(function
  type.list=NULL
 ### named list of functions to apply to captured groups.
  ){
-  stopifnot(is.character(subject.vec))
-  stopifnot(0 < length(subject.vec))
-  stopifnot(is.character(pattern))
-  stopifnot(length(pattern)==1)
+  check_subject_pattern(subject.vec, pattern)
   parsed <- gregexpr(pattern, subject.vec, perl=TRUE)
   result.list <- list()
   for(i in seq_along(parsed)){
@@ -146,7 +159,20 @@ apply_type_funs <- function
   stopifnot(is.character(match.mat))
   stopifnot(is.matrix(match.mat))
   if(is.null(rownames(match.mat)) && "name" %in% colnames(match.mat)){
-    rownames(match.mat) <- match.mat[, "name"]
+    name.vec <- match.mat[, "name"]
+    match.df <- data.frame(match.mat, stringsAsFactors=FALSE)
+    rownames(match.df) <- 1:nrow(match.df)
+    if(any(gone <- is.na(name.vec))){
+      print(match.df[gone, ])
+      stop("the 'name' group should not be missing/NA")
+    }
+    name.tab <- table(name.vec)
+    not.uniq <- name.tab[1 < name.tab]
+    if(length(not.uniq)){
+      print(match.df[name.vec %in% names(not.uniq), ])
+      stop("capture group named 'name' must be unique")
+    }
+    rownames(match.mat) <- name.vec
     match.mat <- match.mat[, colnames(match.mat) != "name", drop=FALSE]
   }
   if(is.list(type.list)){

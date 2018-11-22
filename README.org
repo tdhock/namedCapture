@@ -29,6 +29,23 @@ useful.
   uses the RE2 C++ library (worse case polynomial time complexity),
   but rematch2 and namedCapture use base R (PCRE C library, exponential
   worst case time complexity).
+- [[https://tidyr.tidyverse.org/reference/separate.html][tidyr::separate]] and [[https://tidyr.tidyverse.org/reference/extract.html][tidyr::extract]] provide similar functionality to
+  =namedCapture::df_match_variable= (all input data.frame to extract
+  from, and output data.frame). However there are a few differences:
+  - named capture is supported in =df_match_variable= but not in =tidyr=.
+  - A single call to =separate= or =extract= outputs new data columns
+    from a single input data column, whereas a single call to
+    =df_match_variable= can output new data columns from multiple
+    input data columns.
+  - regex is used in =separate= for the group separator, whereas regex
+    is used in =df_match_variable= and =extract= for the entire text
+    (including groups).
+  - group names are specified using the =into= argument of =separate=
+    and =extract=, whereas group names are specified using R argument
+    names / capture group names in =df_match_variable=.
+  - =type.convert(as.is=TRUE)= is always used to define types in
+    =separate= and =extract=, whereas any function can be used to
+    define types in =df_match_variable=.
 - https://github.com/tdhock/revector provides fast C code for a
   *vector* of named capture regular expressions (namedCapture and base
   R and only provide functions for a single regular expression).
@@ -42,12 +59,21 @@ devtools::install_github("tdhock/namedCapture")
 
 ** Usage examples
 
-There are four main functions provided in namedCapture:
+There are five main functions provided in namedCapture:
 
-|                 | Extract first match     | Extract each match          |
-|-----------------+-------------------------+-----------------------------|
-| Three arguments | =str_match_named=       | =str_match_all_named=       |
-| Variable args   | =str_match_variable= | =str_match_all_variable= |
+|                             | Extract first match  | Extract each match       |
+| chr subject + two arguments | =str_match_named=    | =str_match_all_named=    |
+| chr subject + variable args | =str_match_variable= | =str_match_all_variable= |
+| df subject + variable args  | =df_match_variable=  | Not implemented          |
+
+The function prefix indicates the type of the first argument, which
+must contain the subject:
+- =str_*= means a character vector -- each of these functions uses a
+  single named capture regular expression to extract data from a
+  character vector subject.
+- =df_*= means a data.frame -- the [[#tidy-variable-argument-syntax-for-dataframedatatable][df_match_variable]] function uses a
+  different named capture regular expression to extract data from each
+  of several specified character column subjects. 
 
 *** Three argument syntax
 
@@ -138,7 +164,7 @@ data frame with 0 columns and 0 rows
 > 
 #+END_SRC
 
-*** Variable argument syntax
+*** Variable argument syntax for character vector subjects
 
 The namedCapture package also provides =str_match*variable= functions
 which take a variable number of arguments and allow for a shorter,
@@ -283,6 +309,409 @@ output below.
 > 
 #+END_SRC
 
+*** Tidy variable argument syntax for data.frame/data.table
+
+We also provide =namedCapture::df_match_variable= which extracts text
+from several columns of a data.frame, using a different named capture
+regular expression for each column.
+- It requires a data.frame as the first argument.
+- It takes a variable number of other arguments. (all of which must be
+  named) For each other argument we call =str_match_variable= on one
+  column of the input data.frame.
+- Each argument name specifies a column of the data.frame which will
+  be used as the subject in =str_match_variable=.
+- Each argument value specifies a pattern to be used with
+  =str_match_variable=. (in list/character/function format as
+  explained in the previous section)
+- The return value is a data.frame with the same number of rows as the
+  input, but with an additional column for each named capture
+  group. New columns are named using the convention
+  =oldColumnName.groupName=.
+- This is a "tidy" function that can be used in a [[https://r4ds.had.co.nz/pipes.html][pipe]].
+This function can greatly simplify the code required to create numeric
+data columns from character data columns. For example consider the
+following data which was output from the [[https://slurm.schedmd.com/sacct.html][sacct]] program.
+
+#+BEGIN_SRC R-transcript
+   Elapsed              JobID
+1 07:04:42        13937810_25
+2 07:04:42  13937810_25.batch
+3 07:04:49 13937810_25.extern
+4 00:00:00     14022192_[1-3]
+5 00:00:00       14022204_[4]
+#+END_SRC
+
+Say we want to filter by the total Elapsed time (which is reported as
+hours:minutes:seconds), and base job id (which is the number before
+the underscore in the JobID column). We could start by converting
+those character columns to integers via:
+
+#+BEGIN_SRC R-transcript
+> (task.df <- df_match_variable(
++   sacct.df,
++   JobID=list(
++     job="[0-9]+", as.integer,
++     "_",
++     task.pattern,
++     "(?:[.]",
++     type=".*",
++     ")?"),
++   Elapsed=list(
++     hours="[0-9]+", as.integer,
++     ":",
++     minutes="[0-9]+", as.integer,
++     ":",
++     seconds="[0-9]+", as.integer)))
+   Elapsed              JobID JobID.job JobID.task JobID.task1 JobID.taskN
+1 07:04:42        13937810_25  13937810         25          NA          NA
+2 07:04:42  13937810_25.batch  13937810         25          NA          NA
+3 07:04:49 13937810_25.extern  13937810         25          NA          NA
+4 00:00:00     14022192_[1-3]  14022192         NA           1           3
+5 00:00:00       14022204_[4]  14022204         NA           4          NA
+  JobID.type Elapsed.hours Elapsed.minutes Elapsed.seconds
+1                        7               4              42
+2      batch             7               4              42
+3     extern             7               4              49
+4                        0               0               0
+5                        0               0               0
+> 
+#+END_SRC
+
+We could then create a minutes column and filter on that:
+
+#+BEGIN_SRC R-transcript
+> library(dplyr)
+> task.df %>%
++   transform(minutes=Elapsed.hours*60+Elapsed.minutes+Elapsed.seconds/60) %>%
++   filter(100 < minutes)
+   Elapsed              JobID JobID.job JobID.task JobID.task1 JobID.taskN
+1 07:04:42        13937810_25  13937810         25          NA          NA
+2 07:04:42  13937810_25.batch  13937810         25          NA          NA
+3 07:04:49 13937810_25.extern  13937810         25          NA          NA
+  JobID.type Elapsed.hours Elapsed.minutes Elapsed.seconds  minutes
+1                        7               4              42 424.7000
+2      batch             7               4              42 424.7000
+3     extern             7               4              49 424.8167
+> 
+#+END_SRC
+
+Note that =df_match_variable= also works with data.tables:
+
+#+BEGIN_SRC R-transcript
+> library(data.table)
+> (sacct.dt <- data.table(
++   Elapsed = c(
++     "07:04:42", "07:04:42", "07:04:49",
++     "00:00:00", "00:00:00"),
++   JobID=c(
++     "13937810_25",
++     "13937810_25.batch",
++     "13937810_25.extern",
++     "14022192_[1-3]",
++     "14022204_[4]")))
+    Elapsed              JobID
+1: 07:04:42        13937810_25
+2: 07:04:42  13937810_25.batch
+3: 07:04:49 13937810_25.extern
+4: 00:00:00     14022192_[1-3]
+5: 00:00:00       14022204_[4]
+> (task.dt <- df_match_variable(
++   sacct.dt,
++   JobID=list(
++     job="[0-9]+", as.integer,
++     "_",
++     task.pattern,
++     "(?:[.]",
++     type=".*",
++     ")?"),
++   Elapsed=list(
++     hours="[0-9]+", as.integer,
++     ":",
++     minutes="[0-9]+", as.integer,
++     ":",
++     seconds="[0-9]+", as.integer)))
+    Elapsed              JobID JobID.job JobID.task JobID.task1 JobID.taskN
+1: 07:04:42        13937810_25  13937810         25          NA          NA
+2: 07:04:42  13937810_25.batch  13937810         25          NA          NA
+3: 07:04:49 13937810_25.extern  13937810         25          NA          NA
+4: 00:00:00     14022192_[1-3]  14022192         NA           1           3
+5: 00:00:00       14022204_[4]  14022204         NA           4          NA
+   JobID.type Elapsed.hours Elapsed.minutes Elapsed.seconds
+1:                        7               4              42
+2:      batch             7               4              42
+3:     extern             7               4              49
+4:                        0               0               0
+5:                        0               0               0
+> task.dt[, minutes := Elapsed.hours*60+Elapsed.minutes+Elapsed.seconds/60 ]
+> task.dt[100 < minutes]
+    Elapsed              JobID JobID.job JobID.task JobID.task1 JobID.taskN
+1: 07:04:42        13937810_25  13937810         25          NA          NA
+2: 07:04:42  13937810_25.batch  13937810         25          NA          NA
+3: 07:04:49 13937810_25.extern  13937810         25          NA          NA
+   JobID.type Elapsed.hours Elapsed.minutes Elapsed.seconds  minutes
+1:                        7               4              42 424.7000
+2:      batch             7               4              42 424.7000
+3:     extern             7               4              49 424.8167
+> 
+#+END_SRC
+
+The demo R code that you can paste into your terminal is below.
+
+#+BEGIN_SRC R
+  ## Define some sub-patterns separately for clarity.
+  range.pattern <- list(
+    "[[]",
+    task1="[0-9]+", as.integer,
+    "(?:-",#begin optional end of range.
+    taskN="[0-9]+", as.integer,
+    ")?", #end is optional.
+    "[]]")
+  task.pattern <- list(
+    "(?:",#begin alternate
+    task="[0-9]+", as.integer,
+    "|",#either one task(above) or range(below)
+    range.pattern,
+    ")")#end alternate
+
+  ## Using df_match_variable with a data.frame
+  (sacct.df <- data.frame(
+    Elapsed = c(
+      "07:04:42", "07:04:42", "07:04:49",
+      "00:00:00", "00:00:00"),
+    JobID=c(
+      "13937810_25",
+      "13937810_25.batch",
+      "13937810_25.extern",
+      "14022192_[1-3]",
+      "14022204_[4]"),
+    stringsAsFactors=FALSE))
+  (task.df <- df_match_variable(
+    sacct.df,
+    JobID=list(
+      job="[0-9]+", as.integer,
+      "_",
+      task.pattern,
+      "(?:[.]",
+      type=".*",
+      ")?"),
+    Elapsed=list(
+      hours="[0-9]+", as.integer,
+      ":",
+      minutes="[0-9]+", as.integer,
+      ":",
+      seconds="[0-9]+", as.integer)))
+  library(dplyr)
+  task.df %>%
+    transform(minutes=Elapsed.hours*60+Elapsed.minutes+Elapsed.seconds/60) %>%
+    filter(100 < minutes)
+
+  ## Using df_match_variable with a data.table
+  library(data.table)
+  (sacct.dt <- data.table(
+    Elapsed = c(
+      "07:04:42", "07:04:42", "07:04:49",
+      "00:00:00", "00:00:00"),
+    JobID=c(
+      "13937810_25",
+      "13937810_25.batch",
+      "13937810_25.extern",
+      "14022192_[1-3]",
+      "14022204_[4]")))
+  (task.dt <- df_match_variable(
+    sacct.dt,
+    JobID=list(
+      job="[0-9]+", as.integer,
+      "_",
+      task.pattern,
+      "(?:[.]",
+      type=".*",
+      ")?"),
+    Elapsed=list(
+      hours="[0-9]+", as.integer,
+      ":",
+      minutes="[0-9]+", as.integer,
+      ":",
+      seconds="[0-9]+", as.integer)))
+  task.dt[, minutes := Elapsed.hours*60+Elapsed.minutes+Elapsed.seconds/60 ]
+  task.dt[100 < minutes]
+#+END_SRC
+
+*** Comparison with other packages
+
+Below I show a comparison between =namedCapture::df_match_variable=
+and its closest cousin in the R package universe,
+=tidyr::extract=. Here are some observations from the comparison:
+- The two packages can be used to compute the same result. (a
+  data.frame with several new columns created from the three input
+  columns)
+- The first =tidyr= code defines =regex.list= which uses a syntax similar to
+  =namedCapture::df_match_variable=. (each group name occurs on the
+  same line as its pattern)
+- The =namedCapture= code is the shortest (17 lines). I coded two
+  versions of the =tidyr= code. The first =tidyr= code (33 lines) uses
+  a syntax similar to =namedCapture=. The difference in lines of code is mostly
+  because the for loop that you see below for =tidyr= is hidden inside
+  the definition of =namedCapture::df_match_variable=. 
+- The second =tidyr= code (19 lines) uses a very different syntax
+  involving the =e= helper function. In my opinion this syntax makes
+  the regular expressions more difficult to read/understand, since
+  each group name is not on the same line as the corresponding regular
+  expression for that group. Also more complicated regular expressions
+  like
+  =([0-9]+)_(?:([0-9]+)|[[]([0-9]+)(?:-([0-9]+))?[]])(?:[.](.*))?=
+  are not maintainable/understandable at all using this syntax. (Hint:
+  this is the regex we have been using all along to parse the JobID
+  column)
+- Converting extracted character groups to numeric column types is
+  specified via the =convert= argument of =tidyr::extract=, which uses
+  =utils::type.convert=. Because =type.convert= does not know how to
+  convert strings like =111,000= to integer, we first need to use
+  =remove.commas= to create a new data.frame to use as input to
+  =tidyr::extract=. In contrast =namedCapture= supports arbitrary
+  group-specific type conversion functions; we specify =to.int= on the
+  same line as the corresponding name/pattern for the
+  chromStart/chromEnd groups.
+
+#+BEGIN_SRC R
+  ## First define data.
+  (sacct.df <- data.frame(
+    position=c(
+      "chr10:213,054,000-213,055,000",
+      "chrM:111,000-222,000",
+      "this will not match",
+      NA, # neither will this.
+      "chr1:110-111 chr2:220-222"), # two possible matches.
+    Elapsed = c(
+      "07:04:42", "07:04:42", "07:04:49",
+      "00:00:00", "00:00:00"),
+    JobID=c(
+      "13937810_25",
+      "13937810_25.batch",
+      "13937810_25.extern",
+      "14022192_[1-3]",
+      "14022204_[4]"),
+    stringsAsFactors=FALSE))
+  remove.commas <- function(x)gsub(",", "", x)
+  result.list <- list()
+
+  ## namedCapture: 17 lines of code.
+  to.int <- function(x)as.integer(remove.commas(x))
+  (result.list$namedCapture <- namedCapture::df_match_variable(
+    sacct.df,
+    JobID=list(
+      job="[0-9]+", as.integer),
+    position=list(
+      chrom="chr.*?",
+      ":",
+      chromStart=".*?", to.int,
+      "-",
+      chromEnd="[0-9,]*", to.int),
+    Elapsed=list(
+      hours="[0-9]+", as.integer,
+      ":",
+      minutes="[0-9]+", as.integer,
+      ":",
+      seconds="[0-9]+", as.integer)))
+
+  ## tidyr: 33 lines of code.
+  regex.list <- list(
+    JobID=c(job="[0-9]+"),
+    position=c(
+      chrom="chr.*?",
+      ":",
+      chromStart=".*?",
+      "-",
+      chromEnd="[0-9,]*"),
+    Elapsed=c(
+      hours="[0-9]+", 
+      ":",
+      minutes="[0-9]+", 
+      ":",
+      seconds="[0-9]+"))
+  tidyr.input <- transform(
+    sacct.df,
+    position=remove.commas(position))
+  tidyr.df.list <- list(sacct.df)
+  for(col.name in names(regex.list)){
+    regex.vec <- regex.list[[col.name]]
+    is.group <- names(regex.vec)!=""
+    format.vec <- ifelse(is.group, "(%s)", "%s")
+    group.vec <- sprintf(format.vec, regex.vec)
+    regex <- paste(group.vec, collapse="")
+    group.names <- names(regex.vec)[is.group]
+    result <- tidyr::extract(
+      tidyr.input, col.name, group.names, regex, convert=TRUE)
+    to.save <- result[, group.names, drop=FALSE]
+    names(to.save) <- paste0(col.name, ".", group.names)
+    tidyr.df.list[[col.name]] <- to.save
+  }
+  names(tidyr.df.list) <- NULL
+  result.list$tidyr <- do.call(cbind, tidyr.df.list)
+
+  ## tidyr alternate with e function: 19 lines of code.
+  tidyr.input <- transform(
+    sacct.df,
+    position=remove.commas(position))
+  e <- function(col.name, group.names, pattern){
+    result <- tidyr::extract(
+      tidyr.input, col.name, group.names, pattern, convert=TRUE)
+    to.save <- result[, group.names, drop=FALSE]
+    names(to.save) <- paste0(col.name, ".", group.names)
+    to.save
+  }
+  result.list$efun <- do.call(cbind, list(
+    sacct.df,
+    e("JobID", "job", "([0-9]+)"),
+    e("position",
+      c("chrom", "chromStart", "chromEnd"),
+      "(chr.*?):(.*?)-([0-9,]*)"),
+    e("Elapsed",
+      c("hours", "minutes", "seconds"),
+      "([0-9]+):([0-9]+):([0-9]+)")))
+
+  ## Make sure the results are the same.
+  t(sapply(result.list, names))
+  t(sapply(result.list, sapply, class))
+  with(result.list, identical(tidyr, namedCapture))
+  with(result.list, identical(efun, namedCapture))
+
+  ## create single un-named pattern which would be used for matching
+  ## JobID with tidyr::extract.
+  p.vec <- c(
+    job="[0-9]+", 
+    "_",
+    "(?:",#begin alternate
+    task="[0-9]+", 
+    "|",#either one task(above) or range(below)
+    "[[]",
+    task1="[0-9]+", 
+    "(?:-",#begin optional end of range.
+    taskN="[0-9]+", 
+    ")?", #end is optional.
+    "[]]",
+    ")",#end alternate
+    "(?:[.]",
+    type=".*",
+    ")?")
+  is.group <- names(p.vec)!=""
+  group.vec <- names(p.vec)[is.group]
+  format.vec <- ifelse(is.group, "(%s)", "%s")
+  with.groups <- sprintf(format.vec, p.vec)
+  (un.named.pattern <- paste(with.groups, collapse=""))
+  with.named.groups <- ifelse(
+    is.group,
+    sprintf("(?<%s>%s)", names(p.vec), p.vec),
+    sprintf("%s", p.vec))
+  (named.pattern <- paste(with.named.groups, collapse=""))
+  str_match_named(sacct.dt$JobID, named.pattern)
+  ## Not sure why stringi/tidyr give error here.
+  tidyr::extract(
+    sacct.dt, JobID,
+    c("job", "task", "task1", "taskN", "type"),
+    "([0-9]+)_(?:([0-9]+)|[[]([0-9]+)(?:-([0-9]+))?[]])(?:[.](.*))?")
+  tidyr::extract(sacct.dt, "JobID", group.vec, un.named.pattern)
+#+END_SRC
+
 *** Set row names using "name" group
 
 The example below illustrates some other features of namedCapture
@@ -292,8 +721,8 @@ functions:
   =str_match_all_named=).
 - if the pattern has a group named =name=, then it will be used for
   the rownames of the output. (if the subject names were not used)
-- if no type conversion functions are provided, return values are
-  character matrices. (instead of data.frame)
+- if no type conversion functions are provided, =str_= functions
+  return character matrices. (instead of data.frame)
 
 #+BEGIN_SRC R
   ## If there is a capture group named "name" then it will be used for
@@ -345,6 +774,69 @@ assayType  "H3K4me3"
 > match.list$H3K4me3["cost",]
 [1] "30.5"
 > 
+#+END_SRC
+
+The =df_match_variable= function also sets the rownames of the
+resulting data.frame based on the capture group named =name=:
+
+#+BEGIN_SRC R-transcript
+> (match.df <- df_match_variable(
++   pos.df,
++   position=list(
++     name="chr.*?",
++     ":",
++     chromStart=".*?", to.int,
++     "-",
++     chromEnd="[0-9,]*", to.int),
++   Elapsed=list(
++     hours="[0-9]+", as.integer,
++     ":",
++     minutes="[0-9]+", as.integer,
++     ":",
++     seconds="[0-9]+", as.integer)))
+                           position  Elapsed position.chromStart
+chr10 chr10:213,054,000-213,055,000 07:04:42           213054000
+chrNA         chrNA:111,000-222,000 07:04:42              111000
+chr2                       chr2:1-2 07:04:49                   1
+chr3                       chr3:4-5 00:00:00                   4
+chr1      chr1:110-111 chr2:220-222 00:00:00                 110
+      position.chromEnd Elapsed.hours Elapsed.minutes Elapsed.seconds
+chr10         213055000             7               4              42
+chrNA            222000             7               4              42
+chr2                  2             7               4              49
+chr3                  5             0               0               0
+chr1                111             0               0               0
+> 
+#+END_SRC
+
+The demo code you can paste into your R terminal is below:
+
+#+BEGIN_SRC R
+  pos.df <- data.frame(
+    position=c(
+      "chr10:213,054,000-213,055,000",
+      "chrNA:111,000-222,000",
+      "chr2:1-2",
+      "chr3:4-5",
+      "chr1:110-111 chr2:220-222"),
+    Elapsed = c(
+      "07:04:42", "07:04:42", "07:04:49",
+      "00:00:00", "00:00:00"),
+    stringsAsFactors=FALSE)
+  (match.df <- df_match_variable(
+    pos.df,
+    position=list(
+      name="chr.*?",
+      ":",
+      chromStart=".*?", to.int,
+      "-",
+      chromEnd="[0-9,]*", to.int),
+    Elapsed=list(
+      hours="[0-9]+", as.integer,
+      ":",
+      minutes="[0-9]+", as.integer,
+      ":",
+      seconds="[0-9]+", as.integer)))
 #+END_SRC
 
 ** Named capture regular expressions tutorial

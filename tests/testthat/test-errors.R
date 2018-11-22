@@ -19,19 +19,25 @@ test_that("any capture group without a name is an error", {
 test_that("NA pattern is an error", {
   expect_error({
     str_match_named(subject.vec, NA_character_)
-  })
+  }, "pattern should be a character scalar (not missing/NA)", fixed=TRUE)
+})
+
+test_that("factor pattern is an error", {
+  expect_error({
+    str_match_named(subject.vec, factor("(?<regex>foo)"))
+  }, "pattern should be a character scalar")
 })
 
 test_that("multiple patterns is an error", {
   expect_error({
     str_match_named(subject.vec, c("(?<name>.)", "(?<name>.)"))
-  })
+  }, "pattern should be a character scalar")
 })
 
 test_that("subject of length 0 is an error", {
   expect_error({
     str_match_named(character(), "(?<name>.)")
-  }, "0 < length(subject.vec) is not TRUE", fixed=TRUE)
+  }, "subject.vec should be a character vector with length>0", fixed=TRUE)
 })
 
 test_that("still works if NA first and only name", {
@@ -83,3 +89,67 @@ test_that("informative error when converter returns non-atomic", {
       chromStart=function(x)list(foo=200)))
   }, "chromStart type.list function must return atomic vector")
 })
+
+test_that("informative error for non-unique chromStart int names", {
+  expect_error({
+    str_match_named(
+      c("chr1:20-40", "chr2:300-400", "chr2:300-400"),
+      "(?<chrom>[^:]+):(?<name>[0-9]+)",
+      list(name=as.integer))
+  }, "capture group named 'name' must be unique")
+})
+
+test_that("informative error for non-unique chromStart names", {
+  expect_error({
+    str_match_named(
+      c("chr1:20-40", "chr2:300-400", "chr2:300-400"),
+      "(?<chrom>[^:]+):(?<name>[0-9]+)")
+  }, "capture group named 'name' must be unique")
+})
+
+test_that("informative error for non-unique chrom names", {
+  expect_error({
+    str_match_named(
+      c("chr1:20-40", "chr2:300-400", "chr2:300-400"),
+      "(?<name>[^:]+):(?<chromStart>[0-9]+)")
+  }, "capture group named 'name' must be unique")
+})
+
+test_that("error for name group with missing subject", {
+  expect_error({
+    str_match_named(
+      c("chr1:20-40", NA, "chr2:300-400"),
+      "(?<name>[^:]+):(?<chromStart>[0-9]+)")
+  }, "the 'name' group should not be missing/NA")
+})
+
+test_that("error for name group with two missing subjects", {
+  expect_error({
+    str_match_named(
+      c("chr1:20-40", NA, NA, "chr2:300-400"),
+      "(?<name>[^:]+):(?<chromStart>[0-9]+)")
+  }, "the 'name' group should not be missing/NA")
+})
+
+test_that("error when no match with name group", {
+  expect_error({
+    str_match_named(
+      c("chr1:20-40", "foobar", "chr2:300-400"),
+      "(?<name>[^:]+):(?<chromStart>[0-9]+)")
+  }, "the 'name' group should not be missing/NA")
+})
+
+name.value.vec <- c(
+  "  sampleType=monocyte   assayType=H3K27me3    cost=5",
+  "sampleType=monocyte assayType=H3K27ac",
+  " assayType=Myeloidcell cost=30.5  assayType=H3K4me3")
+name.value.pattern <- paste0(
+  "(?<name>[^ ]+?)",
+  "=",
+  "(?<value>[^ ]+)")
+test_that("error for non-unique name in match_all", {
+  expect_error({
+    str_match_all_named(name.value.vec, name.value.pattern)
+  }, "capture group named 'name' must be unique")
+})
+
