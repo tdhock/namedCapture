@@ -558,7 +558,7 @@ and its closest cousin in the R package universe,
   each group name is not on the same line as the corresponding regular
   expression for that group. Also more complicated regular expressions
   like
-  =([0-9]+)_((?:)[0-9]+(|)([[])[0-9]+((?:-)[0-9]+()?)([]]))((?:[.]).*()?)=
+  =([0-9]+)_(?:([0-9]+)|[[]([0-9]+)(?:-([0-9]+))?[]])(?:[.](.*))?=
   are not maintainable/understandable at all using this syntax. (Hint:
   this is the regex we have been using all along to parse the JobID
   column)
@@ -694,8 +694,22 @@ and its closest cousin in the R package universe,
     type=".*",
     ")?")
   is.group <- names(p.vec)!=""
+  group.vec <- names(p.vec)[is.group]
   format.vec <- ifelse(is.group, "(%s)", "%s")
-  paste(sprintf(format.vec, p.vec), collapse="")
+  with.groups <- sprintf(format.vec, p.vec)
+  (un.named.pattern <- paste(with.groups, collapse=""))
+  with.named.groups <- ifelse(
+    is.group,
+    sprintf("(?<%s>%s)", names(p.vec), p.vec),
+    sprintf("%s", p.vec))
+  (named.pattern <- paste(with.named.groups, collapse=""))
+  str_match_named(sacct.dt$JobID, named.pattern)
+  ## Not sure why stringi/tidyr give error here.
+  tidyr::extract(
+    sacct.dt, JobID,
+    c("job", "task", "task1", "taskN", "type"),
+    "([0-9]+)_(?:([0-9]+)|[[]([0-9]+)(?:-([0-9]+))?[]])(?:[.](.*))?")
+  tidyr::extract(sacct.dt, "JobID", group.vec, un.named.pattern)
 #+END_SRC
 
 *** Set row names using "name" group
