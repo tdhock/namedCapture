@@ -544,13 +544,24 @@ and its closest cousin in the R package universe,
 - The two packages can be used to compute the same result. (a
   data.frame with several new columns created from the three input
   columns)
-- The =tidyr= code is about twice as long (33 lines) as the
-  =namedCapture= code (17 lines). This is mostly because the for loop
-  that you see below for =tidyr= is hidden inside the definition of
-  =namedCapture::df_match_variable=.
-- The =tidyr= code defines =regex.list= which uses a syntax similar to
+- The first =tidyr= code defines =regex.list= which uses a syntax similar to
   =namedCapture::df_match_variable=. (each group name occurs on the
-  same line as its pattern) 
+  same line as its pattern)
+- The =namedCapture= code is the shortest (17 lines). I coded two
+  versions of the =tidyr= code. The first =tidyr= code (33 lines) uses
+  a syntax similar to =namedCapture=. The difference in lines of code is mostly
+  because the for loop that you see below for =tidyr= is hidden inside
+  the definition of =namedCapture::df_match_variable=. 
+- The second =tidyr= code (19 lines) uses a very different syntax
+  involving the =e= helper function. In my opinion this syntax makes
+  the regular expressions more difficult to read/understand, since
+  each group name is not on the same line as the corresponding regular
+  expression for that group. Also more complicated regular expressions
+  like
+  =([0-9]+)_((?:)[0-9]+(|)([[])[0-9]+((?:-)[0-9]+()?)([]]))((?:[.]).*()?)=
+  are not maintainable/understandable at all using this syntax. (Hint:
+  this is the regex we have been using all along to parse the JobID
+  column)
 - Converting extracted character groups to numeric column types is
   specified via the =convert= argument of =tidyr::extract=, which uses
   =utils::type.convert=. Because =type.convert= does not know how to
@@ -637,10 +648,54 @@ and its closest cousin in the R package universe,
   names(tidyr.df.list) <- NULL
   result.list$tidyr <- do.call(cbind, tidyr.df.list)
 
+  ## tidyr alternate with e function: 19 lines of code.
+  tidyr.input <- transform(
+    sacct.df,
+    position=remove.commas(position))
+  e <- function(col.name, group.names, pattern){
+    result <- tidyr::extract(
+      tidyr.input, col.name, group.names, pattern, convert=TRUE)
+    to.save <- result[, group.names, drop=FALSE]
+    names(to.save) <- paste0(col.name, ".", group.names)
+    to.save
+  }
+  result.list$efun <- do.call(cbind, list(
+    sacct.df,
+    e("JobID", "job", "([0-9]+)"),
+    e("position",
+      c("chrom", "chromStart", "chromEnd"),
+      "(chr.*?):(.*?)-([0-9,]*)"),
+    e("Elapsed",
+      c("hours", "minutes", "seconds"),
+      "([0-9]+):([0-9]+):([0-9]+)")))
+
   ## Make sure the results are the same.
   t(sapply(result.list, names))
   t(sapply(result.list, sapply, class))
   with(result.list, identical(tidyr, namedCapture))
+  with(result.list, identical(efun, namedCapture))
+
+  ## create single un-named pattern which would be used for matching
+  ## JobID with tidyr::extract.
+  p.vec <- c(
+    job="[0-9]+", 
+    "_",
+    "(?:",#begin alternate
+    task="[0-9]+", 
+    "|",#either one task(above) or range(below)
+    "[[]",
+    task1="[0-9]+", 
+    "(?:-",#begin optional end of range.
+    taskN="[0-9]+", 
+    ")?", #end is optional.
+    "[]]",
+    ")",#end alternate
+    "(?:[.]",
+    type=".*",
+    ")?")
+  is.group <- names(p.vec)!=""
+  format.vec <- ifelse(is.group, "(%s)", "%s")
+  paste(sprintf(format.vec, p.vec), collapse="")
 #+END_SRC
 
 *** Set row names using "name" group
