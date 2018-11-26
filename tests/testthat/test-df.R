@@ -9,7 +9,7 @@ subject.df <- data.frame(
     "13937810_25.extern",
     "14022192_[1-3]",
     "14022204_[4]"),
-  position=c(
+  subject=c(
     ten="chr10:213,054,000-213,055,000",
     chrNA="chrNA:111,000-222,000",
     no.match="foo bar",
@@ -37,16 +37,16 @@ test_that("df_match_variable returns data.frame with rownames", {
       "(?:[.]",
       type=".*",
       ")?"),
-    position=list(
+    subject=list(
       chrom="chr.*?",
       ":",
       chromStart=".*?", 
       "-",
       chromEnd="[0-9,]*"))
   expect_identical(names(match.df), c(
-    "JobID", "position",
+    "JobID", "subject",
     "JobID.job", "JobID.task", "JobID.task1", "JobID.taskN", "JobID.type",
-    "position.chrom", "position.chromStart", "position.chromEnd"))
+    "subject.chrom", "subject.chromStart", "subject.chromEnd"))
   expect_identical(match.df$JobID.job, as.integer(c(
     13937810, 13937810, 13937810, 14022192, 14022204)))
   expect_identical(match.df$JobID.task, as.integer(c(
@@ -57,11 +57,11 @@ test_that("df_match_variable returns data.frame with rownames", {
     NA, NA, NA, 3, NA)))
   expect_identical(match.df$JobID.type, c(
     "", "batch", "extern", "", ""))
-  expect_identical(match.df$position.chrom, c(
+  expect_identical(match.df$subject.chrom, c(
     "chr10", "chrNA", NA, NA, "chr1"))
-  expect_identical(match.df$position.chromStart, c(
+  expect_identical(match.df$subject.chromStart, c(
     "213,054,000", "111,000", NA, NA, "110"))
-  expect_identical(match.df$position.chromEnd, c(
+  expect_identical(match.df$subject.chromEnd, c(
     "213,055,000", "222,000", NA, NA, "111"))
   expect_identical(rownames(match.df), c(
     "ten", "chrNA", "no.match", "missing", "two"))
