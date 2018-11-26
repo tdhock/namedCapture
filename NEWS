@@ -1,3 +1,8 @@
+2018.11.23
+
+remove subject arg from df_match_variable in order to support column
+named "subject"
+
 2018.11.21 PR#6
 
 df_match_variable
