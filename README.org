@@ -76,6 +76,22 @@ must contain the subject:
 - =df_*= means a data.frame -- the [[#tidy-variable-argument-syntax-for-dataframedatatable][df_match_variable]] function uses a
   different named capture regular expression to extract data from each
   of several specified character column subjects. 
+The function suffix indicates the type of the other arguments (after
+the first):
+- =*_named= means three arguments: subject, pattern, functions. The
+  pattern should be a length-1 character vector that contains named
+  capture groups, e.g. "(?<groupName1>subPattern1)"
+- =*_variable= means a variable number of arguments which can be list,
+  character, or function. Character strings are interpreted as regular
+  expressions, which pasted together to obtain the final pattern to
+  match to the subjects. Usually the specified character strings
+  should NOT contain named capture groups, because a named capture
+  group is generated automatically using R argument names, e.g. the
+  argument groupName1="subPattern1" will generate the regex
+  "(?<groupName1>subPattern1)". Each function is used to convert the
+  group specified by the previous named R argument. Lists are parsed
+  recursively, so can contain other lists, functions, and (named) character
+  strings.
 
 *** Three argument syntax
 
