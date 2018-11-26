@@ -1,7 +1,7 @@
 \name{variable_args_list}
 \alias{variable_args_list}
 \title{variable args list}
-\description{Parse the variable-length short argument list.}
+\description{Parse the variable-length argument list.}
 \usage{variable_args_list(...)}
 \arguments{
   \item{\dots}{character vectors or functions (for converting extracted character

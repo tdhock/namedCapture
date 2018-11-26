@@ -4,14 +4,21 @@ df_match_variable <- structure(function
 ### str_match_variable on each column/pattern indicated in
 ### ... (argument names are interpreted as column names of subject;
 ### argument values are passed as the pattern to
-### str_match_variable). Each pattern is typically specified as a list
-### of length-1 character vectors (pasted together to obtain a regular
-### expression) and functions (used to convert the captured text to
-### other types).
+### str_match_variable). 
 (...
-### First (un-named) argument should be a data.frame with character
-### columns of subjects for matching. The other arguments should be
-### name1=pattern1 etc. See ?short_arg_list for details.
+### subject.df, colName1=list(groupName1=pattern1, fun1, etc),
+### colName2=list(etc), etc. First (un-named) argument should be a
+### data.frame with character columns of subjects for matching. The
+### other arguments need to be named (and the names e.g. colName1 and
+### colName2 need to be column names of the subject data.frame). The
+### other argument values specify the regular expression, and must be
+### character/function/list. All patterns must be character vectors of
+### length 1. If the pattern is a named argument in R, we will add a
+### named capture group (?<groupName1>pattern1) in the regex. All
+### patterns are pasted together to obtain the final pattern used for
+### matching. Each named pattern may be followed by at most one
+### function (e.g. fun1) which is used to convert the previous named
+### pattern. Lists are parsed recursively for convenience.
 ){
   all.arg.list <- list(...)
   subject <- all.arg.list[[1]]
