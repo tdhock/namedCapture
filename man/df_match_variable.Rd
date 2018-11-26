@@ -10,10 +10,11 @@ str_match_variable). Each pattern is typically specified as a list
 of length-1 character vectors (pasted together to obtain a regular
 expression) and functions (used to convert the captured text to
 other types).}
-\usage{df_match_variable(subject, ...)}
+\usage{df_match_variable(...)}
 \arguments{
-  \item{subject}{data.frame with character columns of subjects for matching.}
-  \item{\dots}{name1=pattern1 etc. See ?short_arg_list for details.}
+  \item{\dots}{First (un-named) argument should be a data.frame with character
+columns of subjects for matching. The other arguments should be
+name1=pattern1 etc. See ?short_arg_list for details.}
 }
 
 \value{data.frame with same number of rows as subject, with an additional

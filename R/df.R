@@ -8,19 +8,24 @@ df_match_variable <- structure(function
 ### of length-1 character vectors (pasted together to obtain a regular
 ### expression) and functions (used to convert the captured text to
 ### other types).
-(subject,
-### data.frame with character columns of subjects for matching.
-  ...
+(...
+### First (un-named) argument should be a data.frame with character
+### columns of subjects for matching. The other arguments should be
 ### name1=pattern1 etc. See ?short_arg_list for details.
 ){
+  all.arg.list <- list(...)
+  subject <- all.arg.list[[1]]
   if(!is.data.frame(subject)){
     stop("subject must be a data.frame with character columns to match")
   }
-  col.pattern.list <- list(...)
+  col.pattern.list <- all.arg.list[-1]
   if(length(col.pattern.list)==0)stop("no patterns specified in ...")
   valid.name <- names(col.pattern.list) %in% names(subject)
-  if(is.null(names(col.pattern.list)) || any(!valid.name)){
-    stop("each pattern in ... must be named using a column name of subject")
+  invalid.vec <- names(col.pattern.list)[!valid.name]
+  if(is.null(names(col.pattern.list)) || length(invalid.vec)){
+    stop("named args (", paste(invalid.vec, collapse=", "),
+         ") not found in subject column names (", paste(names(subject), collapse=", "),
+         "); each pattern in ... must be named using a column name of subject")
   }
   out.list <- list(subject)
   has.rownames <- logical()
