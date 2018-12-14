@@ -1,0 +1,68 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Three-argument syntax.
+
+The functions on the first row take exactly three arguments:
+- =subject= is the character vector from which we want to extract
+  tabular data.
+- =pattern= is the (character scalar) regular expression with named
+  capture groups used for extraction.
+- =fun.list= is a list with names that correspond to capture groups,
+  and values are functions used to convert the extracted character
+  data to other (typically numeric) types.
+
+```{r}
+  library(namedCapture)
+  chr.pos.vec <- c(
+    "chr10:213,054,000-213,055,000",
+    "chrM:111,000-222,000",
+    "this will not match",
+    NA, # neither will this.
+    "chr1:110-111 chr2:220-222") # two possible matches.
+  chr.pos.pattern <- paste0(
+    "(?<chrom>chr.*?)",
+    ":",
+    "(?<chromStart>.*?)",
+    "-",
+    "(?<chromEnd>[0-9,]*)")
+  ## Specifying a list of conversion functions means that str_match_*
+  ## should convert the matched groups from character to whatever is
+  ## returned by those functions.
+  keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
+  conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
+  (match.df <- str_match_named(chr.pos.vec, chr.pos.pattern, conversion.list))
+  str(match.df)
+
+  ## Use str_match_all_named to get ALL matches in each subject (not
+  ## just the first match).
+  str_match_all_named(chr.pos.vec, chr.pos.pattern, conversion.list)
+```
+
+Running the =str_match_named= code above yields the following. Note
+how the resulting data.frame contains one row for each subject, and
+one column for each named capture group defined in the regular
+expression pattern. Types are defined by the specified conversion
+functions; missing values indicate missing subjects or no match.
+
+As shown below, running the =str_match_all_named= code extracts all
+matches from each subject. The result is a list with one element for
+each subject. Each list element is a data.frame with one row for each
+match.
+
+

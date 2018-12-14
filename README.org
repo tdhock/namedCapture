@@ -48,6 +48,9 @@ expressions.
   - =type.convert(as.is=TRUE)= is always used to define types in
     =separate= and =extract=, whereas any function can be used to
     define types in =df_match_variable=.
+- [[https://CRAN.R-project.org/package=rex][rex]] provides R functions for generating regular expression pattern
+  strings. (=namedCapture::*_variable= functions also internally
+  generate regex pattern strings)
 - https://github.com/tdhock/revector provides fast C code for a
   *vector* of named capture regular expressions (namedCapture and base
   R and only provide functions for a single regular expression).
