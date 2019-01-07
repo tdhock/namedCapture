@@ -58,7 +58,7 @@ expressions.
 |---------|-------------|-------------|----------|
 | namedCapture | str_match_named | str_match_all_named | Character vector subject, character string pattern |
 | namedCapture | str_match_variable | str_match_all_variable | Character vector subject, list/character/function pattern |
-| namedCapture | df_match_variable | NA | Data frame subject, list/character/function pattern |
+| namedCapture | df_match_variable | NA | Data frame subject, list/character/function patterns |
 | rex     | re_matches(global=FALSE) | re_matches(global=TRUE) | verbose/expressive regex construction |
 | base    | regexpr     | gregexpr    | outputs group indices/names |
 | utils | strcapture | NA | outputs data frame |
