@@ -48,7 +48,6 @@ expressions.
   - =type.convert(as.is=TRUE)= is always used to define types in
     =separate= and =extract=, whereas any function can be used to
     define types in =df_match_variable=.
-- 
 - [[https://github.com/kevinushey/rex][rex]] provides functions (a domain specific language) for verbosely defining named capture regular expressions in R code. In rex 
   rex(capture(name = "fruit", pattern)) is the analog of list(fruit=pattern) namedCapture::*_variable -- both will generate a capture group named fruit.
   
