@@ -24,7 +24,7 @@ expressions.
 - =stringr::str_match= implements extracting capture groups. But since
   it uses the [[https://github.com/gagolews/stringi][stringi]] package (an interface to the [[http://userguide.icu-project.org/strings/regexp][ICU]] library), [[https://github.com/hadley/stringr/pull/16][it
   does not support named capture]].
-- [[https://github.com/MangoTheCat/rematch2][rematch2::re_match]] and [[https://github.com/qinwf/re2r][re2r::re2_match]] provide similar functionality
+- [[https://github.com/MangoTheCat/rematch2][rematch2::re_match]], [[https://github.com/kevinushey/rex][rex::re_matches]], and [[https://github.com/qinwf/re2r][re2r::re2_match]] provide similar functionality
   to =namedCapture::str_match_named=. The main difference is that re2r
   uses the RE2 C++ library (worse case polynomial time complexity),
   but rematch2 and namedCapture use base R (PCRE C library, exponential
