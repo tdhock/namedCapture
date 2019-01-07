@@ -50,10 +50,23 @@ expressions.
     define types in =df_match_variable=.
 - [[https://github.com/kevinushey/rex][rex]] provides functions (a domain specific language) for verbosely defining named capture regular expressions in R code. In rex 
   rex(capture(name = "fruit", pattern)) is the analog of list(fruit=pattern) namedCapture::*_variable -- both will generate a capture group named fruit.
-  
 - [[https://github.com/tdhock/revector][revector]] provides fast C code for a
   *vector* of named capture regular expressions (namedCapture and base
   R and only provide functions for a single regular expression).
+
+| Package | First match | All matches | Comments |
+|---------|-------------|-------------|----------|
+| namedCapture | str_match_named | str_match_all_named | Character vector subject, character string pattern |
+| namedCapture | str_match_variable | str_match_all_variable | Character vector subject, list/character/function pattern |
+| namedCapture | df_match_variable | NA | Data frame subject, list/character/function pattern |
+| rex     | re_matches(global=FALSE) | re_matches(global=TRUE) | verbose/expressive regex construction |
+| base    | regexpr     | gregexpr    | outputs group indices/names |
+| utils | strcapture | NA | outputs data frame |
+| stringr | str_match | str_match_all | named capture not supported |
+| stringi | stri_match | stri_match_all | named capture not supported |
+| tidyr | extract | NA | named capture not supported |
+| rematch2 | TODO |
+| re2r | TODO |
 
 ** Installation
 
