@@ -27,7 +27,7 @@ expressions.
 - [[https://github.com/MangoTheCat/rematch2][rematch2::re_match]], [[https://github.com/kevinushey/rex][rex::re_matches]], and [[https://github.com/qinwf/re2r][re2r::re2_match]] provide similar functionality
   to =namedCapture::str_match_named=. The main difference is that re2r
   uses the RE2 C++ library (worse case polynomial time complexity),
-  but rematch2 and namedCapture use base R (PCRE C library, exponential
+  but rematch2, rex, and namedCapture use base R (PCRE C library, exponential
   worst case time complexity).
 - [[https://tidyr.tidyverse.org/reference/separate.html][tidyr::separate]] and [[https://tidyr.tidyverse.org/reference/extract.html][tidyr::extract]] provide similar functionality to
   =namedCapture::df_match_variable= (all input data.frame to extract
