@@ -759,7 +759,7 @@ differences in syntax:
   write them in R code; rex assumes the user knows its functions,
   which generate regex strings. E.g. the capture group "time",
   =none_of("[") %>% zero_or_more()= in rex gets translated to the
-  regex string ="[^]]*"=. Thus rex code is a bit more verbose than
+  regex string =[^]]*=. Thus rex code is a bit more verbose than
   namedCapture.
 - Type conversion functions. In namedCapture they are specified on the
   same line as the capture group name/pattern, whereas in rex they are
