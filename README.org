@@ -346,35 +346,162 @@ output below.
 *** Extract all patterns from a file
 
 In this section we demonstrate how to use =str_match_all_variable= to
-extract data.frames from a loosely structured text file.
+extract data.frames from a loosely structured text file. 
 
 #+BEGIN_SRC R
   trackDb.txt.gz <- system.file("extdata", "trackDb.txt.gz", package="namedCapture")
   trackDb.vec <- readLines(trackDb.txt.gz)
+#+END_SRC
 
-  ## Example 1: extract all fields for each track.
+Some representative lines from that file are shown below.
+
+#+BEGIN_SRC R-transcript
+> cat(trackDb.vec[78:107], sep="\n")
+track peaks_summary
+type bigBed 5
+shortLabel _model_peaks_summary
+longLabel Regions with a peak in at least one sample
+visibility pack
+itemRgb off
+spectrum on
+bigDataUrl http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/peaks_summary.bigBed
+
+
+ track bcell_McGill0091
+ parent bcell
+ container multiWig
+ type bigWig
+ shortLabel bcell_McGill0091
+ longLabel bcell | McGill0091
+ graphType points
+ aggregate transparentOverlay
+ showSubtrackColorOnUi on
+ maxHeightPixels 25:12:8
+ visibility full
+ autoScale on
+
+  track bcell_McGill0091Coverage
+  bigDataUrl http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/samples/bcell/McGill0091/coverage.bigWig
+  shortLabel bcell_McGill0091Coverage
+  longLabel bcell | McGill0091 | Coverage
+  parent bcell_McGill0091
+  type bigWig
+  color 141,211,199
+> 
+#+END_SRC
+
+Each block of text begins with "track" and includes several lines of
+data before the block ends with two consecutive newlines. That pattern
+is coded below using a regex:
+
+#+BEGIN_SRC R
   fields.df <- namedCapture::str_match_all_variable(
     trackDb.vec,
     "track ",
     name="\\S+",
     fields="(?:\n[^\n]+)*",
     "\n")
-  head(fields.df)
+#+END_SRC
+
+The code above creates a data frame with one row for each track block,
+with rownames given by the track line (because of the capture group
+named name), and one fields column which is a string with the rest of
+the data in that block.
+
+#+BEGIN_SRC R-transcript
+> head(fields.df)
+                       fields                                                                                                      
+bcell                  "\nsuperTrack on show\nshortLabel bcell\nlongLabel bcell ChIP-seq samples"                                  
+kidneyCancer           "\nsuperTrack on show\nshortLabel kidneyCancer\nlongLabel kidneyCancer ChIP-seq samples"                    
+kidney                 "\nsuperTrack on show\nshortLabel kidney\nlongLabel kidney ChIP-seq samples"                                
+leukemiaCD19CD10BCells "\nsuperTrack on show\nshortLabel leukemiaCD19CD10BCells\nlongLabel leukemiaCD19CD10BCells ChIP-seq samples"
+monocyte               "\nsuperTrack on show\nshortLabel monocyte\nlongLabel monocyte ChIP-seq samples"                            
+skeletalMuscleCtrl     "\nsuperTrack on show\nshortLabel skeletalMuscleCtrl\nlongLabel skeletalMuscleCtrl ChIP-seq samples"        
+> 
+#+END_SRC
+
+Each block has a variable number of lines/fields. Each line starts
+with a field name, followed by a space, followed by the field
+value. That regex is coded below:
+
+#+BEGIN_SRC R
   fields.list <- namedCapture::str_match_all_named(
     fields.df[, "fields"], paste0(
       "\\s+",
       "(?<name>.*?)",
       " ",
       "(?<value>[^\n]+)"))
-  head(fields.list)
-  fields.list$bcell_McGill0091Coverage["bigDataUrl",]
-  has.bigDataUrl <- sapply(fields.list, function(m)"bigDataUrl" %in% rownames(m))
-  bigDataUrl.list <- fields.list[has.bigDataUrl]
-  length(bigDataUrl.list)
+#+END_SRC
 
-  ## Example 2: extract only the bigDataUrl field for each track, and
-  ## split sample names into separate columns. Also demonstrates use of
-  ## nested named capture groups.
+The result is a list of data frames. 
+
+#+BEGIN_SRC R-transcript
+> fields.list[12:14]
+$peaks_summary
+           value                                                                  
+type       "bigBed 5"                                                             
+shortLabel "_model_peaks_summary"                                                 
+longLabel  "Regions with a peak in at least one sample"                           
+visibility "pack"                                                                 
+itemRgb    "off"                                                                  
+spectrum   "on"                                                                   
+bigDataUrl "http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/peaks_summary.bigBed"
+
+$bcell_McGill0091
+                      value               
+parent                "bcell"             
+container             "multiWig"          
+type                  "bigWig"            
+shortLabel            "bcell_McGill0091"  
+longLabel             "bcell | McGill0091"
+graphType             "points"            
+aggregate             "transparentOverlay"
+showSubtrackColorOnUi "on"                
+maxHeightPixels       "25:12:8"           
+visibility            "full"              
+autoScale             "on"                
+
+$bcell_McGill0091Coverage
+           value                                                                                      
+bigDataUrl "http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/samples/bcell/McGill0091/coverage.bigWig"
+shortLabel "bcell_McGill0091Coverage"                                                                 
+longLabel  "bcell | McGill0091 | Coverage"                                                            
+parent     "bcell_McGill0091"                                                                         
+type       "bigWig"                                                                                   
+color      "141,211,199"                                                                              
+
+> 
+#+END_SRC
+
+There is a list element for each block, named by track. Each list
+element is a data frame with one row per field defined in that
+block (rownames are field names). The names/rownames make it easy
+to write R code that selects individual elements by name, e.g.
+
+#+BEGIN_SRC R-transcript
+> fields.list$bcell_McGill0091Coverage["bigDataUrl",]
+[1] "http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/samples/bcell/McGill0091/coverage.bigWig"
+> fields.list$monocyte_McGill0001Peaks["color",]
+[1] "0,0,0"
+> has.bigDataUrl <- sapply(fields.list, function(m)"bigDataUrl" %in% rownames(m))
+> bigDataUrl.list <- fields.list[has.bigDataUrl]
+> length(bigDataUrl.list)
+[1] 78
+> length(fields.list)
+[1] 123
+> 
+#+END_SRC
+
+So there are 78 tracks which define the bigDataUrl field, out of
+123 total tracks.
+
+In the example above we extracted all fields from all tracks (using
+two regexes, one for the track, one for the field). In the example
+below we extract only the bigDataUrl field for each track, and split
+sample names into separate columns (using a single regex for the
+track). It also demonstrates how to use nested named capture groups.
+
+#+BEGIN_SRC R
   name.pattern <- list(
     cellType=".*?",
     "_",
@@ -391,8 +518,29 @@ extract data.frames from a loosely structured text file.
     "(?:\n[^\n]+)*",
     "\\s+bigDataUrl ",
     bigDataUrl="[^\n]+")
-  head(match.df)
 #+END_SRC
+
+#+BEGIN_SRC R-transcript
+> head(match.df)
+                         cellType sampleName sampleID dataType
+all_labels                                         NA         
+problems                                           NA         
+jointProblems                                      NA         
+peaks_summary                                      NA         
+bcell_McGill0091Coverage    bcell McGill0091       91 Coverage
+bcell_McGill0091Peaks       bcell McGill0091       91    Peaks
+                                                                                                           bigDataUrl
+all_labels                                         http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/all_labels.bigBed
+problems                                             http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/problems.bigBed
+jointProblems                                   http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/jointProblems.bigBed
+peaks_summary                                   http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/peaks_summary.bigBed
+bcell_McGill0091Coverage    http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/samples/bcell/McGill0091/coverage.bigWig
+bcell_McGill0091Peaks    http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/samples/bcell/McGill0091/joint_peaks.bigWig
+> 
+#+END_SRC
+
+Exercise for the reader: modify the above regex in order to capture
+three additional columns (red, green, blue) from the color field.
 
 *** Tidy variable argument syntax for data.frame/data.table
 
