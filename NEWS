@@ -1,3 +1,9 @@
+2019.01.09
+
+nested capture groups syntax in *_variable using named list.
+
+inst/extdata/trackDb.txt.gz
+
 2018.11.23
 
 remove subject arg from df_match_variable in order to support column

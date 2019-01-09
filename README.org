@@ -343,6 +343,57 @@ output below.
 > 
 #+END_SRC
 
+*** Extract all patterns from a file
+
+In this section we demonstrate how to use =str_match_all_variable= to
+extract data.frames from a loosely structured text file.
+
+#+BEGIN_SRC R
+  trackDb.txt.gz <- system.file("extdata", "trackDb.txt.gz", package="namedCapture")
+  trackDb.vec <- readLines(trackDb.txt.gz)
+
+  ## Example 1: extract all fields for each track.
+  fields.df <- namedCapture::str_match_all_variable(
+    trackDb.vec,
+    "track ",
+    name="\\S+",
+    fields="(?:\n[^\n]+)*",
+    "\n")
+  head(fields.df)
+  fields.list <- namedCapture::str_match_all_named(
+    fields.df[, "fields"], paste0(
+      "\\s+",
+      "(?<name>.*?)",
+      " ",
+      "(?<value>[^\n]+)"))
+  head(fields.list)
+  fields.list$bcell_McGill0091Coverage["bigDataUrl",]
+  has.bigDataUrl <- sapply(fields.list, function(m)"bigDataUrl" %in% rownames(m))
+  bigDataUrl.list <- fields.list[has.bigDataUrl]
+  length(bigDataUrl.list)
+
+  ## Example 2: extract only the bigDataUrl field for each track, and
+  ## split sample names into separate columns. Also demonstrates use of
+  ## nested named capture groups.
+  name.pattern <- list(
+    cellType=".*?",
+    "_",
+    sampleName=list(
+      "McGill",
+      sampleID="[0-9]+", as.integer),
+    dataType="Coverage|Peaks",
+    "|",
+    "[^\n]+")
+  match.df <- namedCapture::str_match_all_variable(
+    trackDb.vec,
+    "track ",
+    name=name.pattern,
+    "(?:\n[^\n]+)*",
+    "\\s+bigDataUrl ",
+    bigDataUrl="[^\n]+")
+  head(match.df)
+#+END_SRC
+
 *** Tidy variable argument syntax for data.frame/data.table
 
 We also provide =namedCapture::df_match_variable= which extracts text
@@ -699,6 +750,21 @@ The demo code you can paste into your R terminal is below:
 
 
 ** Comparison with rex
+
+In this section we compare namedCapture verbose variable argument
+syntax with the similar rex package. We have translated the rex log
+parsing example to namedCapture syntax. There are two major
+differences in syntax:
+- namedCapture assumes the user knows regular expressions and can
+  write them in R code; rex assumes the user knows its functions,
+  which generate regex strings. E.g. the capture group "time",
+  =none_of("[") %>% zero_or_more()= in rex gets translated to the
+  regex string ="[^]]*"=. Thus rex code is a bit more verbose than
+  namedCapture.
+- Type conversion functions. In namedCapture they are specified on the
+  same line as the capture group name/pattern, whereas in rex they are
+  specified after the pattern, using mutate. rex could support inline
+  type conversion by adding an argument to the =capture= function.
 
 #+BEGIN_SRC R
   subject <- '198.214.42.14 - - [21/Jul/1995:14:31:46 -0400] "GET /images/ HTTP/1.0" 200 17688

@@ -14,7 +14,7 @@ test_that("str_match_variable returns character matrix", {
     subject,
     chrom="chr.*?",
     ":",
-    chromStart=".*?", 
+    chromStart=".*?",
     "-",
     chromEnd="[0-9,]*")
   expected <- cbind(
@@ -28,7 +28,7 @@ test_that("str_match_variable returns character matrix", {
 test_that("str_match_variable returns data.frame", {
   keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
   computed <- str_match_variable(
-    subject, 
+    subject,
     chrom="chr.*?",
     ":",
     chromStart=".*?", keep.digits,
@@ -43,12 +43,25 @@ test_that("str_match_variable returns data.frame", {
   expect_equivalent(computed, expected)
 })
 
+test_that("named function is an error", {
+  keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
+  expect_error({
+    str_match_variable(
+      subject,
+      chrom="chr.*?",
+      ":",
+      chromStart=".*?", fun=keep.digits,
+      "-",
+      chromEnd="[0-9,]*", keep.digits)
+  }, "functions must not be named, problem: fun")
+})
+
 test_that("str_match_all_variable returns character matrix", {
   computed <- str_match_all_variable(
-    subject, 
+    subject,
     chrom="chr.*?",
     ":",
-    chromStart=".*?", 
+    chromStart=".*?",
     "-",
     chromEnd="[0-9,]*")
   r <- function(chrom, chromStart, chromEnd){
@@ -64,7 +77,7 @@ test_that("str_match_all_variable returns character matrix", {
 
 test_that("str_match_all_variable removes missing subjects", {
   computed <- str_match_all_variable(
-    subject, 
+    subject,
     "(?<na>NA)")
   ## There should be only one NA (not two) because chrNA matches but
   ## the missing NA subject should be removed.
@@ -75,7 +88,7 @@ test_that("str_match_all_variable returns data.frame", {
   keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
   conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
   computed <- str_match_all_variable(
-    subject, 
+    subject,
     chrom="chr.*?",
     ":",
     chromStart=".*?", keep.digits,
@@ -224,5 +237,34 @@ test_that("nested lists are OK", {
     NA, NA, NA, 3, NA)))
   expect_identical(task.df$type, c(
     "", "batch", "extern", "", ""))
+})
+
+
+trackDb.txt.gz <- system.file("extdata", "trackDb.txt.gz", package="namedCapture")
+trackDb.vec <- readLines(trackDb.txt.gz)
+
+test_that("nested capture groups works", {
+  name.pattern <- list(
+    cellType=".*?",
+    "_",
+    sampleName=list(as.factor,
+      "McGill",
+      sampleID="[0-9]+", as.integer),
+    dataType="Coverage|Peaks",
+    "|",
+    "[^\n]+")
+  match.df <- namedCapture::str_match_all_variable(
+    trackDb.vec,
+    "track ",
+    name=name.pattern,
+    "(?:\n[^\n]+)*",
+    "\\s+bigDataUrl ",
+    bigDataUrl="[^\n]+")
+  expect_is(match.df, "data.frame")
+  expect_identical(
+    names(match.df),
+    c("cellType", "sampleName", "sampleID", "dataType", "bigDataUrl"))
+  expect_is(match.df$sampleName, "factor")
+  expect_is(match.df$sampleID, "integer")
 })
 
