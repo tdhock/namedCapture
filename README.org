@@ -510,7 +510,8 @@ In the example above we extracted all fields from all tracks (using
 two regexes, one for the track, one for the field). In the example
 below we extract only the bigDataUrl field for each track, and split
 sample names into separate columns (using a single regex for the
-track). It also demonstrates how to use nested named capture groups.
+track). It also demonstrates how to use nested named capture groups
+(via named lists which contain named regex strings).
 
 #+BEGIN_SRC R
   name.pattern <- list(
