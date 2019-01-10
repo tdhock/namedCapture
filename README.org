@@ -54,19 +54,30 @@ expressions.
   *vector* of named capture regular expressions (namedCapture and base
   R and only provide functions for a single regular expression).
 
-| Package | First match | All matches | Comments |
-|---------|-------------|-------------|----------|
-| namedCapture | str_match_named | str_match_all_named | Character vector subject, character string pattern |
-| namedCapture | str_match_variable | str_match_all_variable | Character vector subject, list/character/function pattern |
-| namedCapture | df_match_variable | NA | Data frame subject, list/character/function patterns |
-| rex     | re_matches(global=FALSE) | re_matches(global=TRUE) | verbose/expressive regex construction |
-| base    | regexpr     | gregexpr    | outputs group indices/names |
-| utils | strcapture | NA | outputs data frame |
-| stringr | str_match | str_match_all | named capture not supported |
-| stringi | stri_match | stri_match_all | named capture not supported |
-| tidyr | extract | NA | named capture not supported |
-| rematch2 | TODO |
-| re2r | TODO |
+| Package      | First match              | All matches             | library  | subject | pattern      | outputs     | named | types |
+|--------------+--------------------------+-------------------------+----------+---------+--------------+-------------+-------+-------|
+| base         | regexpr                  | gregexpr                | PCRE/TRE | chr     | chr          | mat/list    | yes   | no    |
+| utils        | strcapture               | NA                      | PCRE/TRE | chr     | chr          | df          | no    | some  |
+| namedCapture | str_match_named          | str_match_all_named     | PCRE     | chr     | chr          | mat/df/list | yes   | any   |
+| namedCapture | str_match_variable       | str_match_all_variable  | PCRE     | chr     | verbose      | mat/df/list | yes   | any   |
+| namedCapture | df_match_variable        | NA                      | PCRE     | df/dt   | verbose      | df/dt       | yes   | any   |
+| rex          | re_matches(global=FALSE) | re_matches(global=TRUE) | PCRE     | chr     | verbose      | df          | yes   | no    |
+| stringr      | str_match                | str_match_all           | ICU      | chr     | chr          | mat/list    | no    | no    |
+| stringi      | stri_match               | stri_match_all          | ICU      | chr     | chr          | mat/list    | no    | no    |
+| tidyr        | extract                  | NA                      | ICU      | df/dt   | chr          | df/dt       | no    | some  |
+| rematch2     | re_match                 | re_match_all            | PCRE/TRE | chr     | chr          | tibble      | yes   | no    |
+| re2r         | re2_match                | re2_match_all           | RE2      | chr     | chr/compiled | df/list     | yes   | no    |
+
+Note in the comparison table above:
+- library gives the underlying C library used.
+- subject/pattern/output gives the support input/output types.
+- the "named" column refers to named capture group support,
+  which greatly helps to make a more readable regex pattern. The
+  namedCapture package is the only one that provides output with
+  names/rownames based on the "name" capture group.
+- the "types" column refers to built-in support for converting capture
+  groups from character to other types. (it is always possible to
+  convert types afterwards)
 
 ** Installation
 
