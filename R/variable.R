@@ -39,7 +39,7 @@ str_match_all_variable <- structure(function
   ## create named capture groups, and conversion functions such as
   ## keep.digits are used to convert the previously named group.
   (match.df <- str_match_all_variable(
-    chr.pos.vec, 
+    chr.pos.vec,
     chrom="chr.*?",
     ":",
     chromStart=".*?", keep.digits,
@@ -84,14 +84,14 @@ str_match_variable <- structure(function
   ## named capture groups, and conversion functions such as
   ## keep.digits are used to convert the previously named group.
   (match.df <- str_match_variable(
-    chr.pos.vec, 
+    chr.pos.vec,
     chrom="chr.*?",
     ":",
     chromStart=".*?", keep.digits,
     "-",
     chromEnd="[0-9,]*", keep.digits))
   str(match.df)
-  
+
 })
 
 variable_args_list <- function
@@ -123,6 +123,17 @@ variable_args_list <- function
   while(length(var.arg.list)){
     var.arg <- var.arg.list[[1]]
     pattern.name <- names(var.arg.list)[1]
+    valid.name <- is.character(pattern.name) && 0 < nchar(pattern.name)
+    if(valid.name){
+      if(is.function(var.arg)){
+        stop("functions must not be named, problem: ", pattern.name)
+      }
+      prev.name <- pattern.name
+      var.arg <- list(
+        paste0("(?<", pattern.name, ">"),
+        var.arg,
+        ")")
+    }
     var.arg.list <- var.arg.list[-1]
     if(is.character(var.arg)){
       if(length(var.arg) != 1){
@@ -132,13 +143,7 @@ variable_args_list <- function
       if(is.na(var.arg)){
         stop("patterns must not be missing/NA")
       }
-      pattern.list[[length(pattern.list)+1L]] <- if(
-        is.character(pattern.name) && 0 < nchar(pattern.name)){
-        paste0("(?<", pattern.name, ">", var.arg, ")")
-      }else{
-        var.arg
-      }
-      prev.name <- pattern.name
+      pattern.list[[length(pattern.list)+1L]] <- var.arg
     }else if(is.function(var.arg)){
       if(is.null(prev.name)){
         stop(

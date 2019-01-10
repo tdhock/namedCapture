@@ -16,18 +16,18 @@ expressions.
 - =regexec= and =regmatches= in base R implement extracting capture
   groups but the =regexec= man page indicates that perl=TRUE (and thus
   named capture) is not implemented.
-- from R-3.4.0, =utils::strcapture= is a user-friendly alternative to
+- from R-3.4.0, =utils::strcapture= is an alternative to
   =namedCapture::str_match_named= (extract first match from each
   subject), but there is still no alternative for
   =namedCapture::str_match_all_named= (extract all matches from each
   subject).
 - =stringr::str_match= implements extracting capture groups. But since
-  it uses the stringi package (an interface to the [[http://userguide.icu-project.org/strings/regexp][ICU]] library), [[https://github.com/hadley/stringr/pull/16][it
+  it uses the [[https://github.com/gagolews/stringi][stringi]] package (an interface to the [[http://userguide.icu-project.org/strings/regexp][ICU]] library), [[https://github.com/hadley/stringr/pull/16][it
   does not support named capture]].
-- [[https://github.com/MangoTheCat/rematch2][rematch2::re_match]] and [[https://github.com/qinwf/re2r][re2r::re2_match]] provide similar functionality
+- [[https://github.com/MangoTheCat/rematch2][rematch2::re_match]], [[https://github.com/kevinushey/rex][rex::re_matches]], and [[https://github.com/qinwf/re2r][re2r::re2_match]] provide similar functionality
   to =namedCapture::str_match_named=. The main difference is that re2r
   uses the RE2 C++ library (worse case polynomial time complexity),
-  but rematch2 and namedCapture use base R (PCRE C library, exponential
+  but rematch2, rex, and namedCapture use base R (PCRE C library, exponential
   worst case time complexity).
 - [[https://tidyr.tidyverse.org/reference/separate.html][tidyr::separate]] and [[https://tidyr.tidyverse.org/reference/extract.html][tidyr::extract]] provide similar functionality to
   =namedCapture::df_match_variable= (all input data.frame to extract
@@ -48,12 +48,36 @@ expressions.
   - =type.convert(as.is=TRUE)= is always used to define types in
     =separate= and =extract=, whereas any function can be used to
     define types in =df_match_variable=.
-- [[https://CRAN.R-project.org/package=rex][rex]] provides R functions for generating regular expression pattern
-  strings. (=namedCapture::*_variable= functions also internally
-  generate regex pattern strings)
-- https://github.com/tdhock/revector provides fast C code for a
+- [[https://github.com/kevinushey/rex][rex]] provides functions (a domain specific language) for verbosely defining named capture regular expressions in R code. In rex 
+  rex(capture(name = "fruit", pattern)) is the analog of list(fruit=pattern) namedCapture::*_variable -- both will generate a capture group named fruit.
+- [[https://github.com/tdhock/revector][revector]] provides fast C code for a
   *vector* of named capture regular expressions (namedCapture and base
   R and only provide functions for a single regular expression).
+
+| Package      | First match              | All matches             | library  | subject | pattern      | outputs     | named | types |
+|--------------+--------------------------+-------------------------+----------+---------+--------------+-------------+-------+-------|
+| base         | regexpr                  | gregexpr                | PCRE/TRE | chr     | chr          | mat/list    | yes   | no    |
+| utils        | strcapture               | NA                      | PCRE/TRE | chr     | chr          | df          | no    | some  |
+| namedCapture | str_match_named          | str_match_all_named     | PCRE     | chr     | chr          | mat/df/list | yes   | any   |
+| namedCapture | str_match_variable       | str_match_all_variable  | PCRE     | chr     | verbose      | mat/df/list | yes   | any   |
+| namedCapture | df_match_variable        | NA                      | PCRE     | df/dt   | verbose      | df/dt       | yes   | any   |
+| rex          | re_matches(global=FALSE) | re_matches(global=TRUE) | PCRE     | chr     | verbose      | df          | yes   | no    |
+| stringr      | str_match                | str_match_all           | ICU      | chr     | chr          | mat/list    | no    | no    |
+| stringi      | stri_match               | stri_match_all          | ICU      | chr     | chr          | mat/list    | no    | no    |
+| tidyr        | extract                  | NA                      | ICU      | df/dt   | chr          | df/dt       | no    | some  |
+| rematch2     | re_match                 | re_match_all            | PCRE/TRE | chr     | chr          | tibble      | yes   | no    |
+| re2r         | re2_match                | re2_match_all           | RE2      | chr     | chr/compiled | df/list     | yes   | no    |
+
+Note in the comparison table above:
+- library gives the underlying C library used.
+- subject/pattern/output gives the support input/output types.
+- the "named" column refers to named capture group support,
+  which greatly helps to make a more readable regex pattern. The
+  namedCapture package is the only one that provides output with
+  names/rownames based on the "name" capture group.
+- the "types" column refers to built-in support for converting capture
+  groups from character to other types. (it is always possible to
+  convert types afterwards)
 
 ** Installation
 
@@ -329,6 +353,205 @@ output below.
 5 14022204   NA     4    NA       
 > 
 #+END_SRC
+
+*** Extract all patterns from a file
+
+In this section we demonstrate how to use =str_match_all_variable= to
+extract data.frames from a loosely structured text file. 
+
+#+BEGIN_SRC R
+  trackDb.txt.gz <- system.file("extdata", "trackDb.txt.gz", package="namedCapture")
+  trackDb.vec <- readLines(trackDb.txt.gz)
+#+END_SRC
+
+Some representative lines from that file are shown below.
+
+#+BEGIN_SRC R-transcript
+> cat(trackDb.vec[78:107], sep="\n")
+track peaks_summary
+type bigBed 5
+shortLabel _model_peaks_summary
+longLabel Regions with a peak in at least one sample
+visibility pack
+itemRgb off
+spectrum on
+bigDataUrl http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/peaks_summary.bigBed
+
+
+ track bcell_McGill0091
+ parent bcell
+ container multiWig
+ type bigWig
+ shortLabel bcell_McGill0091
+ longLabel bcell | McGill0091
+ graphType points
+ aggregate transparentOverlay
+ showSubtrackColorOnUi on
+ maxHeightPixels 25:12:8
+ visibility full
+ autoScale on
+
+  track bcell_McGill0091Coverage
+  bigDataUrl http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/samples/bcell/McGill0091/coverage.bigWig
+  shortLabel bcell_McGill0091Coverage
+  longLabel bcell | McGill0091 | Coverage
+  parent bcell_McGill0091
+  type bigWig
+  color 141,211,199
+> 
+#+END_SRC
+
+Each block of text begins with "track" and includes several lines of
+data before the block ends with two consecutive newlines. That pattern
+is coded below using a regex:
+
+#+BEGIN_SRC R
+  fields.df <- namedCapture::str_match_all_variable(
+    trackDb.vec,
+    "track ",
+    name="\\S+",
+    fields="(?:\n[^\n]+)*",
+    "\n")
+#+END_SRC
+
+The code above creates a data frame with one row for each track block,
+with rownames given by the track line (because of the capture group
+named name), and one fields column which is a string with the rest of
+the data in that block.
+
+#+BEGIN_SRC R-transcript
+> head(fields.df)
+                       fields                                                                                                      
+bcell                  "\nsuperTrack on show\nshortLabel bcell\nlongLabel bcell ChIP-seq samples"                                  
+kidneyCancer           "\nsuperTrack on show\nshortLabel kidneyCancer\nlongLabel kidneyCancer ChIP-seq samples"                    
+kidney                 "\nsuperTrack on show\nshortLabel kidney\nlongLabel kidney ChIP-seq samples"                                
+leukemiaCD19CD10BCells "\nsuperTrack on show\nshortLabel leukemiaCD19CD10BCells\nlongLabel leukemiaCD19CD10BCells ChIP-seq samples"
+monocyte               "\nsuperTrack on show\nshortLabel monocyte\nlongLabel monocyte ChIP-seq samples"                            
+skeletalMuscleCtrl     "\nsuperTrack on show\nshortLabel skeletalMuscleCtrl\nlongLabel skeletalMuscleCtrl ChIP-seq samples"        
+> 
+#+END_SRC
+
+Each block has a variable number of lines/fields. Each line starts
+with a field name, followed by a space, followed by the field
+value. That regex is coded below:
+
+#+BEGIN_SRC R
+  fields.list <- namedCapture::str_match_all_named(
+    fields.df[, "fields"], paste0(
+      "\\s+",
+      "(?<name>.*?)",
+      " ",
+      "(?<value>[^\n]+)"))
+#+END_SRC
+
+The result is a list of data frames. 
+
+#+BEGIN_SRC R-transcript
+> fields.list[12:14]
+$peaks_summary
+           value                                                                  
+type       "bigBed 5"                                                             
+shortLabel "_model_peaks_summary"                                                 
+longLabel  "Regions with a peak in at least one sample"                           
+visibility "pack"                                                                 
+itemRgb    "off"                                                                  
+spectrum   "on"                                                                   
+bigDataUrl "http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/peaks_summary.bigBed"
+
+$bcell_McGill0091
+                      value               
+parent                "bcell"             
+container             "multiWig"          
+type                  "bigWig"            
+shortLabel            "bcell_McGill0091"  
+longLabel             "bcell | McGill0091"
+graphType             "points"            
+aggregate             "transparentOverlay"
+showSubtrackColorOnUi "on"                
+maxHeightPixels       "25:12:8"           
+visibility            "full"              
+autoScale             "on"                
+
+$bcell_McGill0091Coverage
+           value                                                                                      
+bigDataUrl "http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/samples/bcell/McGill0091/coverage.bigWig"
+shortLabel "bcell_McGill0091Coverage"                                                                 
+longLabel  "bcell | McGill0091 | Coverage"                                                            
+parent     "bcell_McGill0091"                                                                         
+type       "bigWig"                                                                                   
+color      "141,211,199"                                                                              
+
+> 
+#+END_SRC
+
+There is a list element for each block, named by track. Each list
+element is a data frame with one row per field defined in that
+block (rownames are field names). The names/rownames make it easy
+to write R code that selects individual elements by name, e.g.
+
+#+BEGIN_SRC R-transcript
+> fields.list$bcell_McGill0091Coverage["bigDataUrl",]
+[1] "http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/samples/bcell/McGill0091/coverage.bigWig"
+> fields.list$monocyte_McGill0001Peaks["color",]
+[1] "0,0,0"
+> has.bigDataUrl <- sapply(fields.list, function(m)"bigDataUrl" %in% rownames(m))
+> bigDataUrl.list <- fields.list[has.bigDataUrl]
+> length(bigDataUrl.list)
+[1] 78
+> length(fields.list)
+[1] 123
+> 
+#+END_SRC
+
+So there are 78 tracks which define the bigDataUrl field, out of
+123 total tracks.
+
+In the example above we extracted all fields from all tracks (using
+two regexes, one for the track, one for the field). In the example
+below we extract only the bigDataUrl field for each track, and split
+sample names into separate columns (using a single regex for the
+track). It also demonstrates how to use nested named capture groups.
+
+#+BEGIN_SRC R
+  name.pattern <- list(
+    cellType=".*?",
+    "_",
+    sampleName=list(
+      "McGill",
+      sampleID="[0-9]+", as.integer),
+    dataType="Coverage|Peaks",
+    "|",
+    "[^\n]+")
+  match.df <- namedCapture::str_match_all_variable(
+    trackDb.vec,
+    "track ",
+    name=name.pattern,
+    "(?:\n[^\n]+)*",
+    "\\s+bigDataUrl ",
+    bigDataUrl="[^\n]+")
+#+END_SRC
+
+#+BEGIN_SRC R-transcript
+> head(match.df)
+                         cellType sampleName sampleID dataType
+all_labels                                         NA         
+problems                                           NA         
+jointProblems                                      NA         
+peaks_summary                                      NA         
+bcell_McGill0091Coverage    bcell McGill0091       91 Coverage
+bcell_McGill0091Peaks       bcell McGill0091       91    Peaks
+                                                                                                           bigDataUrl
+all_labels                                         http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/all_labels.bigBed
+problems                                             http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/problems.bigBed
+jointProblems                                   http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/jointProblems.bigBed
+peaks_summary                                   http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/peaks_summary.bigBed
+bcell_McGill0091Coverage    http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/samples/bcell/McGill0091/coverage.bigWig
+bcell_McGill0091Peaks    http://hubs.hpc.mcgill.ca/~thocking/PeakSegFPOP-/samples/bcell/McGill0091/joint_peaks.bigWig
+> 
+#+END_SRC
+
+Exercise for the reader: modify the above regex in order to capture
+three additional columns (red, green, blue) from the color field.
 
 *** Tidy variable argument syntax for data.frame/data.table
 
@@ -684,7 +907,77 @@ The demo code you can paste into your R terminal is below:
       seconds="[0-9]+", as.integer)))
 #+END_SRC
 
-** Comparison with other packages
+
+** Comparison with rex
+
+In this section we compare namedCapture verbose variable argument
+syntax with the similar rex package. We have translated the rex log
+parsing example to namedCapture syntax. There are two major
+differences in syntax:
+- namedCapture assumes the user knows regular expressions and can
+  write them in R code; rex assumes the user knows its functions,
+  which generate regex strings. E.g. the capture group "time",
+  =none_of("[") %>% zero_or_more()= in rex gets translated to the
+  regex string =[^]]*=. Thus rex code is a bit more verbose than
+  namedCapture.
+- Type conversion functions. In namedCapture they are specified on the
+  same line as the capture group name/pattern, whereas in rex they are
+  specified after the pattern, using mutate. rex could support inline
+  type conversion by adding an argument to the =capture= function.
+
+#+BEGIN_SRC R
+  subject <- '198.214.42.14 - - [21/Jul/1995:14:31:46 -0400] "GET /images/ HTTP/1.0" 200 17688
+  lahal.ksc.nasa.gov - - [24/Jul/1995:12:42:40 -0400] "GET /images/USA-logosmall.gif HTTP/1.0" 200 234
+  199.171.112.23 - - [02/Jul/1995:02:30:34 -0400] "GET /images/KSC-logosmall.gif HTTP/1.0" 200 1204
+  gate3.fmr.com - - [05/Jul/1995:13:51:39 -0400] "GET /shuttle/countdown/ HTTP/1.0" 200 3985
+  curly02.slip.yorku.ca - - [10/Jul/1995:23:11:49 -0400] "GET /shuttle/missions/sts-70/sts-70-patch-small.gif HTTP/1.0" 200 5026
+  boson.epita.fr - - [15/Jul/1995:11:27:49 -0400] "GET /shuttle/missions/sts-71/movies/sts-71-mir-dock.mpg HTTP/1.0" 200 946425
+  134.153.50.9 - - [13/Jul/1995:11:02:50 -0400] "GET /icons/text.xbm HTTP/1.0" 200 527
+  port00.ventura.rain.org - - [23/Jul/1995:09:11:06 -0400] "GET /shuttle/countdown/ HTTP/1.0" 200 4324
+  128.159.145.91 - - [14/Jul/1995:10:38:04 -0400] "GET /statistics/images/getstats_big.gif HTTP/1.0" 200 6777
+  slo.eei.upmc.edu - - [25/Jul/1995:09:33:01 -0400] "GET /images/KSC-logosmall.gif HTTP/1.0" 200 1204
+  206.13.med.umich.edu - - [14/Jul/1995:09:11:28 -0400] "GET /shuttle/resources/orbiters/challenger-logo.gif HTTP/1.0" 200 4179'
+  subject.vec <- strsplit(subject, split="\n")[[1]]
+
+  result.list <- list()
+
+  ## namedCapture 10 lines
+  result.list$namedCapture <- namedCapture::str_match_variable(
+    subject.vec,
+    "\\[",
+    time="[^]]*", function(x)as.POSIXct(x, format="%d/%b/%Y:%H:%M:%S %z"),
+    "\\]",
+    ' "GET ',
+    "(?:",#maybe
+    "[^[:space:]]+[.]",
+    filetype='[^[:space:].?"]+', tolower,
+    ")?")
+
+  ## rex 17 lines
+  library(rex)
+  library(dplyr)
+  result.list$rex <- re_matches(
+    subject.vec,
+    rex(
+      "[",
+      capture(name = "time",
+	      none_of("]") %>% zero_or_more()),
+      "]",
+      space, double_quote, "GET", space,
+      maybe(
+	non_spaces, ".",
+	capture(name = 'filetype',
+		none_of(space, ".", "?", double_quote) %>% one_or_more())
+      )
+    )
+  ) %>%
+    mutate(filetype = tolower(filetype),
+	   time = as.POSIXct(time, format="%d/%b/%Y:%H:%M:%S %z"))
+
+  with(result.list, identical(rex, namedCapture))
+#+END_SRC
+
+** Comparison with tidyr
 
 Below I show comparisons between =namedCapture::df_match_variable= and
 its closest cousin in the R package universe, =tidyr::extract=. The
