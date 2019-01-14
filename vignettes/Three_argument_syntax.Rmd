@@ -108,13 +108,18 @@ name.pattern <- paste0(
     "-",
     "(?<chromEnd>[0-9,]+)",
   ")?")
-(named.mat <- namedCapture::str_match_named(
+try(named.mat <- namedCapture::str_match_named(
   subject.vec, name.pattern, conversion.list))
+(named.mat <- namedCapture::str_match_named(
+  subject.vec[-(3:4)], name.pattern, conversion.list))
 (named.list <- namedCapture::str_match_all_named(
   subject.vec, name.pattern, conversion.list))
 ```
 
-This feature makes it easy to select particular elements of the extracted data by name, e.g.
+Note in the above code we use `try` because it is an error if any
+`name` groups are missing (and they are for the subjects 3 and 4).
+
+The named output feature makes it easy to select particular elements of the extracted data by name, e.g.
 
 ```{r}
 named.mat["chr1", "chromStart"]
@@ -129,7 +134,7 @@ named.subject.vec <- c(
   M="chrM:111,000",
   nomatch="this will not match",
   missing=NA, # neither will this.
-  two"chr1:110-111 chr2:220-222") # two possible matches.
+  two="chr1:110-111 chr2:220-222") # two possible matches.
 namedCapture::str_match_named(
   named.subject.vec, chr.pos.pattern, conversion.list)
 namedCapture::str_match_all_named(
@@ -144,7 +149,7 @@ named.subject.vec <- c(
   M="chrM:111,000",
   nomatch="this will not match",
   missing=NA, # neither will this.
-  two"chr1:110-111 chr2:220-222") # two possible matches.
+  two="chr1:110-111 chr2:220-222") # two possible matches.
 namedCapture::str_match_named(
   named.subject.vec, name.pattern, conversion.list)
 namedCapture::str_match_all_named(
