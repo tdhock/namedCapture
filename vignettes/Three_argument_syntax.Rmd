@@ -1,0 +1,157 @@
+---
+title: "Three argument syntax"
+author: "Toby Dylan Hocking"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Three argument syntax}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+The `str_match_named` and `str_match_all_named` functions take exactly three arguments as input: 
+- `subject` is the character vector from which we want to extract
+  tabular data.
+- `pattern` is the (character scalar) regular expression with named
+  capture groups used for extraction. The named capture groups should be literally specified, e.g. `(?<group_name>subpattern)`
+- `fun.list` is a list with names that correspond to capture groups,
+  and values are functions used to convert the extracted character
+  data to other (typically numeric) types.
+
+## Genomic range example
+
+For example, consider the character vector of subject strings below:
+
+```{r}
+subject.vec <- c(
+  "chr10:213,054,000-213,055,000",
+  "chrM:111,000",
+  "this will not match",
+  NA, # neither will this.
+  "chr1:110-111 chr2:220-222") # two possible matches.
+```
+
+With these genomic range subjects, the goal is to extract the chromosome name (before the colon), along with the numeric start and end locations (separated by a dash). That pattern is coded below,
+
+```{r}
+chr.pos.pattern <- paste0(
+  "(?<chrom>chr.*?)",
+  ":",
+  "(?<chromStart>[0-9,]+)",
+  "(?:",
+    "-",
+    "(?<chromEnd>[0-9,]+)",
+  ")?")
+```
+
+Note that it is often preferable (as above) to code the pattern using paste0, in order to put different parts of the pattern on each line. In particular, I recommend putting each named capture group on its own line -- this is one of the ideas that is used in the variable argument syntax (see other vignette for more info).
+
+## Extract first match from each subject
+
+Using the pattern on the subjects above results in
+
+```{r}
+(match.mat <- namedCapture::str_match_named(subject.vec, chr.pos.pattern))
+str(match.mat)
+```
+
+Note that the third argument (list of conversion functions) is omitted in the code above. In that case, the return value is a character matrix, in which missing values indicate missing subjects or no match. The empty string is used for optional groups which are not used in the match (e.g. chromEnd group/column for second subject).
+
+## Third argument: list of type conversion functions
+
+However we often want to extract numeric data -- in this case we want to convert chromStart/End to integers. You can do that by supplying a named list of conversion functions as the third argument. Each function should take exactly one  argument, a character vector (data in the matched column/group), and return a vector of the same size. The code below specifies the `keep.digits` function for both `chromStart` and `chromEnd`.
+
+```{r}
+keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
+conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
+(match.df <- namedCapture::str_match_named(
+  subject.vec, chr.pos.pattern, conversion.list))
+str(match.df)
+```
+
+Note that a `data.frame` is returned when the third argument is specified, in order to handle non-character data types returned by the conversion functions.
+
+## Extract all matches from each subject
+
+Note in the examples above that the last subject has two possible
+matches, but only the first is returned by `str_match_named`. Use
+`str_match_all_named` to get ALL matches in each subject (not just the
+first match).
+
+```{r}
+namedCapture::str_match_all_named(
+  subject.vec, chr.pos.pattern, conversion.list)
+```
+
+As shown above, the result is a list with one element for
+each subject. Each list element is a data.frame with one row for each
+match.
+
+## Named output
+
+If the pattern specifies the `name` group, then it will be used for
+the rownames of the output, and it will not be included as a column. For example the pattern below uses `name` for the first group:
+
+```{r}
+name.pattern <- paste0(
+  "(?<name>chr.*?)",
+  ":",
+  "(?<chromStart>[0-9,]+)",
+  "(?:",
+    "-",
+    "(?<chromEnd>[0-9,]+)",
+  ")?")
+try(named.mat <- namedCapture::str_match_named(
+  subject.vec, name.pattern, conversion.list))
+(named.mat <- namedCapture::str_match_named(
+  subject.vec[-(3:4)], name.pattern, conversion.list))
+(named.list <- namedCapture::str_match_all_named(
+  subject.vec, name.pattern, conversion.list))
+```
+
+Note in the above code we use `try` because it is an error if any
+`name` groups are missing (and they are for the subjects 3 and 4).
+
+The named output feature makes it easy to select particular elements of the extracted data by name, e.g.
+
+```{r}
+named.mat["chr1", "chromStart"]
+named.list[[5]]["chr2", "chromStart"]
+```
+
+Note that if the subject is named, its names will be used to name the output (rownames or list names).
+
+```{r}
+named.subject.vec <- c(
+  ten="chr10:213,054,000-213,055,000",
+  M="chrM:111,000",
+  nomatch="this will not match",
+  missing=NA, # neither will this.
+  two="chr1:110-111 chr2:220-222") # two possible matches.
+namedCapture::str_match_named(
+  named.subject.vec, chr.pos.pattern, conversion.list)
+namedCapture::str_match_all_named(
+  named.subject.vec, chr.pos.pattern, conversion.list)
+```
+
+If the subject has names, and the `name` group is specified, then the subject names are used to name the output (and the `name` column is included in the output).
+
+```{r}
+named.subject.vec <- c(
+  ten="chr10:213,054,000-213,055,000",
+  M="chrM:111,000",
+  nomatch="this will not match",
+  missing=NA, # neither will this.
+  two="chr1:110-111 chr2:220-222") # two possible matches.
+namedCapture::str_match_named(
+  named.subject.vec, name.pattern, conversion.list)
+namedCapture::str_match_all_named(
+  named.subject.vec, name.pattern, conversion.list)
+```

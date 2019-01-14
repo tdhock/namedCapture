@@ -348,4 +348,3 @@ test_that("error for factor column", {
     df_match_variable(data.frame(foo="bar"), foo="bar")
   }, "subject.vec should be a character vector with length>0")
 })
-
