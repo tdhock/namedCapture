@@ -124,15 +124,14 @@ variable_args_list <- function
     var.arg <- var.arg.list[[1]]
     pattern.name <- names(var.arg.list)[1]
     valid.name <- is.character(pattern.name) && 0 < nchar(pattern.name)
-    if(valid.name){
+    group.start <- if(valid.name){
       if(is.function(var.arg)){
         stop("functions must not be named, problem: ", pattern.name)
       }
       prev.name <- pattern.name
-      var.arg <- list(
-        paste0("(?<", pattern.name, ">"),
-        var.arg,
-        ")")
+      paste0("(?<", pattern.name, ">")
+    }else{
+      "(?:"
     }
     var.arg.list <- var.arg.list[-1]
     if(is.character(var.arg)){
@@ -143,7 +142,11 @@ variable_args_list <- function
       if(is.na(var.arg)){
         stop("patterns must not be missing/NA")
       }
-      pattern.list[[length(pattern.list)+1L]] <- var.arg
+      pattern.list[[length(pattern.list)+1L]] <- if(valid.name){
+        paste0(group.start, var.arg, ")")
+      }else{
+        var.arg
+      }
     }else if(is.function(var.arg)){
       if(is.null(prev.name)){
         stop(
@@ -153,7 +156,7 @@ variable_args_list <- function
       out.list$fun.list[[prev.name]] <- var.arg
       prev.name <- NULL
     }else if(is.list(var.arg)){
-      var.arg.list <- c(var.arg, var.arg.list)
+      var.arg.list <- c(group.start, var.arg, ")", var.arg.list)
     }else{
       print(var.arg)
       stop("arguments must be character (subject/patterns), functions (for converting extracted character vectors to other types), or list (parsed recursively)")

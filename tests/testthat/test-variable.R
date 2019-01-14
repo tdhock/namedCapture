@@ -268,3 +268,32 @@ test_that("nested capture groups works", {
   expect_is(match.df$sampleID, "integer")
 })
 
+subject.vec <- c(
+  "chr10:213,054,000-213,055,000",
+  "chrM:111,000",
+  "this will not match",
+  NA, # neither will this.
+  "chr1:110-111 chr2:220-222") # two possible matches.
+chr.pos.df <- str_match_variable(
+  subject.vec, 
+  chrom="chr.*?",
+  ":",
+  chromStart="[0-9,]+", keep.digits,
+  list(
+    "-",
+    chromEnd="[0-9,]+", keep.digits
+  ), "?")
+test_that("un-named list interpreted as non-capturing group", {
+  expect_identical(
+    chr.pos.df$chromStart,
+    as.integer(c(213054000, 111000, NA, NA, 110)))
+})
+
+(foo.df <- str_match_variable(
+  c("foo", "foobar", "fooba"),
+  first="foo",
+  list("b", second="ar"), "?"))
+test_that("un-named list interpreted as non-capturing group foo subject", {
+  expect_identical(foo.df$first, c("foo", "foo", "foo"))
+  expect_identical(foo.df$second, c("", "ar", ""))
+})
