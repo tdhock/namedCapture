@@ -1,3 +1,4 @@
+export(namedCapture.engine)
 export(str_match_all_named)
 export(str_match_all_variable)
 export(str_match_named)

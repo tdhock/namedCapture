@@ -17,9 +17,29 @@ check_subject_pattern <- function(subject.vec, pattern){
   }
 }
 
+### extract capture group columns, stop if any are un-named, and
+### assign optional groups to "".
+only_captures <- function(match.mat){
+  group.mat <- match.mat[, -1, drop=FALSE]
+  un.named.group <- grepl("^[.]", colnames(group.mat))
+  if(any(un.named.group) || ncol(group.mat)==0){
+    stop_for_names()
+  }
+  missing.match <- is.na(match.mat[,1])
+  group.mat[is.na(group.mat) & !missing.match] <- "" #optional groups
+  group.mat
+}
+
+### informative error message when named group(s) missing.
+stop_for_names <- function(){
+  stop("pattern must contain named capture groups (?P<name>subpattern)")
+}
+
 str_match_named <- structure(function
 ### Parse the first occurance of pattern from each of several subject
-### strings using a named capture regular expression.
+### strings using a named capture regular expression. Uses
+### re2r::re2_match if namedCapture.engine()=="RE2" otherwise uses
+### regexpr(perl=TRUE).
 (subject.vec,
 ### character vector of subjects.
  pattern,
@@ -28,16 +48,23 @@ str_match_named <- structure(function
 ### named list of functions to apply to captured groups.
 ){
   check_subject_pattern(subject.vec, pattern)
-  vec.with.attrs <- regexpr(pattern, subject.vec, perl=TRUE)
-  no.match <- vec.with.attrs == -1 | is.na(subject.vec)
-  capture.names <- names_or_error(vec.with.attrs)
-  first <- attr(vec.with.attrs, "capture.start")
-  first[no.match] <- NA
-  last <- attr(vec.with.attrs, "capture.length")-1+first
-  last[no.match] <- NA
-  subs <- substring(subject.vec, first, last)
-  m <- matrix(subs, length(subject.vec), length(capture.names),
-              dimnames=list(names(subject.vec), capture.names))
+  m <- if(namedCapture.engine()=="RE2"){
+    re2.mat <- re2r::re2_match(subject.vec, pattern)
+    only_captures(re2.mat)    
+  }else{ 
+    vec.with.attrs <- regexpr(pattern, subject.vec, perl=TRUE)
+    no.match <- vec.with.attrs == -1 | is.na(subject.vec)
+    capture.names <- names_or_error(vec.with.attrs)
+    first <- attr(vec.with.attrs, "capture.start")
+    first[no.match] <- NA
+    last <- attr(vec.with.attrs, "capture.length")-1+first
+    last[no.match] <- NA
+    subs <- substring(subject.vec, first, last)
+    matrix(
+      subs, length(subject.vec), length(capture.names),
+      dimnames=list(NULL, capture.names))
+  }
+  rownames(m) <- names(subject.vec)
   apply_type_funs(m, type.list)
 ### A data.frame with one row for each subject and one column for each
 ### capture group if type.list is a list of functions. Otherwise a
@@ -56,11 +83,11 @@ str_match_named <- structure(function
     NA, # neither will this.
     "chr1:110-111 chr2:220-222") # two possible matches.
   chr.pos.pattern <- paste0(
-    "(?<chrom>chr.*?)",
+    "(?P<chrom>chr.*?)",
     ":",
-    "(?<chromStart>.*?)",
+    "(?P<chromStart>.*?)",
     "-",
-    "(?<chromEnd>[0-9,]*)")
+    "(?P<chromEnd>[0-9,]*)")
   ## Specifying a list of conversion functions means that str_match_*
   ## should convert the matched groups from character to whatever is
   ## returned by those functions.
@@ -73,7 +100,9 @@ str_match_named <- structure(function
 
 str_match_all_named <- structure(function
 ### Parse several occurances of pattern from each of several subject
-### strings using named capturing regular expressions.
+### strings using named capturing regular expressions. Uses
+### re2r::re2_match_all if namedCapture.engine()=="RE2" otherwise uses
+### gregexpr(perl=TRUE).
 (subject.vec,
 ### character vector of subjects.
  pattern,
@@ -82,24 +111,40 @@ str_match_all_named <- structure(function
 ### named list of functions to apply to captured groups.
  ){
   check_subject_pattern(subject.vec, pattern)
-  parsed <- gregexpr(pattern, subject.vec, perl=TRUE)
-  result.list <- list()
-  for(i in seq_along(parsed)){
-    vec.with.attrs <- parsed[[i]]
-    first.start <- vec.with.attrs[1]
-    no.match <- first.start == -1
-    subject.is.na <- is.na(first.start)
-    if(no.match || subject.is.na){
-      m <- matrix(character(), nrow=0)
-    }else{
-      first <- attr(vec.with.attrs, "capture.start")
-      last <- attr(vec.with.attrs, "capture.length")-1+first
-      subs <- substring(subject.vec[i], first, last)
-      m <- matrix(subs, nrow=nrow(first))
-      colnames(m) <- names_or_error(vec.with.attrs)
+  unconverted.list <- list()
+  no.match.mat <- matrix(character(), nrow=0)
+  if(namedCapture.engine()=="RE2"){
+    re2.list <- re2r::re2_match_all(subject.vec, pattern)
+    for(i in seq_along(subject.vec)){
+      subject.is.na <- is.na(subject.vec[[i]])
+      re2.mat <- re2.list[[i]]
+      no.match <- nrow(re2.mat)==0
+      unconverted.list[[i]] <- if(no.match || subject.is.na){
+        no.match.mat
+      }else{
+        only_captures(re2.mat)
+      }
     }
-    result.list[[i]] <- apply_type_funs(m, type.list)
+  }else{
+    parsed <- gregexpr(pattern, subject.vec, perl=TRUE)
+    for(i in seq_along(subject.vec)){
+      vec.with.attrs <- parsed[[i]]
+      first.start <- vec.with.attrs[1]
+      subject.is.na <- is.na(first.start)
+      no.match <- first.start == -1
+      if(no.match || subject.is.na){
+        m <- no.match.mat
+      }else{
+        first <- attr(vec.with.attrs, "capture.start")
+        last <- attr(vec.with.attrs, "capture.length")-1+first
+        subs <- substring(subject.vec[i], first, last)
+        m <- matrix(subs, nrow=nrow(first))
+        colnames(m) <- names_or_error(vec.with.attrs)
+      }
+      unconverted.list[[i]] <- m
+    }
   }
+  result.list <- lapply(unconverted.list, apply_type_funs, type.list)
   names(result.list) <- names(subject.vec)
   result.list
 ### A list of data.frames with one row for each subject and one column
@@ -119,11 +164,11 @@ str_match_all_named <- structure(function
     NA, # neither will this.
     "chr1:110-111 chr2:220-222") # two possible matches.
   chr.pos.pattern <- paste0(
-    "(?<chrom>chr.*?)",
+    "(?P<chrom>chr.*?)",
     ":",
-    "(?<chromStart>.*?)",
+    "(?P<chromStart>.*?)",
     "-",
-    "(?<chromEnd>[0-9,]*)")
+    "(?P<chromEnd>[0-9,]*)")
   ## Specifying a list of conversion functions means that str_match_*
   ## should convert the matched groups from character to whatever is
   ## returned by those functions.
@@ -141,9 +186,9 @@ str_match_all_named <- structure(function
     H3K27ac="sampleType=monocyte assayType=H3K27ac",
     H3K4me3=" sampleType=Myeloidcell cost=30.5  assayType=H3K4me3")
   name.value.pattern <- paste0(
-    "(?<name>[^ ]+?)",
+    "(?P<name>[^ ]+?)",
     "=",
-    "(?<value>[^ ]+)")
+    "(?P<value>[^ ]+)")
   str_match_all_named(name.value.vec, name.value.pattern)
   
 })
@@ -221,7 +266,7 @@ names_or_error <- function
  ){
   capture.names <- attr(vec.with.attrs, "capture.names")
   if(!is.character(capture.names) || any(capture.names == "")){
-    stop("pattern must contain named capture groups (?<name>subpattern)")
+    stop_for_names()
   }
   capture.names
 ### Character vector.

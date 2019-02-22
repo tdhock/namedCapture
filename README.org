@@ -3,13 +3,68 @@ An R package for named capture regular expressions
 | [[file:tests/testthat][tests]]    | [[https://travis-ci.org/tdhock/namedCapture][https://travis-ci.org/tdhock/namedCapture.png?branch=master]]                           |
 | [[https://github.com/jimhester/covr][coverage]] | [[https://coveralls.io/github/tdhock/namedCapture?branch=master][https://coveralls.io/repos/tdhock/namedCapture/badge.svg?branch=master&service=github]] |
 
-Since R-2.14 (released in 2011), the base functions =regexpr= and
-=gregexpr= support named capture regular expressions via the excellent
-Perl-Compatible Regular Expressions (PCRE) C library. However their
-output is a bunch of integers and group names, which is not very
-user-friendly. The namedCapture packages provides user-friendly
-functions for extracting data from text using named capture regular
-expressions. 
+The namedCapture package provides user-friendly functions for
+extracting data tables from non-tabular text using named capture
+regular expressions.
+
+** Installation
+
+#+BEGIN_SRC R
+install.packages("namedCapture")
+##OR:
+if(!require(devtools))install.packages("devtools")
+devtools::install_github("tdhock/namedCapture")
+#+END_SRC
+
+** Usage overview
+
+There are five main functions provided in namedCapture:
+
+|                             | Extract first match  | Extract each match       |
+| chr subject + two arguments | =str_match_named=    | =str_match_all_named=    |
+| chr subject + variable args | =str_match_variable= | =str_match_all_variable= |
+| df subject + variable args  | =df_match_variable=  | Not implemented          |
+
+The function prefix indicates the type of the first argument, which
+must contain the subject:
+- =str_*= means a character vector -- each of these functions uses a
+  single named capture regular expression to extract data from a
+  character vector subject.
+- =df_*= means a data.frame -- the [[#tidy-variable-argument-syntax-for-dataframedatatable][df_match_variable]] function uses a
+  different named capture regular expression to extract data from each
+  of several specified character column subjects. 
+The function suffix indicates the type of the other arguments (after
+the first):
+- =*_named= means three arguments: subject, pattern, functions. The
+  pattern should be a length-1 character vector that contains named
+  capture groups, e.g. "(?P<groupName1>subPattern1)", read the [[https://cran.r-project.org/web/packages/namedCapture/vignettes/Three_argument_syntax.html][Three
+  argument syntax]] vignette for more info.
+- =*_variable= means a variable number of arguments in which the
+  pattern is specified using character strings, type conversion
+  functions, and lists. Read the [[https://cran.r-project.org/web/packages/namedCapture/vignettes/Variable_argument_syntax.html][Variable argument syntax]] vignette for
+  more info about this powerful and user-friendly syntax, which is the
+  suggested way of using namedCapture.
+
+** Choice of regex engine
+
+By default, namedCapture uses RE2 if the re2r package is available,
+and PCRE otherwise. 
+- RE2 uses a polynomial time matching algorithm, so can be faster than
+  PCRE (worst case exponential time).
+- RE2 does not support [[https://www.regular-expressions.info/backref.html][backreferences]], but PCRE does.
+- RE2 only supports =(?P<groupName>groupPattern)= syntax for named
+  groups, whereas PCRE also supports =(?<groupName>groupPattern)=
+  syntax (without the initial P).
+
+To tell namedCapture that you would like to use PCRE even if RE2 is available, use
+#+BEGIN_SRC R
+options(namedCapture.engine="PCRE")
+#+END_SRC
+
+** Named capture regular expressions tutorial
+
+For a more complete introduction to named capture regular expressions
+in R and Python, see https://github.com/tdhock/regex-tutorial
 
 ** Related work
 
@@ -79,56 +134,6 @@ Note in the comparison table above:
   groups from character to other types. (it is always possible to
   convert types afterwards)
 
-** Installation
-
-#+BEGIN_SRC R
-install.packages("namedCapture")
-##OR:
-if(!require(devtools))install.packages("devtools")
-devtools::install_github("tdhock/namedCapture")
-#+END_SRC
-
-** Usage overview
-
-There are five main functions provided in namedCapture:
-
-|                             | Extract first match  | Extract each match       |
-| chr subject + two arguments | =str_match_named=    | =str_match_all_named=    |
-| chr subject + variable args | =str_match_variable= | =str_match_all_variable= |
-| df subject + variable args  | =df_match_variable=  | Not implemented          |
-
-The function prefix indicates the type of the first argument, which
-must contain the subject:
-- =str_*= means a character vector -- each of these functions uses a
-  single named capture regular expression to extract data from a
-  character vector subject.
-- =df_*= means a data.frame -- the [[#tidy-variable-argument-syntax-for-dataframedatatable][df_match_variable]] function uses a
-  different named capture regular expression to extract data from each
-  of several specified character column subjects. 
-The function suffix indicates the type of the other arguments (after
-the first):
-- =*_named= means three arguments: subject, pattern, functions. The
-  pattern should be a length-1 character vector that contains named
-  capture groups, e.g. "(?<groupName1>subPattern1)"
-- =*_variable= means a variable number of arguments which can be list,
-  character, or function. Character strings are interpreted as regular
-  expressions, which pasted together to obtain the final pattern to
-  match to the subjects. Usually the specified character strings
-  should NOT contain named capture groups, because a named capture
-  group is generated automatically using R argument names, e.g. the
-  argument groupName1="subPattern1" will generate the regex
-  "(?<groupName1>subPattern1)". Each function is used to convert the
-  group specified by the previous named R argument. Lists are parsed
-  recursively, so can contain other lists, functions, and (named) character
-  strings.
-
-Vignettes:
-- [[https://cran.r-project.org/web/packages/namedCapture/vignettes/Three_argument_syntax.html][Three argument syntax]] describes the most basic features of the
-  =*_named= functions,
-  including type conversion functions, and the =name= group for output
-  with rownames or list names.
-- [[https://cran.r-project.org/web/packages/namedCapture/vignettes/Variable_argument_syntax.html][Variable argument syntax]] describes the more advanced features of the
-  =*_variable= functions.
 
 ** Comparison with rex
 
@@ -377,8 +382,8 @@ maintainable/understandable at all using this syntax.
   ## namedCapture alternate (7 lines total)
   (result.list$namedCapture <- namedCapture::df_match_variable(
     sacct.df,
-    JobID="(?<job>[0-9]+)_(?:(?<task>[0-9]+)|\\[(?<task1>[0-9]+)(?:-(?<taskN>[0-9]+))?\\])(?:[.](?<type>.*))?",
-    position="(?<chrom>chr.*?):(?<chromStart>.*?)-(?<chromEnd>[0-9,]*)"))
+    JobID="(?P<job>[0-9]+)_(?:(?P<task>[0-9]+)|\\[(?P<task1>[0-9]+)(?:-(?P<taskN>[0-9]+))?\\])(?:[.](?P<type>.*))?",
+    position="(?P<chrom>chr.*?):(?P<chromStart>.*?)-(?P<chromEnd>[0-9,]*)"))
   for(N in names(result.list$namedCapture)){
     result.list$namedCapture[[N]] <- type.convert(result.list$namedCapture[[N]], as.is=TRUE)
   }
@@ -393,7 +398,3 @@ maintainable/understandable at all using this syntax.
   with(result.list, identical(tidyr, namedCapture))
 #+END_SRC
 
-** Named capture regular expressions tutorial
-
-For a more complete introduction to named capture regular expressions
-in R and Python, see https://github.com/tdhock/regex-tutorial
