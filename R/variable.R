@@ -11,7 +11,7 @@ str_match_all_variable <- structure(function
 ### arguments specify the regular expression pattern and must be
 ### character/function/list. All patterns must be character vectors of
 ### length 1. If the pattern is a named argument in R, we will add a
-### named capture group (?<name>pattern) in the regex. All patterns
+### named capture group (?P<name>pattern) in the regex. All patterns
 ### are pasted together to obtain the final pattern used for
 ### matching. Each named pattern may be followed by at most one
 ### function which is used to convert the previous named
@@ -54,12 +54,12 @@ str_match_variable <- structure(function
 ### each of several subject strings.
 (...
 ### subject, name1=pattern1, fun1, etc, which creates the regex
-### (?<name1>pattern1) and uses fun1 for conversion. The first
+### (?P<name1>pattern1) and uses fun1 for conversion. The first
 ### argument must be the subject character vector. The other arguments
 ### specify the regular expression pattern and must be
 ### character/function/list. All patterns must be character vectors of
 ### length 1. If the pattern is a named argument in R, we will add a
-### named capture group (?<name>pattern) in the regex. All patterns
+### named capture group (?P<name>pattern) in the regex. All patterns
 ### are pasted together to obtain the final pattern used for
 ### matching. Each named pattern may be followed by at most one
 ### function which is used to convert the previous named
@@ -129,7 +129,7 @@ variable_args_list <- function
         stop("functions must not be named, problem: ", pattern.name)
       }
       prev.name <- pattern.name
-      paste0("(?<", pattern.name, ">")
+      paste0("(?P<", pattern.name, ">")
     }else{
       "(?:"
     }

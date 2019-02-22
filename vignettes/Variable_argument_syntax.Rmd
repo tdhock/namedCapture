@@ -26,12 +26,12 @@ subject.vec <- c(
   NA, # neither will this.
   "chr1:110-111 chr2:220-222") # two possible matches.
 chr.pos.pattern <- paste0(
-  "(?<chrom>chr.*?)",
+  "(?P<chrom>chr.*?)",
   ":",
-  "(?<chromStart>[0-9,]+)",
+  "(?P<chromStart>[0-9,]+)",
   "(?:",
     "-",
-    "(?<chromEnd>[0-9,]*)",
+    "(?P<chromEnd>[0-9,]*)",
   ")?")
 namedCapture::str_match_named(subject.vec, chr.pos.pattern)
 ```
@@ -41,16 +41,16 @@ Note that the pattern above is defined using the `paste0` boilerplate, which is 
 ```{r}
 namedCapture::str_match_variable(
   subject.vec, 
-  "(?<chrom>chr.*?)",
+  "(?P<chrom>chr.*?)",
   ":",
-  "(?<chromStart>[0-9,]+)",
+  "(?P<chromStart>[0-9,]+)",
   "(?:",
     "-",
-    "(?<chromEnd>[0-9,]+)",
+    "(?P<chromEnd>[0-9,]+)",
   ")?")
 ```
 
-We can further simplify by removing the named capture groups from the strings, and adding names to the corresponding arguments. For `name1="pattern1"`, `namedCapture` internally generates/uses the regex `(?<name1>pattern1)`.
+We can further simplify by removing the named capture groups from the strings, and adding names to the corresponding arguments. For `name1="pattern1"`, `namedCapture` internally generates/uses the regex `(?P<name1>pattern1)`.
 
 ```{r}
 namedCapture::str_match_variable(
@@ -170,9 +170,9 @@ value. That regex is coded below:
 fields.list <- namedCapture::str_match_all_named(
   fields.df[, "fields"], paste0(
     "\\s+",
-    "(?<name>.*?)",
+    "(?P<name>.*?)",
     " ",
-    "(?<value>[^\n]+)"))
+    "(?P<value>[^\n]+)"))
 ```
 
 Note that we used

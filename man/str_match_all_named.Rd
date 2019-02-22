@@ -2,7 +2,9 @@
 \alias{str_match_all_named}
 \title{str match all named}
 \description{Parse several occurances of pattern from each of several subject
-strings using named capturing regular expressions.}
+strings using named capturing regular expressions. Uses
+re2r::re2_match_all if namedCapture.engine()=="RE2" otherwise uses
+gregexpr(perl=TRUE).}
 \usage{str_match_all_named(subject.vec, pattern, type.list = NULL)}
 \arguments{
   \item{subject.vec}{character vector of subjects.}
@@ -33,11 +35,11 @@ chr.pos.vec <- c(
   NA, # neither will this.
   "chr1:110-111 chr2:220-222") # two possible matches.
 chr.pos.pattern <- paste0(
-  "(?<chrom>chr.*?)",
+  "(?P<chrom>chr.*?)",
   ":",
-  "(?<chromStart>.*?)",
+  "(?P<chromStart>.*?)",
   "-",
-  "(?<chromEnd>[0-9,]*)")
+  "(?P<chromEnd>[0-9,]*)")
 ## Specifying a list of conversion functions means that str_match_*
 ## should convert the matched groups from character to whatever is
 ## returned by those functions.
@@ -55,9 +57,9 @@ name.value.vec <- c(
   H3K27ac="sampleType=monocyte assayType=H3K27ac",
   H3K4me3=" sampleType=Myeloidcell cost=30.5  assayType=H3K4me3")
 name.value.pattern <- paste0(
-  "(?<name>[^ ]+?)",
+  "(?P<name>[^ ]+?)",
   "=",
-  "(?<value>[^ ]+)")
+  "(?P<value>[^ ]+)")
 str_match_all_named(name.value.vec, name.value.pattern)
 
 }

@@ -20,7 +20,7 @@ The `str_match_named` and `str_match_all_named` functions take exactly three arg
 - `subject` is the character vector from which we want to extract
   tabular data.
 - `pattern` is the (character scalar) regular expression with named
-  capture groups used for extraction. The named capture groups should be literally specified, e.g. `(?<group_name>subpattern)`
+  capture groups used for extraction. The named capture groups should be literally specified, e.g. `(?P<group_name>subpattern)`
 - `fun.list` is a list with names that correspond to capture groups,
   and values are functions used to convert the extracted character
   data to other (typically numeric) types.
@@ -42,12 +42,12 @@ With these genomic range subjects, the goal is to extract the chromosome name (b
 
 ```{r}
 chr.pos.pattern <- paste0(
-  "(?<chrom>chr.*?)",
+  "(?P<chrom>chr.*?)",
   ":",
-  "(?<chromStart>[0-9,]+)",
+  "(?P<chromStart>[0-9,]+)",
   "(?:",
     "-",
-    "(?<chromEnd>[0-9,]+)",
+    "(?P<chromEnd>[0-9,]+)",
   ")?")
 ```
 
@@ -101,12 +101,12 @@ the rownames of the output, and it will not be included as a column. For example
 
 ```{r}
 name.pattern <- paste0(
-  "(?<name>chr.*?)",
+  "(?P<name>chr.*?)",
   ":",
-  "(?<chromStart>[0-9,]+)",
+  "(?P<chromStart>[0-9,]+)",
   "(?:",
     "-",
-    "(?<chromEnd>[0-9,]+)",
+    "(?P<chromEnd>[0-9,]+)",
   ")?")
 try(named.mat <- namedCapture::str_match_named(
   subject.vec, name.pattern, conversion.list))

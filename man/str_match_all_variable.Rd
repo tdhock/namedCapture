@@ -14,7 +14,7 @@ character vector using newlines as the separator. The other
 arguments specify the regular expression pattern and must be
 character/function/list. All patterns must be character vectors of
 length 1. If the pattern is a named argument in R, we will add a
-named capture group (?<name>pattern) in the regex. All patterns
+named capture group (?P<name>pattern) in the regex. All patterns
 are pasted together to obtain the final pattern used for
 matching. Each named pattern may be followed by at most one
 function which is used to convert the previous named
@@ -44,7 +44,7 @@ keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
 ## create named capture groups, and conversion functions such as
 ## keep.digits are used to convert the previously named group.
 (match.df <- str_match_all_variable(
-  chr.pos.vec, 
+  chr.pos.vec,
   chrom="chr.*?",
   ":",
   chromStart=".*?", keep.digits,
