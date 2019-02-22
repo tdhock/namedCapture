@@ -17,6 +17,8 @@ check_subject_pattern <- function(subject.vec, pattern){
   }
 }
 
+### extract capture group columns, stop if any are un-named, and
+### assign optional groups to "".
 only_captures <- function(match.mat){
   group.mat <- match.mat[, -1, drop=FALSE]
   un.named.group <- grepl("^[.]", colnames(group.mat))
@@ -28,6 +30,7 @@ only_captures <- function(match.mat){
   group.mat
 }
 
+### informative error message when named group(s) missing.
 stop_for_names <- function(){
   stop("pattern must contain named capture groups (?P<name>subpattern)")
 }
