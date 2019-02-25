@@ -109,17 +109,18 @@ namedCapture::str_match_variable(
   ), "?")
 ```
 
-In summary, the `str_match_variable` function takes a variable number of arguments, and allow for a shorter, less repetitive, and thus more user-friendly syntax:
-- The first argument is the subject character vector.
-- The other arguments specify the pattern, via character strings,
+In summary, the `str_match_variable` function takes a variable number of arguments, and allows for a shorter, less repetitive, and thus more user-friendly syntax:
+
+* The first argument is the subject character vector.
+* The other arguments specify the pattern, via character strings,
   functions, and/or lists.
-- If a pattern (character/list) is named, we use the argument name in R for the capture
+* If a pattern (character/list) is named, we use the argument name in R for the capture
   group name in the regex.
-- Each function is used to convert the text extracted by the previous
+* Each function is used to convert the text extracted by the previous
   named pattern argument. (type conversion can only be used with named R arguments, NOT with explicitly specified named groups in regex strings)
-- Lists may be used to avoid repetition in the definition of the pattern and type conversion functions.
-- Each list generates a group in the regex (named list => named capture group, un-named list => non-capturing group).
-- All patterns are pasted together in the order that they appear in
+* Lists may be used to avoid repetition in the definition of the pattern and type conversion functions.
+* Each list generates a group in the regex (named list => named capture group, un-named list => non-capturing group).
+* All patterns are pasted together in the order that they appear in
   the argument list.
 
 ## Extract all patterns from a file
