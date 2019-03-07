@@ -67,7 +67,7 @@ For a more complete introduction to named capture regular expressions
 in R and Python, see https://github.com/tdhock/regex-tutorial
 
 ** Related work
-
+See my [[https://github.com/tdhock/namedCapture-article][journal paper about namedCapture]] for a detailed discussion of R regex packages. Summary below:
 - =regexec= and =regmatches= in base R implement extracting capture
   groups but the =regexec= man page indicates that perl=TRUE (and thus
   named capture) is not implemented.
