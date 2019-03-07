@@ -26,10 +26,11 @@ compute the same result, but the code/syntax is different.
 In this first comparison we use a syntax with each group name on the
 same line as its pattern. Here are some observations from the
 comparison:
-- The namedCapture code is shorter. The tidyr code is longer
+
+* The namedCapture code is shorter. The tidyr code is longer
   mostly because the for loop that you see below for tidyr is hidden
   inside the definition of `namedCapture::df_match_variable`.
-- Converting extracted character groups to numeric column types is
+* Converting extracted character groups to numeric column types is
   specified via the `convert` argument of `tidyr::extract`, which uses
   `utils::type.convert`. Because `type.convert` does not know how to
   convert strings like `111,000` to integer, we first need to use

@@ -25,6 +25,8 @@ subject.vec <- c(
   "this will not match",
   NA, # neither will this.
   "chr1:110-111 chr2:220-222") # two possible matches.
+chr.pos.pattern <-
+  "(?P<chrom>chr.*?):(?P<chromStart>[0-9,]+)(?:-(?P<chromEnd>[0-9,]*))?"
 chr.pos.pattern <- paste0(
   "(?P<chrom>chr.*?)",
   ":",
@@ -68,7 +70,7 @@ We can add type conversion functions on the same line as the definition of the n
 
 ```{r}
 keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
-namedCapture::str_match_variable(
+(match.df <- namedCapture::str_match_variable(
   subject.vec, 
   chrom="chr.*?",
   ":",
@@ -76,7 +78,7 @@ namedCapture::str_match_variable(
   "(?:",
     "-",
     chromEnd="[0-9,]+", keep.digits,
-  ")?")
+  ")?"))
 ```
 
 Note the repetition in the chromStart/End lines -- the same pattern and type conversion function is used for each group. This repetition can be avoided by creating and using a sub-pattern list variable,
@@ -97,7 +99,6 @@ namedCapture::str_match_variable(
 Finally, the non-capturing group can be replaced by an un-named list:
 
 ```{r}
-pos.pattern <- list("[0-9,]+", keep.digits)
 namedCapture::str_match_variable(
   subject.vec, 
   chrom="chr.*?",

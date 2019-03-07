@@ -20,19 +20,23 @@ knitr::opts_chunk$set(
 
 In this section we compare namedCapture verbose variable argument
 syntax with the similar rex package, and the PCRE_EXTENDED mode which
-can be turned on via the regex `(?x)`. We have translated the rex log
-parsing example to namedCapture syntax. There are two major
-differences in syntax:
-- namedCapture assumes the user knows regular expressions and can
-  write them in R code; rex assumes the user knows its functions,
-  which generate regex strings. E.g. the capture group "time",
-  `none_of("]") %>% zero_or_more()` in rex gets translated to the
-  regex string `[^]]*`. Thus rex code is a bit more verbose than
-  namedCapture.
-- Type conversion functions. In `namedCapture::*_variable` they are
+is turned on via the regex `(?x)` and we use below with
+`namedCapture::str_match_named`. We use the log parsing example from
+the rex package. There are two major differences in syntax:
+
+* namedCapture/PCRE_EXTENDED assume the user knows regular expressions
+  and can write them in R string literals; rex assumes the user knows
+  its functions, which generate regex strings. E.g. the capture group
+  "time", `none_of("]") %>% zero_or_more()` in rex gets translated to
+  the regex string `[^]]*`. Thus rex code is a bit more verbose than
+  namedCapture/PCRE_EXTENDED.
+* Type conversion functions. In `namedCapture::*_variable` they are
   specified on the same line as the capture group name/pattern,
-  whereas in rex and `namedCapture::*_named` they are specified after
-  the pattern. 
+  whereas in rex and `namedCapture::*_named`/PCRE_EXTENDED they are
+  specified after the pattern. The result is that the group name must
+  be repeated three times using rex, twice using
+  `namedCapture::*_named`/PCRE_EXTENDED, and there is no repetition of
+  group names in the R code that uses `namedCapture::*_variable`.
 
 ```{r}
 subject <- '198.214.42.14 - - [21/Jul/1995:14:31:46 -0400] "GET /images/ HTTP/1.0" 200 17688
@@ -50,7 +54,7 @@ subject.vec <- strsplit(subject, split="\n")[[1]]
 
 result.list <- list()
 
-## namedCapture 10 lines
+## namedCapture 10 lines, each group name specified only once.
 result.list$namedCapture <- namedCapture::str_match_variable(
   subject.vec,
   "\\[",
@@ -62,7 +66,7 @@ result.list$namedCapture <- namedCapture::str_match_variable(
     filetype='[^ .?"]+', tolower
   ), "?")
 
-## free-spacing 10 lines
+## free-spacing 14 lines, 2 repetitions of each group name.
 options(namedCapture.engine="PCRE")
 result.list$freespace <- namedCapture::str_match_named(
   subject.vec, '(?x) #activates PCRE_EXTENDED mode.
@@ -78,7 +82,7 @@ result.list$freespace <- namedCapture::str_match_named(
   time=function(x)as.POSIXct(x, format="%d/%b/%Y:%H:%M:%S %z"),
   filetype=tolower))
 
-## rex 17 lines
+## rex 17 lines, 3 repetitions of each group name.
 library(rex)
 library(dplyr)
 result.list$rex <- re_matches(
