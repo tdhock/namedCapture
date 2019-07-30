@@ -1,6 +1,6 @@
 <!--
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{4 comparing regex functions for data frames}
+%\VignetteIndexEntry{vignette 4: comparing regex functions for data frames}
 -->
 
 ```{r setup, include = FALSE}

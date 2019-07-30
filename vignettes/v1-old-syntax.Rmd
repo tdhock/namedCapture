@@ -1,6 +1,6 @@
 <!--
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{1 old three argument syntax}
+%\VignetteIndexEntry{vignette 1: old three argument syntax}
 -->
 
 This vignette covers the old three argument syntax used in the

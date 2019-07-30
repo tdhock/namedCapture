@@ -1,6 +1,6 @@
 <!--
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{3 comparing verbose regex syntax}
+%\VignetteIndexEntry{vignette 3: comparing verbose regex syntax}
 -->
 
 This vignette shows several comparisons between `*_variable` functions
