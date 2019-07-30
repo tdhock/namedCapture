@@ -1,7 +1,7 @@
 Package: namedCapture
 Maintainer: Toby Dylan Hocking <toby.hocking@r-project.org>
 Author: Toby Dylan Hocking
-Version: 2019.02.28
+Version: 2019.7.30
 License: GPL-3
 Title: Named Capture Regular Expressions
 Description: User-friendly wrappers for 
@@ -9,3 +9,5 @@ Description: User-friendly wrappers for
 Depends: R (>= 2.14)
 Suggests: testthat, data.table, re2r, knitr, rmarkdown, rex, dplyr, tidyr
 VignetteBuilder: knitr
+URL: https://github.com/tdhock/namedCapture
+BugReports: https://github.com/tdhock/namedCapture/issues
