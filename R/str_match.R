@@ -35,17 +35,19 @@ stop_for_names <- function(){
   stop("pattern must contain named capture groups (?P<name>subpattern)")
 }
 
-str_match_named <- structure(function
-### Parse the first occurance of pattern from each of several subject
-### strings using a named capture regular expression. Uses
+str_match_named <- structure(function 
+### Extract the first match of pattern from each element of subject.vec
+### using a named capture regular expression. Uses
 ### re2r::re2_match if namedCapture.engine()=="RE2" otherwise uses
-### regexpr(perl=TRUE).
+### base::regexpr(perl=TRUE). This function is mostly for internal use;
+### most users should use str_match_variable instead.
 (subject.vec,
 ### character vector of subjects.
  pattern,
 ### named capture regular expression (character vector of length 1).
  type.list=NULL
-### named list of functions to apply to captured groups.
+### named list of functions to apply to captured groups, in order to
+### create non-character (typically numeric) columns in the result.
 ){
   check_subject_pattern(subject.vec, pattern)
   m <- if(namedCapture.engine()=="RE2"){
@@ -75,7 +77,6 @@ str_match_named <- structure(function
 ### rownames.
 }, ex=function(){
 
-  library(namedCapture)
   chr.pos.vec <- c(
     "chr10:213,054,000-213,055,000",
     "chrM:111,000-222,000",
@@ -93,22 +94,25 @@ str_match_named <- structure(function
   ## returned by those functions.
   keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
   conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
-  (match.df <- str_match_named(chr.pos.vec, chr.pos.pattern, conversion.list))
+  (match.df <- namedCapture::str_match_named(chr.pos.vec, chr.pos.pattern, conversion.list))
   str(match.df)
   
 })
 
 str_match_all_named <- structure(function
-### Parse several occurances of pattern from each of several subject
-### strings using named capturing regular expressions. Uses
+### Extract all matches of pattern from each element of subject.vec
+### using named capturing regular expressions. Uses
 ### re2r::re2_match_all if namedCapture.engine()=="RE2" otherwise uses
 ### gregexpr(perl=TRUE).
+### For the common case of extracting all matches of a regex from a
+### multi-line text file, please use str_match_all_variable instead.
 (subject.vec,
 ### character vector of subjects.
  pattern,
 ### named capture regular expression (character vector of length 1).
  type.list=NULL
-### named list of functions to apply to captured groups.
+### named list of functions to apply to captured groups, in order to
+### create non-character (typically numeric) columns in the result.
  ){
   check_subject_pattern(subject.vec, pattern)
   unconverted.list <- list()
@@ -156,7 +160,6 @@ str_match_all_named <- structure(function
 ### used as the names of the returned list.
 }, ex=function(){
 
-  library(namedCapture)
   chr.pos.vec <- c(
     "chr10:213,054,000-213,055,000",
     "chrM:111,000-222,000",
@@ -176,7 +179,7 @@ str_match_all_named <- structure(function
   conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
   ## Use str_match_all_named to get ALL matches in each subject (not
   ## just the first match).
-  (match.df.list <- str_match_all_named(
+  (match.df.list <- namedCapture::str_match_all_named(
     chr.pos.vec, chr.pos.pattern, conversion.list))
   str(match.df.list)
   ## If there is a capture group named "name" then it will be used for
@@ -189,7 +192,7 @@ str_match_all_named <- structure(function
     "(?P<name>[^ ]+?)",
     "=",
     "(?P<value>[^ ]+)")
-  str_match_all_named(name.value.vec, name.value.pattern)
+  namedCapture::str_match_all_named(name.value.vec, name.value.pattern)
   
 })
 
