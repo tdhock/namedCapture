@@ -3,6 +3,7 @@ set -o errexit
 PREGEX="^Package: "
 PKG=$(grep $PREGEX DESCRIPTION|sed "s/$PREGEX//")
 echo Package from DESCRIPTION: $PKG
+R -e "inlinedocs::package.skeleton.dx('.')"
 cd ..
 
 RELEASE=$PKG-release
