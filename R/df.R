@@ -2,9 +2,9 @@ df_match_variable <- structure(function # First match from every row, variable a
 ### Extract text from several columns of a data.frame, using a
 ### different named capture regular expression for each column. Uses
 ### str_match_variable on each column/pattern indicated in
-### ... (argument names are interpreted as column names of subject;
+### ... -- argument names are interpreted as column names of subject;
 ### argument values are passed as the pattern to
-### str_match_variable).
+### str_match_variable.
 (...
 ### subject.df, colName1=list(groupName1=pattern1, fun1, etc),
 ### colName2=list(etc), etc. First (un-named) argument should be a

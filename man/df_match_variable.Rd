@@ -4,9 +4,9 @@
 \description{Extract text from several columns of a data.frame, using a
 different named capture regular expression for each column. Uses
 \code{\link{str_match_variable}} on each column/pattern indicated in
-\code{...} (argument names are interpreted as column names of subject;
+\code{...} -- argument names are interpreted as column names of subject;
 argument values are passed as the pattern to
-\code{\link{str_match_variable}}).}
+\code{\link{str_match_variable}}.}
 \usage{df_match_variable(...)}
 \arguments{
   \item{\dots}{subject.df, colName1=list(groupName1=pattern1, fun1, etc),
