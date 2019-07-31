@@ -18,8 +18,6 @@ devtools::install_github("tdhock/namedCapture")
 
 ** Usage overview
 
-Additional
-
 There are five main functions provided in namedCapture:
 
 |                             | Extract first match  | Extract each match       |
