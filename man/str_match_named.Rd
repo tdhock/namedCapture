@@ -1,11 +1,11 @@
 \name{str_match_named}
 \alias{str_match_named}
-\title{str match named}
-\description{Extract the first match of \code{pattern} from each element of \code{subject.vec}
-using a named capture regular expression. Uses
-\code{\link[re2r]{re2_match}} if \code{\link{namedCapture.engine}}()=="RE2" otherwise uses
-\code{\link[base]{regexpr}}(perl=TRUE). This function is mostly for internal use;
-most users should use \code{\link{str_match_variable}} instead.}
+\title{First match from multiple subjects, three argument syntax}
+\description{Extract the first match of \code{pattern} from each element of
+\code{subject.vec} using a named capture regular expression. Uses
+\code{\link[re2r]{re2_match}} if \code{\link{namedCapture.engine}} is RE2, otherwise uses
+\code{\link[base]{regexpr}} with \code{perl=TRUE}. This function is mostly for
+internal use; most users should use \code{\link{str_match_variable}} instead.}
 \usage{str_match_named(subject.vec, pattern, type.list = NULL)}
 \arguments{
   \item{subject.vec}{character vector of subjects.}
@@ -18,7 +18,7 @@ create non-character (typically numeric) columns in the result.}
 capture group if \code{type.list} is a list of functions. Otherwise a
 character matrix. If \code{subject.vec} has names then they will be used
 for the rownames of the returned data.frame or character
-matrix. Otherwise if there is a group named "name" then it will
+matrix. Otherwise if \code{pattern} has a group named "name" then it will
 not be returned as a column, and will instead be used for the
 rownames.}
 

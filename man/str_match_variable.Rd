@@ -1,10 +1,14 @@
 \name{str_match_variable}
 \alias{str_match_variable}
-\title{str match variable}
-\description{Extract the first match of a named capture regex pattern from
-each of several subject strings. This function uses
-\code{\link{variable_args_list}} to analyze the arguments and \code{\link{str_match_named}}
-to perform the matching.}
+\alias{namedCapture}
+\title{First match from multiple subjects, variable argument syntax}
+\description{Extract the first match of a named capture regex pattern from each
+of several subject strings. This function uses \code{\link{variable_args_list}}
+to analyze the arguments and \code{\link{str_match_named}} to perform the
+matching. For the first match in every row of a data.frame, using
+a different regex for each column, use \code{\link{df_match_variable}}. For all
+matches in one character subject use \code{\link{str_match_all_variable}}; for
+all matches in several character subjects use \code{\link{str_match_all_named}}.}
 \usage{str_match_variable(...)}
 \arguments{
   \item{\dots}{subject, name1=pattern1, fun1, etc, which creates the regex
@@ -40,7 +44,7 @@ named.subject.vec <- c(
 ## result. Since the subject is named, those names are used for the
 ## rownames of the result.
 (mat.subject.names <- namedCapture::str_match_variable(
-  named.subject.vec, 
+  named.subject.vec,
   chrom="chr.*?",
   ":",
   chromStart="[0-9,]+",
@@ -50,7 +54,7 @@ named.subject.vec <- c(
   ), "?")) # chromEnd is optional.
 
 ## When no type conversion functions are specified, the result is a
-## character matrix. 
+## character matrix.
 str(mat.subject.names)
 
 ## Conversion functions are used to convert the previously named

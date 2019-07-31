@@ -1,6 +1,6 @@
 \name{str_match_all_variable}
 \alias{str_match_all_variable}
-\title{str match all variable}
+\title{All matches from one subject, variable argument syntax}
 \description{Extract all matches of a named capture regex pattern from one
 subject string.
 It is for the common case of extracting

@@ -1,14 +1,14 @@
-### Error if subject or pattern incorrect type.
+### Error if subject.vec or pattern incorrect type.
 check_subject_pattern <- function(subject.vec, pattern){
   if(!(
-    is.character(subject.vec) && 
+    is.character(subject.vec) &&
     0 < length(subject.vec)
   )){
     str(subject.vec)
     stop("subject.vec should be a character vector with length>0")
   }
   if(!(
-    is.character(pattern) && 
+    is.character(pattern) &&
     length(pattern) == 1 &&
     !is.na(pattern)
   )){
@@ -17,8 +17,8 @@ check_subject_pattern <- function(subject.vec, pattern){
   }
 }
 
-### extract capture group columns, stop if any are un-named, and
-### assign optional groups to "".
+### Extract capture group columns from match.mat, stop if any are
+### un-named, and assign optional groups to "".
 only_captures <- function(match.mat){
   group.mat <- match.mat[, -1, drop=FALSE]
   un.named.group <- grepl("^[.]", colnames(group.mat))
@@ -30,17 +30,17 @@ only_captures <- function(match.mat){
   group.mat
 }
 
-### informative error message when named group(s) missing.
+### Informative error message when named group(s) missing.
 stop_for_names <- function(){
   stop("pattern must contain named capture groups (?P<name>subpattern)")
 }
 
-str_match_named <- structure(function 
-### Extract the first match of pattern from each element of subject.vec
-### using a named capture regular expression. Uses
-### re2r::re2_match if namedCapture.engine()=="RE2" otherwise uses
-### base::regexpr(perl=TRUE). This function is mostly for internal use;
-### most users should use str_match_variable instead.
+str_match_named <- structure(function # First match from multiple subjects, three argument syntax
+### Extract the first match of pattern from each element of
+### subject.vec using a named capture regular expression. Uses
+### re2r::re2_match if namedCapture.engine is RE2, otherwise uses
+### base::regexpr with \code{perl=TRUE}. This function is mostly for
+### internal use; most users should use str_match_variable instead.
 (subject.vec,
 ### character vector of subjects.
  pattern,
@@ -52,8 +52,8 @@ str_match_named <- structure(function
   check_subject_pattern(subject.vec, pattern)
   m <- if(namedCapture.engine()=="RE2"){
     re2.mat <- re2r::re2_match(subject.vec, pattern)
-    only_captures(re2.mat)    
-  }else{ 
+    only_captures(re2.mat)
+  }else{
     vec.with.attrs <- regexpr(pattern, subject.vec, perl=TRUE)
     no.match <- vec.with.attrs == -1 | is.na(subject.vec)
     capture.names <- names_or_error(vec.with.attrs)
@@ -72,7 +72,7 @@ str_match_named <- structure(function
 ### capture group if type.list is a list of functions. Otherwise a
 ### character matrix. If subject.vec has names then they will be used
 ### for the rownames of the returned data.frame or character
-### matrix. Otherwise if there is a group named "name" then it will
+### matrix. Otherwise if pattern has a group named "name" then it will
 ### not be returned as a column, and will instead be used for the
 ### rownames.
 }, ex=function(){
@@ -96,16 +96,16 @@ str_match_named <- structure(function
   conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
   (match.df <- namedCapture::str_match_named(chr.pos.vec, chr.pos.pattern, conversion.list))
   str(match.df)
-  
+
 })
 
-str_match_all_named <- structure(function
+str_match_all_named <- structure(function # All matches from multiple subjects, three argument syntax
 ### Extract all matches of pattern from each element of subject.vec
 ### using named capturing regular expressions. Uses
-### re2r::re2_match_all if namedCapture.engine()=="RE2" otherwise uses
-### gregexpr(perl=TRUE).
-### For the common case of extracting all matches of a regex from a
-### multi-line text file, please use str_match_all_variable instead.
+### re2r::re2_match_all if namedCapture.engine is RE2, otherwise uses
+### base::gregexpr with \code{perl=TRUE}.  For the common case of
+### extracting all matches of a regex from a multi-line text file,
+### please use str_match_all_variable instead.
 (subject.vec,
 ### character vector of subjects.
  pattern,
@@ -193,7 +193,7 @@ str_match_all_named <- structure(function
     "=",
     "(?P<value>[^ ]+)")
   namedCapture::str_match_all_named(name.value.vec, name.value.pattern)
-  
+
 })
 
 apply_type_funs <- function

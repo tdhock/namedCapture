@@ -3,7 +3,7 @@ library(namedCapture)
 context("name value")
 
 for(engine in c("PCRE", "RE2")){
-  namedCapture.engine(engine)
+  options(namedCapture.engine=engine)
   test_engine <- function(msg, ...){
     test_that(paste(engine, msg), ...)
   }

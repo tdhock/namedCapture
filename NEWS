@@ -1,5 +1,7 @@
 2019.7.30
 
+namedCapture.engine() only used for getting, not setting, option.
+
 Better examples for *_variable.
 
 New vignette names.

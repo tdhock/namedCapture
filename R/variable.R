@@ -1,4 +1,4 @@
-str_match_all_variable <- structure(function
+str_match_all_variable <- structure(function # All matches from one subject, variable argument syntax
 ### Extract all matches of a named capture regex pattern from one
 ### subject string.
 ### It is for the common case of extracting
@@ -56,11 +56,14 @@ str_match_all_variable <- structure(function
 
 })
 
-str_match_variable <- structure(function
-### Extract the first match of a named capture regex pattern from
-### each of several subject strings. This function uses
-### variable_args_list to analyze the arguments and str_match_named
-### to perform the matching.
+str_match_variable <- structure(function # First match from multiple subjects, variable argument syntax
+### Extract the first match of a named capture regex pattern from each
+### of several subject strings. This function uses variable_args_list
+### to analyze the arguments and str_match_named to perform the
+### matching. For the first match in every row of a data.frame, using
+### a different regex for each column, use df_match_variable. For all
+### matches in one character subject use str_match_all_variable; for
+### all matches in several character subjects use str_match_all_named.
 (...
 ### subject, name1=pattern1, fun1, etc, which creates the regex
 ### (?P<name1>pattern1) and uses fun1 for conversion. The first
@@ -75,6 +78,7 @@ str_match_variable <- structure(function
 ### pattern. Lists are parsed recursively for convenience.
 ){
   L <- variable_args_list(...)
+  ##alias<< namedCapture
   str_match_named(L$subject.vec, L$pattern, L$fun.list)
 ### matrix or data.frame with one row for each subject, and one column
 ### for each named group, see str_match_named for details.
@@ -90,7 +94,7 @@ str_match_variable <- structure(function
   ## result. Since the subject is named, those names are used for the
   ## rownames of the result.
   (mat.subject.names <- namedCapture::str_match_variable(
-    named.subject.vec, 
+    named.subject.vec,
     chrom="chr.*?",
     ":",
     chromStart="[0-9,]+",
@@ -100,9 +104,9 @@ str_match_variable <- structure(function
     ), "?")) # chromEnd is optional.
 
   ## When no type conversion functions are specified, the result is a
-  ## character matrix. 
+  ## character matrix.
   str(mat.subject.names)
-  
+
   ## Conversion functions are used to convert the previously named
   ## group, and patterns may be saved in lists for re-use.
   keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
