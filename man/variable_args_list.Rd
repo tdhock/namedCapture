@@ -1,7 +1,8 @@
 \name{variable_args_list}
 \alias{variable_args_list}
 \title{variable args list}
-\description{Parse the variable-length argument list.}
+\description{Parse the variable-length argument list used in
+\code{\link{str_match_variable}}, \code{\link{str_match_all_variable}}, and \code{\link{df_match_variable}}.}
 \usage{variable_args_list(...)}
 \arguments{
   \item{\dots}{character vectors or functions (for converting extracted character

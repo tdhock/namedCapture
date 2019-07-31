@@ -1,13 +1,11 @@
----
-title: "Three argument syntax"
-author: "Toby Dylan Hocking"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Three argument syntax}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{vignette 1: old three argument syntax}
+-->
+
+This vignette covers the old three argument syntax used in the
+`*_named` functions; see the other vignette "recommended variable
+argument syntax" for documentation about the `*_variable` functions.
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
@@ -155,3 +153,6 @@ namedCapture::str_match_named(
 namedCapture::str_match_all_named(
   named.subject.vec, name.pattern, conversion.list)
 ```
+
+Next, read the "recommended variable argument syntax" vignette for
+information about how to use the `*_variable` functions.

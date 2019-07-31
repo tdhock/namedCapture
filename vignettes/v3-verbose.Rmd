@@ -1,13 +1,11 @@
----
-title: "Other verbose regex syntax"
-author: "Toby Dylan Hocking"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Other verbose regex syntax}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{vignette 3: comparing verbose regex syntax}
+-->
+
+This vignette shows several comparisons between `*_variable` functions
+and other options for specifying a regex using a verbose/abstract
+syntax.
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(

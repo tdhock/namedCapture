@@ -1,13 +1,7 @@
----
-title: "Other syntax for data frames"
-author: "Toby Dylan Hocking"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Other syntax for data frames}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
+<!--
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{vignette 4: comparing regex functions for data frames}
+-->
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(

@@ -1,8 +1,14 @@
 \name{str_match_all_variable}
 \alias{str_match_all_variable}
-\title{str match all variable}
-\description{Extract each occurance of a named capture regex pattern from one
-subject string.}
+\title{All matches from one subject, variable argument syntax}
+\description{Extract all matches of a named capture regex pattern from one
+subject string.
+It is for the common case of extracting
+all matches of a regex from a single multi-line text file subject;
+for other subjects, \code{\link{str_match_all_named}} can be used to find all matches.
+This function uses
+\code{\link{variable_args_list}} to analyze the arguments and
+\code{\link{str_match_all_named}} to perform the matching.}
 \usage{str_match_all_variable(...)}
 \arguments{
   \item{\dots}{subject, name1=pattern1, fun1, etc, which creates the regex
@@ -22,7 +28,7 @@ pattern. Lists are parsed recursively for convenience.}
 }
 
 \value{matrix or data.frame with one row for each match, and one column
-for each named group, see ?str_match_all_named for details.}
+for each named group, see \code{\link{str_match_all_named}} for details.}
 
 \author{Toby Dylan Hocking}
 
@@ -31,7 +37,6 @@ for each named group, see ?str_match_all_named for details.}
 
 \examples{
 
-library(namedCapture)
 chr.pos.vec <- c(
   "chr10:213,054,000-213,055,000",
   "chrM:111,000-222,000",
@@ -43,13 +48,15 @@ keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
 ## lines (and ignores NA elements). Named arguments are used to
 ## create named capture groups, and conversion functions such as
 ## keep.digits are used to convert the previously named group.
-(match.df <- str_match_all_variable(
+int.pattern <- list("[0-9,]+", keep.digits)
+(match.df <- namedCapture::str_match_all_variable(
   chr.pos.vec,
-  chrom="chr.*?",
+  name="chr.*?",
   ":",
-  chromStart=".*?", keep.digits,
+  chromStart=int.pattern,
   "-",
-  chromEnd="[0-9,]*", keep.digits))
+  chromEnd=int.pattern))
 str(match.df)
+match.df["chr1", "chromEnd"]
 
 }

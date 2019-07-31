@@ -1,23 +1,26 @@
 \name{str_match_all_named}
 \alias{str_match_all_named}
-\title{str match all named}
-\description{Parse several occurances of pattern from each of several subject
-strings using named capturing regular expressions. Uses
-re2r::re2_match_all if namedCapture.engine()=="RE2" otherwise uses
-gregexpr(perl=TRUE).}
+\title{All matches from multiple subjects, three argument syntax}
+\description{Extract all matches of \code{pattern} from each element of \code{subject.vec}
+using named capturing regular expressions. Uses
+\code{\link[re2r]{re2_match_all}} if \code{\link{namedCapture.engine}} is RE2, otherwise uses
+\code{\link[base]{gregexpr}} with \code{perl=TRUE}.  For the common case of
+extracting all matches of a regex from a multi-line text file,
+please use \code{\link{str_match_all_variable}} instead.}
 \usage{str_match_all_named(subject.vec, pattern, type.list = NULL)}
 \arguments{
   \item{subject.vec}{character vector of subjects.}
   \item{pattern}{named capture regular expression (character vector of length 1).}
-  \item{type.list}{named list of functions to apply to captured groups.}
+  \item{type.list}{named list of functions to apply to captured groups, in order to
+create non-character (typically numeric) columns in the result.}
 }
 
 \value{A list of data.frames with one row for each subject and one column
-for each capture group if type.list is a list of
-functions. Otherwise a list of character matrices. If pattern
+for each capture group if \code{type.list} is a list of
+functions. Otherwise a list of character matrices. If \code{pattern}
 contains a group named "name" then it will not be returned as a
 column, and will instead be used for the rownames of the
-data.frames or matrices. If subject.vec has names, they will be
+data.frames or matrices. If \code{subject.vec} has names, they will be
 used as the names of the returned list.}
 
 \author{Toby Dylan Hocking}
@@ -27,7 +30,6 @@ used as the names of the returned list.}
 
 \examples{
 
-library(namedCapture)
 chr.pos.vec <- c(
   "chr10:213,054,000-213,055,000",
   "chrM:111,000-222,000",
@@ -47,7 +49,7 @@ keep.digits <- function(x)as.integer(gsub("[^0-9]", "", x))
 conversion.list <- list(chromStart=keep.digits, chromEnd=keep.digits)
 ## Use str_match_all_named to get ALL matches in each subject (not
 ## just the first match).
-(match.df.list <- str_match_all_named(
+(match.df.list <- namedCapture::str_match_all_named(
   chr.pos.vec, chr.pos.pattern, conversion.list))
 str(match.df.list)
 ## If there is a capture group named "name" then it will be used for
@@ -60,6 +62,6 @@ name.value.pattern <- paste0(
   "(?P<name>[^ ]+?)",
   "=",
   "(?P<value>[^ ]+)")
-str_match_all_named(name.value.vec, name.value.pattern)
+namedCapture::str_match_all_named(name.value.vec, name.value.pattern)
 
 }
