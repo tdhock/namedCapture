@@ -32,7 +32,7 @@ must contain the subject:
 - =str_*= means a character vector -- each of these functions uses a
   single named capture regular expression to extract data from a
   character vector subject.
-- =df_*= means a data.frame -- the [[#tidy-variable-argument-syntax-for-dataframedatatable][df_match_variable]] function uses a
+- =df_*= means a data.frame -- the =df_match_variable= function uses a
   different named capture regular expression to extract data from each
   of several specified character column subjects. 
 The function suffix indicates the type of the other arguments (after
