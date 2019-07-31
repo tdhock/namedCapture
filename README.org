@@ -18,6 +18,8 @@ devtools::install_github("tdhock/namedCapture")
 
 ** Usage overview
 
+Additional
+
 There are five main functions provided in namedCapture:
 
 |                             | Extract first match  | Extract each match       |
@@ -37,13 +39,17 @@ The function suffix indicates the type of the other arguments (after
 the first):
 - =*_named= means three arguments: subject, pattern, functions. The
   pattern should be a length-1 character vector that contains named
-  capture groups, e.g. "(?P<groupName1>subPattern1)", read the [[https://cran.r-project.org/web/packages/namedCapture/vignettes/Three_argument_syntax.html][Three
+  capture groups, e.g. "(?P<groupName1>subPattern1)", read the [[https://cloud.r-project.org/web/packages/namedCapture/vignettes/v1-old-syntax.html][Old three
   argument syntax]] vignette for more info.
 - =*_variable= means a variable number of arguments in which the
   pattern is specified using character strings, type conversion
-  functions, and lists. Read the [[https://cran.r-project.org/web/packages/namedCapture/vignettes/Variable_argument_syntax.html][Variable argument syntax]] vignette for
+  functions, and lists. Read the [[https://cloud.r-project.org/web/packages/namedCapture/vignettes/v2-recommended-syntax.html][Recommended variable argument syntax]] vignette for
   more info about this powerful and user-friendly syntax, which is the
   suggested way of using namedCapture.
+  
+Additional vignettes:
+- [[https://cloud.r-project.org/web/packages/namedCapture/vignettes/v3-verbose.html][Comparing verbose regex syntax]] shows comparisons with =PCRE_EXTENDED= mode and the =rex= R package.
+- [[https://cloud.r-project.org/web/packages/namedCapture/vignettes/v4-data-frames.html][Comparing regex functions for data.frames]] shows comparisons with the =tidyr= R package.
 
 ** Choice of regex engine
 
