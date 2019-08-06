@@ -3,6 +3,8 @@
 %\VignetteIndexEntry{vignette 2: recommended variable argument syntax}
 -->
 
+# Recommended variable argument syntax
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,

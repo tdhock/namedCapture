@@ -3,6 +3,8 @@
 %\VignetteIndexEntry{vignette 4: comparing regex functions for data frames}
 -->
 
+# Comparing regex functions for data frames
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,

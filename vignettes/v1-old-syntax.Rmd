@@ -3,6 +3,8 @@
 %\VignetteIndexEntry{vignette 1: old three argument syntax}
 -->
 
+# Old three argument syntax
+
 This vignette covers the old three argument syntax used in the
 `*_named` functions; see the other vignette "recommended variable
 argument syntax" for documentation about the `*_variable` functions.
