@@ -12,8 +12,7 @@ argument values are passed as the pattern to
   \item{\dots}{
 }
 }
-\details{Each column is processed in parallel if an appropriate
-\code{\link[future]{plan}} is declared.}
+
 \value{data.frame with same number of rows as subject, with an additional
 column for each named capture group specified in \code{...}  (actually
 the value is created via \code{\link[base]{cbind}} so if subject is something else
