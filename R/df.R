@@ -64,9 +64,7 @@ df_match_variable <- structure(function # First match from every row, variable a
       "only one group named 'name' is allowed; problems: ",
       paste(names(has.rownames)[has.rownames], collapse=", "))
   }
-  out.list <- c(list(subject), match.list)
-  ##names(out.list) <- NULL
-  do.call(cbind, out.list)
+  Reduce(cbind, match.list, subject)
 ### data.frame with same number of rows as subject, with an additional
 ### column for each named capture group specified in ...  (actually
 ### the value is created via base::cbind so if subject is something else
