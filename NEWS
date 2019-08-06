@@ -1,7 +1,6 @@
 2019.8.6
 
-future.apply::future_lapply used in df_match_variable for processing
-each column in parallel.
+cbind in for loop used in df_match_variable for speed.
 
 2019.7.30
 
