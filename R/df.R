@@ -5,7 +5,7 @@ df_match_variable <- structure(function # First match from every row, variable a
 ### ... -- argument names are interpreted as column names of subject;
 ### argument values are passed as the pattern to
 ### str_match_variable.
-(...
+(... # can NOT have subject arg outside of dots (column named subject)
 ### subject.df, colName1=list(groupName1=pattern1, fun1, etc),
 ### colName2=list(etc), etc. First (un-named) argument should be a
 ### data.frame with character columns of subjects for matching. The
@@ -26,7 +26,9 @@ df_match_variable <- structure(function # First match from every row, variable a
     stop("subject must be a data.frame with character columns to match")
   }
   col.pattern.list <- all.arg.list[-1]
-  if(length(col.pattern.list)==0)stop("no patterns specified in ...")
+  if(length(col.pattern.list)==0){
+    stop("no patterns specified in ...")
+  }
   valid.name <- names(col.pattern.list) %in% names(subject)
   invalid.vec <- names(col.pattern.list)[!valid.name]
   if(is.null(names(col.pattern.list)) || length(invalid.vec)){
@@ -34,32 +36,30 @@ df_match_variable <- structure(function # First match from every row, variable a
          ") not found in subject column names (", paste(names(subject), collapse=", "),
          "); each pattern in ... must be named using a column name of subject")
   }
-  out.list <- list(subject)
-  has.rownames <- logical()
-  default.rownames <- paste(1:nrow(subject))
-  subject.names <- if(identical(rownames(subject), default.rownames)){
-    NULL
-  }else{
-    rownames(subject)
-  }
+  out <- subject
+  name.group.used <- FALSE
   for(col.name in names(col.pattern.list)){
-    subject.vec <- subject[[col.name]]
-    names(subject.vec) <- subject.names
-    arg.list <- list(subject.vec, col.pattern.list[[col.name]])
-    result <- do.call(str_match_variable, arg.list)
-    group.names <- colnames(result)
-    out <- data.frame(result, stringsAsFactors=FALSE)
-    has.rownames[[col.name]] <- !identical(rownames(out), default.rownames)
-    names(out) <- paste0(col.name, ".", group.names)
-    out.list[[col.name]] <- out
+    subject.names <- if(.row_names_info(subject) > 0L){
+      attr(subject, "row.names")
+    }      
+    subject.vec <- structure(subject[[col.name]], names=subject.names)
+    m <- str_match_variable(subject.vec, col.pattern.list[[col.name]])
+    has.names <- (
+      is.matrix(m) && !is.null(rownames(m))
+    ) || (
+      is.data.frame(m) && .row_names_info(m) > 0L
+    )
+    if(is.null(subject.names) && has.names){
+      if(name.group.used){
+        stop("only one group named 'name' is allowed")
+      }else{
+        name.group.used <- TRUE
+      }
+    }
+    colnames(m) <- paste0(col.name, ".", colnames(m))
+    out <- cbind(out, m, stringsAsFactors=FALSE)
   }
-  if(is.null(subject.names) && 1 < sum(has.rownames)){
-    stop(
-      "only one group named 'name' is allowed; problems: ",
-      paste(names(has.rownames)[has.rownames], collapse=", "))
-  }
-  names(out.list) <- NULL
-  do.call(cbind, out.list)
+  out
 ### data.frame with same number of rows as subject, with an additional
 ### column for each named capture group specified in ...  (actually
 ### the value is created via base::cbind so if subject is something else
@@ -94,6 +94,7 @@ df_match_variable <- structure(function # First match from every row, variable a
     ")")#end alternate
   namedCapture::df_match_variable(sacct.df, JobID=task.pattern)
 
+  if(requireNamespace("future") && interactive())future::plan("multiprocess")
   (task.df <- namedCapture::df_match_variable(
     sacct.df,
     JobID=list(

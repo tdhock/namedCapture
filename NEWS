@@ -1,3 +1,7 @@
+2019.8.6
+
+cbind in for loop used in df_match_variable for speed.
+
 2019.7.30
 
 namedCapture.engine() only used for getting, not setting, option.

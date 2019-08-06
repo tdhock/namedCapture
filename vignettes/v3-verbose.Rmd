@@ -3,6 +3,8 @@
 %\VignetteIndexEntry{vignette 3: comparing verbose regex syntax}
 -->
 
+# Comparison with rex and PCRE_EXTENDED
+
 This vignette shows several comparisons between `*_variable` functions
 and other options for specifying a regex using a verbose/abstract
 syntax.
@@ -14,9 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-## Comparison with rex and PCRE_EXTENDED
-
-In this section we compare namedCapture verbose variable argument
+In this vignette we compare namedCapture verbose variable argument
 syntax with the similar rex package, and the PCRE_EXTENDED mode which
 is turned on via the regex `(?x)` and we use below with
 `namedCapture::str_match_named`. We use the log parsing example from
