@@ -46,7 +46,7 @@ for(engine in c("PCRE", "RE2")){
       subject=list(
         chrom="chr.*?",
         ":",
-        chromStart=".*?", 
+        chromStart=".*?",
         "-",
         chromEnd="[0-9,]*"))
     expect_identical(names(match.df), c(
@@ -104,7 +104,7 @@ for(engine in c("PCRE", "RE2")){
       position=list(
         chrom="chr.*?",
         ":",
-        chromStart=".*?", 
+        chromStart=".*?",
         "-",
         chromEnd="[0-9,]*"))
     expect_identical(names(match.df), c(
@@ -158,7 +158,7 @@ for(engine in c("PCRE", "RE2")){
         "-",
         chromEnd="[0-9,]*", keep.digits))
     expect_identical(names(match.df), c(
-      "JobID", "position", "JobID.rest", 
+      "JobID", "position", "JobID.rest",
       "position.chrom", "position.chromStart", "position.chromEnd"))
     expect_identical(match.df$JobID.rest, c(
       "_25", "atch", "xtern", "_[1-3]", "_[4]"))
@@ -185,7 +185,7 @@ for(engine in c("PCRE", "RE2")){
         "-",
         chrom_end="[0-9,]*", keep.digits))
     expect_identical(names(match.df), c(
-      "JobID", "position", "JobID.pre", "JobID.rest", 
+      "JobID", "position", "JobID.pre", "JobID.rest",
       "position.chrom_start", "position.chrom_end"))
     expect_identical(match.df$JobID.pre, c(
       "13937810", "13937810_25.b", "13937810_25.e", "14022192", "14022204"))
@@ -226,7 +226,7 @@ for(engine in c("PCRE", "RE2")){
         "-",
         chromEnd="[0-9,]*", keep.digits))
     expect_identical(names(match.df), c(
-      "JobID", "position", "JobID.name", "JobID.rest", 
+      "JobID", "position", "JobID.name", "JobID.rest",
       "position.chrom", "position.chromStart", "position.chromEnd"))
     expect_identical(match.df$JobID.name, c(
       "13937810", "13937810_25.b", "13937810_25.e", "14022192", "14022204"))
@@ -254,7 +254,7 @@ for(engine in c("PCRE", "RE2")){
         "-",
         chromEnd="[0-9,]*", keep.digits))
     expect_identical(names(match.df), c(
-      "JobID", "position", "JobID.first", "JobID.rest", 
+      "JobID", "position", "JobID.first", "JobID.rest",
       "position.name", "position.chromStart", "position.chromEnd"))
     expect_identical(match.df$JobID.first, c(
       "13937810", "13937810_25.b", "13937810_25.e", "14022192", "14022204"))
@@ -298,7 +298,7 @@ for(engine in c("PCRE", "RE2")){
         "-",
         chromEnd="[0-9,]*", keep.digits))
     expect_identical(names(match.df), c(
-      "JobID", "position", "JobID.name", "JobID.rest", 
+      "JobID", "position", "JobID.name", "JobID.rest",
       "position.name", "position.chromStart", "position.chromEnd"))
     expect_identical(match.df$JobID.name, c(
       "13937810", "13937810_25.b", "13937810_25.e", "14022192", "14022204"))
@@ -355,4 +355,16 @@ for(engine in c("PCRE", "RE2")){
     }, "subject.vec should be a character vector with length>0")
   })
 
-} 
+  in.df <- data.frame(bar="foobar", stringsAsFactors=FALSE)
+  test_engine("df only one group = name", {
+    out.df <- namedCapture::df_match_variable(
+      in.df,
+      bar=list(
+        name="foo"))
+    exp.df <- in.df
+    rownames(exp.df) <- "foo"
+    expect_identical(out.df, exp.df)
+  })
+
+
+}

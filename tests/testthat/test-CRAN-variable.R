@@ -302,4 +302,21 @@ for(engine in c("PCRE", "RE2")){
     expect_identical(foo.mat[, "second"], c("", "ar", ""))
   })
 
+  subject <- "foo55bar"
+  test_engine("str_match_variable returns mat with only one group = name", {
+    out.mat <- namedCapture::str_match_variable(
+      subject,
+      name="[0-9]+")
+    exp.mat <- matrix(character(), 1, 0, dimnames=list("55"))
+    expect_identical(out.mat, exp.mat)
+  })
+  test_engine("str_match_variable returns df with only one group = name", {
+    out.df <- namedCapture::str_match_variable(
+      subject,
+      name="[0-9]+", as.integer)
+    exp.df <- data.frame(row.names="55")
+    expect_identical(out.df, exp.df)
+  })
+
+
 }

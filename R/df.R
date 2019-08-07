@@ -56,7 +56,9 @@ df_match_variable <- structure(function # First match from every row, variable a
         name.group.used <- TRUE
       }
     }
-    colnames(m) <- paste0(col.name, ".", colnames(m))
+    if(is.character(colnames(m))){
+      colnames(m) <- paste0(col.name, ".", colnames(m))
+    }
     out <- cbind(out, m, stringsAsFactors=FALSE)
   }
   out

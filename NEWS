@@ -11,6 +11,8 @@ show generated pattern in stop_for_names.
 
 document/export variable_args_list for viewing generated pattern.
 
+bugfix for df_match_variable with only one group = name.
+
 2019.7.30
 
 namedCapture.engine() only used for getting, not setting, option.

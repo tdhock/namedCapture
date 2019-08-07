@@ -34,7 +34,8 @@ only_captures <- function(match.mat, pattern){
 stop_for_names <- function(pattern){
   stop("\n", pattern, '
 pattern (above) must contain named capture groups (?P<name>subpattern);
-make one using namedCapture::*_variable(subject, name="subpattern")')
+make one using namedCapture::str_*_variable(subject.vec, name="subpattern") or
+namedCapture::df_match_variable(subject.df, colName=list(name="subpattern"))')
 }
 
 str_match_named <- structure(function # First match from multiple subjects, three argument syntax
