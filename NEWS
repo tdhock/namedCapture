@@ -1,6 +1,11 @@
-2019.8.6
+2019.8.7
 
 cbind in for loop used in df_match_variable for speed.
+
+tried parallelizing df_match_variable over subject columns using
+future, but no significant speedups.
+
+tried re2_match(parallel=TRUE) but no significant speedups.
 
 2019.7.30
 

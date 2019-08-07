@@ -53,7 +53,6 @@ task.pattern <- list(
   ")")#end alternate
 namedCapture::df_match_variable(sacct.df, JobID=task.pattern)
 
-if(requireNamespace("future") && interactive())future::plan("multiprocess")
 (task.df <- namedCapture::df_match_variable(
   sacct.df,
   JobID=list(

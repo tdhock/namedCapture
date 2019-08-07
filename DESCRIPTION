@@ -1,14 +1,13 @@
 Package: namedCapture
 Maintainer: Toby Dylan Hocking <toby.hocking@r-project.org>
 Author: Toby Dylan Hocking
-Version: 2019.8.6
+Version: 2019.8.7
 License: GPL-3
 Title: Named Capture Regular Expressions
 Description: User-friendly wrappers for 
  named capture regular expressions.
 Depends: R (>= 2.14)
 Suggests: testthat, data.table, re2r, knitr, rmarkdown,
- future, future.apply,
  rex, dplyr, tidyr
 VignetteBuilder: knitr
 URL: https://github.com/tdhock/namedCapture

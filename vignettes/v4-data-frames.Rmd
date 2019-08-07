@@ -70,7 +70,6 @@ task.list <- list(
   range.list,
   ")")#end alternate
 to.int <- function(x)as.integer(remove.commas(x))
-if(requireNamespace("future") && interactive())future::plan("multiprocess")
 (long.list$namedCapture <- namedCapture::df_match_variable(
   sacct.df,
   JobID=list(

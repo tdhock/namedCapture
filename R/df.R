@@ -41,7 +41,7 @@ df_match_variable <- structure(function # First match from every row, variable a
   for(col.name in names(col.pattern.list)){
     subject.names <- if(.row_names_info(subject) > 0L){
       attr(subject, "row.names")
-    }      
+    }
     subject.vec <- structure(subject[[col.name]], names=subject.names)
     m <- str_match_variable(subject.vec, col.pattern.list[[col.name]])
     has.names <- (
@@ -94,7 +94,6 @@ df_match_variable <- structure(function # First match from every row, variable a
     ")")#end alternate
   namedCapture::df_match_variable(sacct.df, JobID=task.pattern)
 
-  if(requireNamespace("future") && interactive())future::plan("multiprocess")
   (task.df <- namedCapture::df_match_variable(
     sacct.df,
     JobID=list(
