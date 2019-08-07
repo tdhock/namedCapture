@@ -19,11 +19,11 @@ check_subject_pattern <- function(subject.vec, pattern){
 
 ### Extract capture group columns from match.mat, stop if any are
 ### un-named, and assign optional groups to "".
-only_captures <- function(match.mat){
+only_captures <- function(match.mat, pattern){
   group.mat <- match.mat[, -1, drop=FALSE]
   un.named.group <- grepl("^[.]", colnames(group.mat))
   if(any(un.named.group) || ncol(group.mat)==0){
-    stop_for_names()
+    stop_for_names(pattern)
   }
   missing.match <- is.na(match.mat[,1])
   group.mat[is.na(group.mat) & !missing.match] <- "" #optional groups
@@ -31,8 +31,10 @@ only_captures <- function(match.mat){
 }
 
 ### Informative error message when named group(s) missing.
-stop_for_names <- function(){
-  stop("pattern must contain named capture groups (?P<name>subpattern)")
+stop_for_names <- function(pattern){
+  stop("\n", pattern, '
+pattern (above) must contain named capture groups (?P<name>subpattern);
+make one using namedCapture::*_variable(subject, name="subpattern")')
 }
 
 str_match_named <- structure(function # First match from multiple subjects, three argument syntax
@@ -52,11 +54,11 @@ str_match_named <- structure(function # First match from multiple subjects, thre
   check_subject_pattern(subject.vec, pattern)
   m <- if(namedCapture.engine()=="RE2"){
     re2.mat <- re2r::re2_match(subject.vec, pattern)
-    only_captures(re2.mat)
+    only_captures(re2.mat, pattern)
   }else{
     vec.with.attrs <- regexpr(pattern, subject.vec, perl=TRUE)
     no.match <- vec.with.attrs == -1 | is.na(subject.vec)
-    capture.names <- names_or_error(vec.with.attrs)
+    capture.names <- names_or_error(vec.with.attrs, pattern)
     first <- attr(vec.with.attrs, "capture.start")
     first[no.match] <- NA
     last <- attr(vec.with.attrs, "capture.length")-1+first
@@ -126,7 +128,7 @@ str_match_all_named <- structure(function # All matches from multiple subjects, 
       unconverted.list[[i]] <- if(no.match || subject.is.na){
         no.match.mat
       }else{
-        only_captures(re2.mat)
+        only_captures(re2.mat, pattern)
       }
     }
   }else{
@@ -143,7 +145,7 @@ str_match_all_named <- structure(function # All matches from multiple subjects, 
         last <- attr(vec.with.attrs, "capture.length")-1+first
         subs <- substring(subject.vec[i], first, last)
         m <- matrix(subs, nrow=nrow(first))
-        colnames(m) <- names_or_error(vec.with.attrs)
+        colnames(m) <- names_or_error(vec.with.attrs, pattern)
       }
       unconverted.list[[i]] <- m
     }
@@ -233,7 +235,7 @@ apply_type_funs <- function
         }, error=function(e){
           stop(
             "type.list must be ",
-            "list(group.name=function(character.vector)any.vector)")
+            "list(group.name=function(character.vector)atomic.vector)")
         })
         if(!is.atomic(fun.result)){
           stop(col.name, " type.list function must return atomic vector")
@@ -264,12 +266,13 @@ apply_type_funs <- function
 names_or_error <- function
 ### Extract capture group names. Stop with an error if there are no
 ### capture groups, or if there are any capture groups without names.
-(vec.with.attrs
+(vec.with.attrs,
 ### Output from g?regexpr.
+  pattern
  ){
   capture.names <- attr(vec.with.attrs, "capture.names")
   if(!is.character(capture.names) || any(capture.names == "")){
-    stop_for_names()
+    stop_for_names(pattern)
   }
   capture.names
 ### Character vector.

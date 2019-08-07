@@ -7,6 +7,10 @@ future, but no significant speedups.
 
 tried re2_match(parallel=TRUE) but no significant speedups.
 
+show generated pattern in stop_for_names.
+
+document/export variable_args_list for viewing generated pattern.
+
 2019.7.30
 
 namedCapture.engine() only used for getting, not setting, option.

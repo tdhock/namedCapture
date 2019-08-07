@@ -66,7 +66,7 @@ for(engine in c("PCRE", "RE2")){
   test_engine("informative error when converter is not function", {
     expect_error({
       str_match_named("chr2:300-400", pattern.not.greedy, list(chromStart="foo"))
-    }, "type.list must be list(group.name=function(character.vector)any.vector)",
+    }, "type.list must be list(group.name=function(character.vector)atomic.vector)",
     fixed=TRUE)
   })
 
@@ -74,7 +74,7 @@ for(engine in c("PCRE", "RE2")){
     expect_error({
       str_match_named("chr2:300-400", pattern.not.greedy, list(
         chromStart=function()y))
-    }, "type.list must be list(group.name=function(character.vector)any.vector)",
+    }, "type.list must be list(group.name=function(character.vector)atomic.vector)",
     fixed=TRUE)
   })
 

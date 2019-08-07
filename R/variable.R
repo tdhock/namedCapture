@@ -141,9 +141,12 @@ str_match_variable <- structure(function # First match from multiple subjects, v
 
 })
 
-variable_args_list <- function
+variable_args_list <- structure(function
 ### Parse the variable-length argument list used in
-### str_match_variable, str_match_all_variable, and df_match_variable.
+### str_match_variable, str_match_all_variable, and
+### df_match_variable. This function is mostly intended for internal
+### use, but is useful if you want to see the regex pattern generated
+### by the variable argument syntax.
 (...
 ### character vectors or functions (for converting extracted character
 ### vectors to other types). The first element must be the subject
@@ -218,4 +221,17 @@ variable_args_list <- function
 ### List with three named elements: subject.vec is the subject
 ### character vector, pattern is the regular expression string, and
 ### fun.list is a list of conversion functions.
-}
+}, ex=function(){
+
+  pos.pattern <- list("[0-9]+", as.integer)
+  namedCapture::variable_args_list(
+    "some subject",
+    chrom="chr.*?",
+    ":",
+    chromStart=pos.pattern,
+    list(
+      "-",
+      chromEnd=pos.pattern
+    ), "?")
+
+})
