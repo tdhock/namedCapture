@@ -1,6 +1,8 @@
-2019.8.8
+2019.8.8 PR#11
 
-
+subject.vec is now first arg of str_*_variable; subject is no longer
+passed to variable_args_list. Usage is same as before but docs should
+be easier to understand.
 
 2019.8.7
 
