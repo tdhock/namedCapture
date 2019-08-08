@@ -22,7 +22,9 @@ are pasted together to obtain the final pattern used for
 matching. Each named pattern may be followed by at most one
 function which is used to convert the previous named
 pattern. Lists are parsed recursively for convenience.}
-  \item{nomatch.error}{stop with an error unless all subjects match.}
+  \item{nomatch.error}{if TRUE, stop with an error if any subject does not match;
+otherwise (default), subjects that do not match are reported as
+missing/NA rows of the result.}
 }
 
 \value{matrix or data.frame with one row for each subject, and one column

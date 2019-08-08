@@ -77,7 +77,9 @@ str_match_variable <- structure(function # First match from multiple subjects, v
 ### function which is used to convert the previous named
 ### pattern. Lists are parsed recursively for convenience.
   nomatch.error=FALSE
-### stop with an error unless all subjects match.
+### if TRUE, stop with an error if any subject does not match;
+### otherwise (default), subjects that do not match are reported as
+### missing/NA rows of the result.
 ){
   L <- variable_args_list(...)
   ##alias<< namedCapture

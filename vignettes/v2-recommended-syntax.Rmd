@@ -158,6 +158,24 @@ using a character string literal; the advantage of
 `namedCapture::*_variable` functions is that the regex is much easier
 to read/understand/edit.
 
+## Error if any subjects do not match
+
+Sometimes you want to stop with an error (instead of reporting a row
+of NA) when a subject does not match. In that case, use `nomatch.error=TRUE`:
+
+```{r, error=TRUE, purl=FALSE}
+namedCapture::str_match_variable(
+  subject.vec, 
+  chrom="chr.*?",
+  ":",
+  chromStart=pos.pattern,
+  list(
+    "-",
+    chromEnd=pos.pattern
+  ), "?",
+  nomatch.error=TRUE)
+```
+
 ## Extract all matches from a multi-line text file subject
 
 The variable argument syntax can also be used with `str_match_all_variable`, which is for the common case of extracting each match from a multi-line text file. In this section we demonstrate how to use `str_match_all_variable` to
