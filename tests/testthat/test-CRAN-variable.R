@@ -291,6 +291,42 @@ for(engine in c("PCRE", "RE2")){
     expect_identical(
       chr.pos.df$chromStart,
       as.integer(c(213054000, 111000, NA, NA, 110)))
+    expect_identical(
+      chr.pos.df$chromEnd,
+      as.integer(c(213055000, NA, NA, NA, 111)))
+  })
+
+  matching.subjects <- c(
+    "chr10:213,054,000-213,055,000",
+    "chrM:111,000",
+    "chr1:110-111 chr2:220-222") # two possible matches.
+  test_engine("no error if nomatch.error=TRUE and all matches", {
+    match.df <- str_match_variable(
+      matching.subjects, nomatch.error=TRUE,
+      chrom="chr.*?",
+      ":",
+      chromStart="[0-9,]+", keep.digits,
+      list(
+        "-",
+        chromEnd="[0-9,]+", keep.digits
+      ), "?")
+    expect_identical(
+      match.df$chromEnd,
+      as.integer(c(213055000, NA, 111)))
+  })
+
+  test_engine("stop if nomatch.error=TRUE and no match", {
+    expect_error({
+      str_match_variable(
+        subject.vec, nomatch.error=TRUE,
+        chrom="chr.*?",
+        ":",
+        chromStart="[0-9,]+", keep.digits,
+        list(
+          "-",
+          chromEnd="[0-9,]+", keep.digits
+        ), "?")
+    }, "subjects printed above did not match regex below")
   })
 
   (foo.mat <- str_match_variable(
@@ -317,6 +353,5 @@ for(engine in c("PCRE", "RE2")){
     exp.df <- data.frame(row.names="55")
     expect_identical(out.df, exp.df)
   })
-
 
 }

@@ -9,7 +9,7 @@ matching. For the first match in every row of a data.frame, using
 a different regex for each column, use \code{\link{df_match_variable}}. For all
 matches in one character subject use \code{\link{str_match_all_variable}}; for
 all matches in several character subjects use \code{\link{str_match_all_named}}.}
-\usage{str_match_variable(...)}
+\usage{str_match_variable(..., nomatch.error = FALSE)}
 \arguments{
   \item{\dots}{subject, name1=pattern1, fun1, etc, which creates the regex
 (?P<name1>pattern1) and uses fun1 for conversion. The first
@@ -22,6 +22,7 @@ are pasted together to obtain the final pattern used for
 matching. Each named pattern may be followed by at most one
 function which is used to convert the previous named
 pattern. Lists are parsed recursively for convenience.}
+  \item{nomatch.error}{stop with an error unless all subjects match.}
 }
 
 \value{matrix or data.frame with one row for each subject, and one column

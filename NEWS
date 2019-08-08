@@ -1,5 +1,11 @@
 2019.8.7
 
+str_match_variable(nomatch.error=TRUE) means to stop with an error if
+any subjects do not match -- error message shows pattern and subjects
+which do not match. This is fully backwards compatible since arguments
+with names that contain dots resulted in an error (group names can not
+contain dots).
+
 cbind in for loop used in df_match_variable for speed.
 
 tried parallelizing df_match_variable over subject columns using

@@ -64,7 +64,7 @@ str_match_variable <- structure(function # First match from multiple subjects, v
 ### a different regex for each column, use df_match_variable. For all
 ### matches in one character subject use str_match_all_variable; for
 ### all matches in several character subjects use str_match_all_named.
-(...
+(...,
 ### subject, name1=pattern1, fun1, etc, which creates the regex
 ### (?P<name1>pattern1) and uses fun1 for conversion. The first
 ### argument must be the subject character vector. The other arguments
@@ -76,10 +76,20 @@ str_match_variable <- structure(function # First match from multiple subjects, v
 ### matching. Each named pattern may be followed by at most one
 ### function which is used to convert the previous named
 ### pattern. Lists are parsed recursively for convenience.
+  nomatch.error=FALSE
+### stop with an error unless all subjects match.
 ){
   L <- variable_args_list(...)
   ##alias<< namedCapture
-  str_match_named(L$subject.vec, L$pattern, L$fun.list)
+  df.or.mat <- str_match_named(L$subject.vec, L$pattern, L$fun.list)
+  if(isTRUE(nomatch.error)){
+    no.match <- apply(is.na(df.or.mat), 1, all)
+    if(any(no.match)){
+      print(L$subject.vec[no.match])
+      stop("subjects printed above did not match regex below\n", L$pattern)
+    }
+  }
+  df.or.mat
 ### matrix or data.frame with one row for each subject, and one column
 ### for each named group, see str_match_named for details.
 }, ex=function(){
@@ -210,7 +220,7 @@ variable_args_list <- structure(function
       var.arg.list <- c(group.start, var.arg, ")", var.arg.list)
     }else{
       print(var.arg)
-      stop("arguments must be character (subject/patterns), functions (for converting extracted character vectors to other types), or list (parsed recursively)")
+      stop("invalid argument printed above; arguments must be character (subject/patterns), functions (for converting extracted character vectors to other types), or list (parsed recursively)")
     }
   }
   out.list$pattern <- paste(pattern.list, collapse="")
