@@ -9,11 +9,11 @@ matching. For the first match in every row of a data.frame, using
 a different regex for each column, use \code{\link{df_match_variable}}. For all
 matches in one character subject use \code{\link{str_match_all_variable}}; for
 all matches in several character subjects use \code{\link{str_match_all_named}}.}
-\usage{str_match_variable(..., nomatch.error = FALSE)}
+\usage{str_match_variable(subject.vec, ..., nomatch.error = FALSE)}
 \arguments{
-  \item{\dots}{subject, name1=pattern1, fun1, etc, which creates the regex
-(?P<name1>pattern1) and uses fun1 for conversion. The first
-argument must be the subject character vector. The other arguments
+  \item{subject.vec}{The subject character vector.}
+  \item{\dots}{name1=pattern1, fun1, etc, which creates the regex
+(?P<name1>pattern1) and uses fun1 for conversion. These other arguments
 specify the regular expression pattern and must be
 character/function/list. All patterns must be character vectors of
 length 1. If the pattern is a named argument in R, we will add a

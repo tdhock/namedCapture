@@ -355,6 +355,25 @@ for(engine in c("PCRE", "RE2")){
     }, "subject.vec should be a character vector with length>0")
   })
 
+  test_engine("error for same column name twice", {
+    expect_error({
+      df_match_variable(
+        named.uniq.chr,
+        JobID=list(f="baz"),
+        JobID="foo")
+    }, "each argument name should be unique")
+  })
+
+  test_engine("error for named subject", {
+    expect_error({
+      df_match_variable(
+        JobID=named.uniq.chr,
+        JobID=list(f="[0-9]+"))
+    },
+    "first argument (subject data.frame) should not be named",
+    fixed=TRUE)
+  })
+
   in.df <- data.frame(bar="foobar", stringsAsFactors=FALSE)
   test_engine("df only one group = name", {
     out.df <- namedCapture::df_match_variable(

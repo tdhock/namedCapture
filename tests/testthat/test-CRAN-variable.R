@@ -116,13 +116,13 @@ for(engine in c("PCRE", "RE2")){
   test_engine("str_match_variable errors for one argument", {
     expect_error({
       str_match_variable("foo")
-    }, "must have at least two arguments: subject, name=pattern, fun, ...")
+    }, "pattern must have at least one argument")
   })
 
   test_engine("str_match_all_variable errors for one argument", {
     expect_error({
       str_match_all_variable("foo")
-    }, "must have at least two arguments: subject, name=pattern, fun, ...")
+    }, "pattern must have at least one argument")
   })
 
   test_engine("str_match_variable errors for multi-dim patterns", {

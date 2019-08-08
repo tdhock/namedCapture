@@ -9,14 +9,14 @@ for other subjects, \code{\link{str_match_all_named}} can be used to find all ma
 This function uses
 \code{\link{variable_args_list}} to analyze the arguments and
 \code{\link{str_match_all_named}} to perform the matching.}
-\usage{str_match_all_variable(...)}
+\usage{str_match_all_variable(subject.vec, ...)}
 \arguments{
-  \item{\dots}{subject, name1=pattern1, fun1, etc, which creates the regex
-(?<name1>pattern1) and uses fun1 for conversion. The first
-argument must be the subject character vector. We treat elements
-of subject as separate lines; i.e. we do the regex matching on the
-single subject string formed by pasting together the subject
-character vector using newlines as the separator. The other
+  \item{subject.vec}{The subject character vector. We treat elements of subject as
+separate lines; i.e. we do the regex matching on the single
+subject string formed by pasting together the subject character
+vector using newlines as the separator.}
+  \item{\dots}{name1=pattern1, fun1, etc, which creates the regex
+(?<name1>pattern1) and uses fun1 for conversion. These other
 arguments specify the regular expression pattern and must be
 character/function/list. All patterns must be character vectors of
 length 1. If the pattern is a named argument in R, we will add a

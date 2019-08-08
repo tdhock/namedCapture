@@ -5,7 +5,8 @@ df_match_variable <- structure(function # First match from every row, variable a
 ### ... -- argument names are interpreted as column names of subject;
 ### argument values are passed as the pattern to
 ### str_match_variable.
-(... # can NOT have subject arg outside of dots (column named subject)
+(# can NOT have subject arg outside of dots (column named subject)
+  ...
 ### subject.df, colName1=list(groupName1=pattern1, fun1, etc),
 ### colName2=list(etc), etc. First (un-named) argument should be a
 ### data.frame with character columns of subjects for matching. The
@@ -27,7 +28,9 @@ df_match_variable <- structure(function # First match from every row, variable a
   }
   col.pattern.list <- all.arg.list[-1]
   if(length(col.pattern.list)==0){
-    stop("no patterns specified in ...")
+    stop(
+      "no patterns specified in ...; ",
+      "must specify subjectColName=list(groupName=pattern, etc), etc")
   }
   valid.name <- names(col.pattern.list) %in% names(subject)
   invalid.vec <- names(col.pattern.list)[!valid.name]
@@ -35,6 +38,15 @@ df_match_variable <- structure(function # First match from every row, variable a
     stop("named args (", paste(invalid.vec, collapse=", "),
          ") not found in subject column names (", paste(names(subject), collapse=", "),
          "); each pattern in ... must be named using a column name of subject")
+  }
+  if(names(all.arg.list)[[1]] != ""){
+    stop("first argument (subject data.frame) should not be named")
+  }
+  name.tab <- table(names(col.pattern.list))
+  if(any(bad <- 1 < name.tab)){
+    stop(
+      "each argument name should be unique, problems: ",
+      paste(names(name.tab)[bad], collapse=", "))
   }
   out <- subject
   name.group.used <- FALSE
