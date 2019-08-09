@@ -7,13 +7,14 @@ str_match_all_variable <- structure(function # All matches from one subject, var
 ### This function uses
 ### variable_args_list to analyze the arguments and
 ### str_match_all_named to perform the matching.
-(...
-### subject, name1=pattern1, fun1, etc, which creates the regex
-### (?<name1>pattern1) and uses fun1 for conversion. The first
-### argument must be the subject character vector. We treat elements
-### of subject as separate lines; i.e. we do the regex matching on the
-### single subject string formed by pasting together the subject
-### character vector using newlines as the separator. The other
+(subject.vec,
+### The subject character vector. We treat elements of subject as
+### separate lines; i.e. we do the regex matching on the single
+### subject string formed by pasting together the subject character
+### vector using newlines as the separator.
+  ...
+### name1=pattern1, fun1, etc, which creates the regex
+### (?<name1>pattern1) and uses fun1 for conversion. These other
 ### arguments specify the regular expression pattern and must be
 ### character/function/list. All patterns must be character vectors of
 ### length 1. If the pattern is a named argument in R, we will add a
@@ -25,7 +26,7 @@ str_match_all_variable <- structure(function # All matches from one subject, var
 ){
   L <- variable_args_list(...)
   subject <- paste(
-    L$subject.vec[!is.na(L$subject.vec)],
+    subject.vec[!is.na(subject.vec)],
     collapse="\n")
   str_match_all_named(subject, L$pattern, L$fun.list)[[1]]
 ### matrix or data.frame with one row for each match, and one column
@@ -64,10 +65,11 @@ str_match_variable <- structure(function # First match from multiple subjects, v
 ### a different regex for each column, use df_match_variable. For all
 ### matches in one character subject use str_match_all_variable; for
 ### all matches in several character subjects use str_match_all_named.
-(...,
-### subject, name1=pattern1, fun1, etc, which creates the regex
-### (?P<name1>pattern1) and uses fun1 for conversion. The first
-### argument must be the subject character vector. The other arguments
+(subject.vec,
+### The subject character vector.
+  ...,
+### name1=pattern1, fun1, etc, which creates the regex
+### (?P<name1>pattern1) and uses fun1 for conversion. These other arguments
 ### specify the regular expression pattern and must be
 ### character/function/list. All patterns must be character vectors of
 ### length 1. If the pattern is a named argument in R, we will add a
@@ -83,11 +85,11 @@ str_match_variable <- structure(function # First match from multiple subjects, v
 ){
   L <- variable_args_list(...)
   ##alias<< namedCapture
-  df.or.mat <- str_match_named(L$subject.vec, L$pattern, L$fun.list)
+  df.or.mat <- str_match_named(subject.vec, L$pattern, L$fun.list)
   if(isTRUE(nomatch.error)){
     no.match <- apply(is.na(df.or.mat), 1, all)
     if(any(no.match)){
-      print(L$subject.vec[no.match])
+      print(subject.vec[no.match])
       stop("subjects printed above did not match regex below\n", L$pattern)
     }
   }
@@ -160,9 +162,8 @@ variable_args_list <- structure(function
 ### use, but is useful if you want to see the regex pattern generated
 ### by the variable argument syntax.
 (...
-### character vectors or functions (for converting extracted character
-### vectors to other types). The first element must be the subject
-### character vector, and the second element must be a pattern. All
+### character vectors (for regex patterns) or functions (which specify
+### how to convert extracted character vectors to other types). All
 ### patterns must be character vectors of length 1. If the pattern is
 ### a named argument in R, we will add a name tag in the regex
 ### pattern. All patterns are pasted together to obtain the final
@@ -171,17 +172,14 @@ variable_args_list <- structure(function
 ### pattern. Patterns may also be lists, which are parsed recursively
 ### for convenience.
 ){
-  arg.list <- list(...)
-  if(length(arg.list) < 2){
+  var.arg.list <- list(...)
+  if(length(var.arg.list) < 1){
     stop(
-      "must have at least two arguments: ",
-      "subject, name=pattern, fun, ...")
+      "pattern must have at least one argument: ",
+      "name=pattern, fun, ...")
   }
-  out.list <- list(
-    subject.vec=arg.list[[1]],
-    fun.list=list())
+  fun.list <- list()
   pattern.list <- list()
-  var.arg.list <- arg.list[-1]
   prev.name <- NULL
   while(length(var.arg.list)){
     var.arg <- var.arg.list[[1]]
@@ -216,7 +214,7 @@ variable_args_list <- structure(function
           "too many functions; ",
           "up to one function may follow each named pattern")
       }
-      out.list$fun.list[[prev.name]] <- var.arg
+      fun.list[[prev.name]] <- var.arg
       prev.name <- NULL
     }else if(is.list(var.arg)){
       var.arg.list <- c(group.start, var.arg, ")", var.arg.list)
@@ -225,14 +223,14 @@ variable_args_list <- structure(function
       stop("invalid argument printed above; arguments must be character (subject/patterns), functions (for converting extracted character vectors to other types), or list (parsed recursively)")
     }
   }
-  out.list$pattern <- paste(pattern.list, collapse="")
-  if(length(out.list$fun.list)==0){
-    out.list$fun.list <- NULL
-  }
-  out.list
-### List with three named elements: subject.vec is the subject
-### character vector, pattern is the regular expression string, and
-### fun.list is a list of conversion functions.
+  ##value<< a list with two named elements
+  list(
+    fun.list=##<< list of conversion functions or NULL
+      if(length(fun.list))fun.list,
+    pattern=##<< regular expression string
+      paste(pattern.list, collapse="")
+  )
+  ##end<<
 }, ex=function(){
 
   pos.pattern <- list("[0-9]+", as.integer)

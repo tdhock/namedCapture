@@ -9,8 +9,19 @@ argument values are passed as the pattern to
 \code{\link{str_match_variable}}.}
 \usage{df_match_variable(...)}
 \arguments{
-  \item{\dots}{
-}
+  \item{\dots}{subject.df, colName1=list(groupName1=pattern1, fun1, etc),
+colName2=list(etc), etc. First (un-named) argument should be a
+data.frame with character columns of subjects for matching. The
+other arguments need to be named (and the names e.g. colName1 and
+colName2 need to be column names of the subject data.frame). The
+other argument values specify the regular expression, and must be
+character/function/list. All patterns must be character vectors of
+length 1. If the pattern is a named argument in R, we will add a
+named capture group (?<groupName1>pattern1) in the regex. All
+patterns are pasted together to obtain the final pattern used for
+matching. Each named pattern may be followed by at most one
+function (e.g. fun1) which is used to convert the previous named
+pattern. Lists are parsed recursively for convenience.}
 }
 
 \value{data.frame with same number of rows as subject, with an additional

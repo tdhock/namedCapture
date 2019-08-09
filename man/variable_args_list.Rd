@@ -8,9 +8,8 @@ use, but is useful if you want to see the regex pattern generated
 by the variable argument syntax.}
 \usage{variable_args_list(...)}
 \arguments{
-  \item{\dots}{character vectors or functions (for converting extracted character
-vectors to other types). The first element must be the subject
-character vector, and the second element must be a pattern. All
+  \item{\dots}{character vectors (for regex patterns) or functions (which specify
+how to convert extracted character vectors to other types). All
 patterns must be character vectors of length 1. If the pattern is
 a named argument in R, we will add a name tag in the regex
 pattern. All patterns are pasted together to obtain the final
@@ -20,9 +19,9 @@ pattern. Patterns may also be lists, which are parsed recursively
 for convenience.}
 }
 
-\value{List with three named elements: subject.vec is the subject
-character vector, pattern is the regular expression string, and
-fun.list is a list of conversion functions.}
+\value{a list with two named elements
+\item{fun.list}{list of conversion functions or NULL}
+\item{pattern}{regular expression string}}
 
 \author{Toby Dylan Hocking}
 
