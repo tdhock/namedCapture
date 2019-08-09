@@ -300,7 +300,7 @@ for(engine in c("PCRE", "RE2")){
     "chr10:213,054,000-213,055,000",
     "chrM:111,000",
     "chr1:110-111 chr2:220-222") # two possible matches.
-  test_engine("no error if nomatch.error=TRUE and all matches", {
+  test_engine("str subject no error if nomatch.error=TRUE and all matches", {
     match.df <- str_match_variable(
       matching.subjects, nomatch.error=TRUE,
       chrom="chr.*?",
@@ -314,8 +314,7 @@ for(engine in c("PCRE", "RE2")){
       match.df$chromEnd,
       as.integer(c(213055000, NA, 111)))
   })
-
-  test_engine("stop if nomatch.error=TRUE and no match", {
+  test_engine("str subject stop if nomatch.error=TRUE and no match", {
     expect_error({
       str_match_variable(
         subject.vec, nomatch.error=TRUE,
@@ -326,6 +325,40 @@ for(engine in c("PCRE", "RE2")){
           "-",
           chromEnd="[0-9,]+", keep.digits
         ), "?")
+    }, "subjects printed above did not match regex below")
+  })
+
+  test_engine("df subject no error if nomatch.error=TRUE and all matches", {
+    subject.df <- data.frame(subject.col=matching.subjects, stringsAsFactors=FALSE)
+    match.df <- df_match_variable(
+      subject.df,
+      subject.col=list(
+        nomatch.error=TRUE,
+        chrom="chr.*?",
+        ":",
+        chromStart="[0-9,]+", keep.digits,
+        list(
+          "-",
+          chromEnd="[0-9,]+", keep.digits
+        ), "?"))
+    expect_identical(
+      match.df$subject.col.chromEnd,
+      as.integer(c(213055000, NA, 111)))
+  })
+  test_engine("df subject stop if nomatch.error=TRUE and no match", {
+    subject.df <- data.frame(subject.vec, stringsAsFactors=FALSE)
+    expect_error({
+      df_match_variable(
+        subject.df,
+        subject.vec=list(
+          nomatch.error=TRUE,
+          chrom="chr.*?",
+          ":",
+          chromStart="[0-9,]+", keep.digits,
+          list(
+            "-",
+            chromEnd="[0-9,]+", keep.digits
+          ), "?"))
     }, "subjects printed above did not match regex below")
   })
 
