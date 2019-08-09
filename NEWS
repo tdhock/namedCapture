@@ -1,3 +1,7 @@
+2019.8.9 PR#12
+
+df_match_variable(subject.df, column=list(nomatch.error=TRUE)).
+
 2019.8.8 PR#11
 
 subject.vec is now first arg of str_*_variable; subject is no longer

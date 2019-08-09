@@ -55,7 +55,8 @@ df_match_variable <- structure(function # First match from every row, variable a
       attr(subject, "row.names")
     }
     subject.vec <- structure(subject[[col.name]], names=subject.names)
-    m <- str_match_variable(subject.vec, col.pattern.list[[col.name]])
+    col.arg.list <- c(list(subject.vec), col.pattern.list[[col.name]])
+    m <- do.call(str_match_variable, col.arg.list)
     has.names <- (
       is.matrix(m) && !is.null(rownames(m))
     ) || (
