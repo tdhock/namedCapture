@@ -3,7 +3,7 @@
 \title{First match from multiple subjects, three argument syntax}
 \description{Extract the first match of \code{pattern} from each element of
 \code{subject.vec} using a named capture regular expression. Uses
-\code{\link[re2r]{re2_match}} if \code{\link{namedCapture.engine}} is RE2, otherwise uses
+\code{\link[re2r]{re2_match}} if \code{\link{engine}} is RE2, otherwise uses
 \code{\link[base]{regexpr}} with \code{perl=TRUE}. This function is mostly for
 internal use; most users should use \code{\link{str_match_variable}} instead.}
 \usage{str_match_named(subject.vec, pattern, type.list = NULL)}

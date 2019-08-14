@@ -41,7 +41,7 @@ namedCapture::df_match_variable(subject.df, colName=list(name="subpattern"))')
 str_match_named <- structure(function # First match from multiple subjects, three argument syntax
 ### Extract the first match of pattern from each element of
 ### subject.vec using a named capture regular expression. Uses
-### re2r::re2_match if namedCapture.engine is RE2, otherwise uses
+### re2r::re2_match if engine is RE2, otherwise uses
 ### base::regexpr with \code{perl=TRUE}. This function is mostly for
 ### internal use; most users should use str_match_variable instead.
 (subject.vec,
@@ -53,7 +53,7 @@ str_match_named <- structure(function # First match from multiple subjects, thre
 ### create non-character (typically numeric) columns in the result.
 ){
   check_subject_pattern(subject.vec, pattern)
-  m <- if(namedCapture.engine()=="RE2"){
+  m <- if(engine()=="RE2"){
     re2.mat <- re2r::re2_match(subject.vec, pattern)
     only_captures(re2.mat, pattern)
   }else{
@@ -105,7 +105,7 @@ str_match_named <- structure(function # First match from multiple subjects, thre
 str_match_all_named <- structure(function # All matches from multiple subjects, three argument syntax
 ### Extract all matches of pattern from each element of subject.vec
 ### using named capturing regular expressions. Uses
-### re2r::re2_match_all if namedCapture.engine is RE2, otherwise uses
+### re2r::re2_match_all if engine is RE2, otherwise uses
 ### base::gregexpr with \code{perl=TRUE}.  For the common case of
 ### extracting all matches of a regex from a multi-line text file,
 ### please use str_match_all_variable instead.
@@ -120,7 +120,7 @@ str_match_all_named <- structure(function # All matches from multiple subjects, 
   check_subject_pattern(subject.vec, pattern)
   unconverted.list <- list()
   no.match.mat <- matrix(character(), nrow=0)
-  if(namedCapture.engine()=="RE2"){
+  if(engine()=="RE2"){
     re2.list <- re2r::re2_match_all(subject.vec, pattern)
     for(i in seq_along(subject.vec)){
       subject.is.na <- is.na(subject.vec[[i]])
