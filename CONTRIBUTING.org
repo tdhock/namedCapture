@@ -1,0 +1,30 @@
+* Contributing to namedCapture development
+
+** Pull requests
+
+To contribute a change to namedCapture, you follow these steps:
+
+- Create a branch in git and make your changes.
+- Push branch to github and issue pull request (PR).
+- Discuss the pull request.
+- Iterate until either we accept the PR or decide that it's not a good
+  fit for namedCapture.
+
+Pull requests will be evaluated against this checklist:
+
+- Motivation: your pull request should clearly and concisely motivate
+  the need for change. Also include this motivation in `NEWS` so that
+  when a new release of namedCapture comes out it's easy for users to
+  see what's changed. 
+- Only related changes: before you submit your pull request, please
+  check to make sure that you haven't accidentally included any
+  unrelated changes. These make it harder to see exactly what's
+  changed, and to evaluate any unexpected side effects.
+- Use namedCapture coding style: please use snake_case for function
+  names, and dot.case for function arguments and variable names within
+  functions/examples/vignettes.
+- Please add/edit documentation in comments in the R/*.R files, and
+  generate new man/*.Rd files using [[https://github.com/tdhock/inlinedocs][the most recent version of
+  inlinedocs::package.skeleton.dx from github]].
+- Please add a test in either a new or existing
+  tests/testthat/test-*.R file.

@@ -3,7 +3,7 @@
 \title{All matches from multiple subjects, three argument syntax}
 \description{Extract all matches of \code{pattern} from each element of \code{subject.vec}
 using named capturing regular expressions. Uses
-\code{\link[re2r]{re2_match_all}} if \code{\link{namedCapture.engine}} is RE2, otherwise uses
+\code{\link[re2r]{re2_match_all}} if \code{\link{engine}} is RE2, otherwise uses
 \code{\link[base]{gregexpr}} with \code{perl=TRUE}.  For the common case of
 extracting all matches of a regex from a multi-line text file,
 please use \code{\link{str_match_all_variable}} instead.}

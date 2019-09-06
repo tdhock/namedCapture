@@ -18,6 +18,6 @@ test_that("RE2 (?<name>pattern) syntax is an error", {
 
 test_that("engine foobar means use default=RE2", {
   options(namedCapture.engine="foobar")
-  expect_identical(namedCapture.engine(), "RE2")
+  expect_identical(engine(), "RE2")
 })
 
