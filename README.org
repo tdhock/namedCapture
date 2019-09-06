@@ -4,8 +4,31 @@ An R package for named capture regular expressions
 | [[https://github.com/jimhester/covr][coverage]] | [[https://coveralls.io/github/tdhock/namedCapture?branch=master][https://coveralls.io/repos/tdhock/namedCapture/badge.svg?branch=master&service=github]] |
 
 The namedCapture package provides user-friendly functions for
-extracting data tables from non-tabular text using named capture
-regular expressions.
+extracting data tables from non-tabular text, using named capture
+regular expressions, which look like =(?P<fruit>orange|apple)=. That
+pattern has one group named =fruit= that matches either =orange= or
+=apple=.
+
+#+BEGIN_SRC R
+  food.vec <- c(one="apple", nope="courgette", two="orange")
+  namedCapture::str_match_named(food.vec, "(?P<fruit>orange|apple)")
+  #>      fruit   
+  #> one  "apple" 
+  #> nope NA      
+  #> two  "orange"
+  namedCapture::str_match_variable(food.vec, fruit="orange|apple")
+  #>      fruit   
+  #> one  "apple" 
+  #> nope NA      
+  #> two  "orange"
+#+END_SRC
+
+Both results are character matrices with one row for each match and
+one named column for each capture group. The second version is the
+preferred syntax, which generates a named capture group for each named
+R argument. See also: the newer [[https://github.com/tdhock/nc][nc]] package, which provides similar
+functionality, but also supports the ICU regex engine (in addition to
+the PCRE and RE2 engines).
 
 ** Installation
 
@@ -71,71 +94,11 @@ For a more complete introduction to named capture regular expressions
 in R and Python, see https://github.com/tdhock/regex-tutorial
 
 ** Related work
-See my [[https://github.com/tdhock/namedCapture-article][journal paper about namedCapture]] for a detailed discussion of R regex packages. Summary below:
-- =regexec= and =regmatches= in base R implement extracting capture
-  groups but the =regexec= man page indicates that perl=TRUE (and thus
-  named capture) is not implemented.
-- from R-3.4.0, =utils::strcapture= is an alternative to
-  =namedCapture::str_match_named= (extract first match from each
-  subject), but there is still no alternative for
-  =namedCapture::str_match_all_named= (extract all matches from each
-  subject).
-- =stringr::str_match= implements extracting capture groups. But since
-  it uses the [[https://github.com/gagolews/stringi][stringi]] package (an interface to the [[http://userguide.icu-project.org/strings/regexp][ICU]] library), [[https://github.com/hadley/stringr/pull/16][it
-  does not support named capture]].
-- [[https://github.com/MangoTheCat/rematch2][rematch2::re_match]], [[https://github.com/kevinushey/rex][rex::re_matches]], and [[https://github.com/qinwf/re2r][re2r::re2_match]] provide similar functionality
-  to =namedCapture::str_match_named=. The main difference is that re2r
-  uses the RE2 C++ library (worse case polynomial time complexity),
-  but rematch2, rex, and namedCapture use base R (PCRE C library, exponential
-  worst case time complexity).
-- [[https://tidyr.tidyverse.org/reference/separate.html][tidyr::separate]] and [[https://tidyr.tidyverse.org/reference/extract.html][tidyr::extract]] provide similar functionality to
-  =namedCapture::df_match_variable= (all input data.frame to extract
-  from, and output data.frame). However there are a few differences:
-  - named capture groups are supported in =df_match_variable= but not in =tidyr=.
-  - namedCapture is much easier to install (it has no compiled code,
-    and does not depend on any other packages).
-  - A single call to =separate= or =extract= outputs new data columns
-    from a single input data column, whereas a single call to
-    =df_match_variable= can output new data columns from multiple
-    input data columns.
-  - regex is used in =separate= for the group separator, whereas regex
-    is used in =df_match_variable= and =extract= for the entire text
-    (including groups).
-  - group names are specified using the =into= argument of =separate=
-    and =extract=, whereas group names are specified using R argument
-    names / capture group names in =df_match_variable=.
-  - =type.convert(as.is=TRUE)= is always used to define types in
-    =separate= and =extract=, whereas any function can be used to
-    define types in =df_match_variable=.
-- [[https://github.com/kevinushey/rex][rex]] provides functions (a domain specific language) for verbosely defining named capture regular expressions in R code. In rex 
-  rex(capture(name = "fruit", pattern)) is the analog of list(fruit=pattern) namedCapture::*_variable -- both will generate a capture group named fruit.
-- [[https://github.com/tdhock/revector][revector]] provides fast C code for a
-  *vector* of named capture regular expressions (namedCapture and base
-  R and only provide functions for a single regular expression).
-
-| Package      | First match              | All matches             | library  | subject | pattern      | outputs     | named | types |
-|--------------+--------------------------+-------------------------+----------+---------+--------------+-------------+-------+-------|
-| base         | regexpr                  | gregexpr                | PCRE/TRE | chr     | chr          | mat/list    | yes   | no    |
-| utils        | strcapture               | NA                      | PCRE/TRE | chr     | chr          | df          | no    | some  |
-| namedCapture | str_match_named          | str_match_all_named     | PCRE     | chr     | chr          | mat/df/list | yes   | any   |
-| namedCapture | str_match_variable       | str_match_all_variable  | PCRE     | chr     | verbose      | mat/df/list | yes   | any   |
-| namedCapture | df_match_variable        | NA                      | PCRE     | df/dt   | verbose      | df/dt       | yes   | any   |
-| rex          | re_matches(global=FALSE) | re_matches(global=TRUE) | PCRE     | chr     | verbose      | df          | yes   | no    |
-| stringr      | str_match                | str_match_all           | ICU      | chr     | chr          | mat/list    | no    | no    |
-| stringi      | stri_match               | stri_match_all          | ICU      | chr     | chr          | mat/list    | no    | no    |
-| tidyr        | extract                  | NA                      | ICU      | df/dt   | chr          | df/dt       | no    | some  |
-| rematch2     | re_match                 | re_match_all            | PCRE/TRE | chr     | chr          | tibble      | yes   | no    |
-| re2r         | re2_match                | re2_match_all           | RE2      | chr     | chr/compiled | df/list     | yes   | no    |
-
-Note in the comparison table above:
-- library gives the underlying C library used.
-- subject/pattern/output gives the support input/output types.
-- the "named" column refers to named capture group support,
-  which greatly helps to make a more readable regex pattern. The
-  namedCapture package is the only one that provides output with
-  names/rownames based on the "name" capture group.
-- the "types" column refers to built-in support for converting capture
-  groups from character to other types. (it is always possible to
-  convert types afterwards)
-
+See my [[https://github.com/tdhock/namedCapture-article][journal paper about namedCapture]] for a detailed discussion of R
+regex packages. 
+- [[https://github.com/tdhock/revector][revector]] provides fast C code for a *vector* of named capture
+  regular expressions (namedCapture and base R and only provide
+  functions for a single regular expression).
+- [[https://github.com/tdhock/nc][nc]] provides functions similar to =namedCapture::*_variable= but with
+  additional support for the ICU regex engine.
 
