@@ -8,7 +8,7 @@ Description: User-friendly wrappers for
  named capture regular expressions.
 Depends: R (>= 2.14)
 Suggests: testthat, data.table, re2r, knitr, rmarkdown,
- rex, dplyr, tidyr
+ rex, dplyr, tidyr, rematch2
 VignetteBuilder: knitr
 URL: https://github.com/tdhock/namedCapture
 BugReports: https://github.com/tdhock/namedCapture/issues
