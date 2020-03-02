@@ -350,8 +350,9 @@ for(engine in c("PCRE", "RE2")){
   })
 
   test_engine("error for factor column", {
+    fac.df <- data.frame(foo="bar", stringsAsFactors=TRUE)
     expect_error({
-      df_match_variable(data.frame(foo="bar"), foo="bar")
+      df_match_variable(fac.df, foo="bar")
     }, "subject.vec should be a character vector with length>0")
   })
 

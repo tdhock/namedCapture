@@ -9,7 +9,8 @@ matching. For the first match in every row of a data.frame, using
 a different regex for each column, use \code{\link{df_match_variable}}. For all
 matches in one character subject use \code{\link{str_match_all_variable}}; for
 all matches in several character subjects use \code{\link{str_match_all_named}}.}
-\usage{str_match_variable(subject.vec, ..., nomatch.error = FALSE)}
+\usage{str_match_variable(subject.vec, 
+    ..., nomatch.error = FALSE)}
 \arguments{
   \item{subject.vec}{The subject character vector.}
   \item{\dots}{name1=pattern1, fun1, etc, which creates the regex

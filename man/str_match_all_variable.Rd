@@ -9,7 +9,8 @@ for other subjects, \code{\link{str_match_all_named}} can be used to find all ma
 This function uses
 \code{\link{variable_args_list}} to analyze the arguments and
 \code{\link{str_match_all_named}} to perform the matching.}
-\usage{str_match_all_variable(subject.vec, ...)}
+\usage{str_match_all_variable(subject.vec, 
+    ...)}
 \arguments{
   \item{subject.vec}{The subject character vector. We treat elements of subject as
 separate lines; i.e. we do the regex matching on the single

@@ -7,7 +7,8 @@ using named capturing regular expressions. Uses
 \code{\link[base]{gregexpr}} with \code{perl=TRUE}.  For the common case of
 extracting all matches of a regex from a multi-line text file,
 please use \code{\link{str_match_all_variable}} instead.}
-\usage{str_match_all_named(subject.vec, pattern, type.list = NULL)}
+\usage{str_match_all_named(subject.vec, 
+    pattern, type.list = NULL)}
 \arguments{
   \item{subject.vec}{character vector of subjects.}
   \item{pattern}{named capture regular expression (character vector of length 1).}

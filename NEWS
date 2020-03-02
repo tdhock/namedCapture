@@ -1,3 +1,7 @@
+2020.3.2
+
+Use stringsAsFactors=TRUE in test-CRAN-df.
+
 2019.8.13 PR#13 R Journal reviews
 
 namedCapture.engine -> engine.

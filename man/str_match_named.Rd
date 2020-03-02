@@ -6,7 +6,8 @@
 \code{\link[re2r]{re2_match}} if \code{\link{engine}} is RE2, otherwise uses
 \code{\link[base]{regexpr}} with \code{perl=TRUE}. This function is mostly for
 internal use; most users should use \code{\link{str_match_variable}} instead.}
-\usage{str_match_named(subject.vec, pattern, type.list = NULL)}
+\usage{str_match_named(subject.vec, 
+    pattern, type.list = NULL)}
 \arguments{
   \item{subject.vec}{character vector of subjects.}
   \item{pattern}{named capture regular expression (character vector of length 1).}
