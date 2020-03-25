@@ -1,3 +1,9 @@
+2020.3.25
+
+test_engines uses available engines.
+
+bugfix in engine docs: namedCapture.engine is the option name.
+
 2020.3.2
 
 Use stringsAsFactors=TRUE in test-CRAN-df.

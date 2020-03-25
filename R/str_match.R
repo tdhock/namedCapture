@@ -40,10 +40,10 @@ namedCapture::df_match_variable(subject.df, colName=list(name="subpattern"))')
 
 str_match_named <- structure(function # First match from multiple subjects, three argument syntax
 ### Extract the first match of pattern from each element of
-### subject.vec using a named capture regular expression. Uses
-### re2r::re2_match if engine is RE2, otherwise uses
-### base::regexpr with \code{perl=TRUE}. This function is mostly for
-### internal use; most users should use str_match_variable instead.
+### subject.vec using a named capture regular expression. This
+### function is mostly for internal use; most users should use
+### str_match_variable instead. Result depends on engine (either PCRE
+### or RE2) which can be specified via the namedCapture.engine option.
 (subject.vec,
 ### character vector of subjects.
  pattern,
@@ -104,11 +104,11 @@ str_match_named <- structure(function # First match from multiple subjects, thre
 
 str_match_all_named <- structure(function # All matches from multiple subjects, three argument syntax
 ### Extract all matches of pattern from each element of subject.vec
-### using named capturing regular expressions. Uses
-### re2r::re2_match_all if engine is RE2, otherwise uses
-### base::gregexpr with \code{perl=TRUE}.  For the common case of
+### using named capturing regular expressions. For the common case of
 ### extracting all matches of a regex from a multi-line text file,
-### please use str_match_all_variable instead.
+### please use str_match_all_variable instead. Result depends on
+### engine (either PCRE or RE2) which can be specified via the
+### namedCapture.engine option.
 (subject.vec,
 ### character vector of subjects.
  pattern,
