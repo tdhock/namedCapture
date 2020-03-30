@@ -1,3 +1,7 @@
+2020.3.30
+
+reformat DESCRIPTION for CRAN (URL for R Journal paper).
+
 2020.3.25
 
 test_engines uses available engines.
