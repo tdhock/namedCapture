@@ -4,8 +4,7 @@
 \description{Informative error message when named group(s) missing.}
 \usage{stop_for_names(pattern)}
 \arguments{
-  \item{pattern}{
-}
+  \item{pattern}{pattern }
 }
 
 

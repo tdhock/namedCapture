@@ -6,10 +6,8 @@ un-named, and assign optional groups to "".}
 \usage{only_captures(match.mat, 
     pattern)}
 \arguments{
-  \item{match.mat}{
-}
-  \item{pattern}{
-}
+  \item{match.mat}{match.mat }
+  \item{pattern}{pattern }
 }
 
 

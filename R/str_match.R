@@ -54,7 +54,7 @@ str_match_named <- structure(function # First match from multiple subjects, thre
 ){
   check_subject_pattern(subject.vec, pattern)
   m <- if(engine()=="RE2"){
-    re2.mat <- re2r::re2_match(subject.vec, pattern)
+    re2.mat <- re2::re2_match(subject.vec, pattern)
     only_captures(re2.mat, pattern)
   }else{
     vec.with.attrs <- regexpr(pattern, subject.vec, perl=TRUE)
@@ -121,7 +121,7 @@ str_match_all_named <- structure(function # All matches from multiple subjects, 
   unconverted.list <- list()
   no.match.mat <- matrix(character(), nrow=0)
   if(engine()=="RE2"){
-    re2.list <- re2r::re2_match_all(subject.vec, pattern)
+    re2.list <- re2::re2_match_all(subject.vec, pattern)
     for(i in seq_along(subject.vec)){
       subject.is.na <- is.na(subject.vec[[i]])
       re2.mat <- re2.list[[i]]

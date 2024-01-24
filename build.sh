@@ -25,22 +25,9 @@ PKG_TGZ=$(grep building build.out|sed "s/.*\($PKG.*.tar.gz\).*/\1/")
 
 echo Installing $PKG_TGZ
 $RCMD INSTALL $PKG_TGZ
+echo checking as usual
+$RCMD check --as-cran $PKG_TGZ
 
-RE2R_DIR=`Rscript --vanilla -e "cat(file.path(.libPaths()[1], 're2r'))" `
-RE2R_OLD_DIR="${RE2R_DIR}-old"
-if [ -d "$RE2R_OLD_DIR" ]; then #check WITHOUT re2r failed last time.
-    echo moving $RE2R_OLD_DIR to $RE2R_DIR
-    mv "$RE2R_OLD_DIR" "$RE2R_DIR"
-fi
-RCMD_CHECK="$RCMD check --as-cran $PKG_TGZ"
-
-echo Checking $PKG_TGZ WITHOUT re2r
-mv "$RE2R_DIR" "$RE2R_OLD_DIR"
-_R_CHECK_FORCE_SUGGESTS_=0 $RCMD_CHECK
-
-echo Checking $PKG_TGZ WITH re2r
-mv "$RE2R_OLD_DIR" "$RE2R_DIR"
-$RCMD_CHECK
 
 
 

@@ -5,10 +5,8 @@
 \usage{check_subject_pattern(subject.vec, 
     pattern)}
 \arguments{
-  \item{subject.vec}{
-}
-  \item{pattern}{
-}
+  \item{subject.vec}{subject.vec }
+  \item{pattern}{pattern }
 }
 
 

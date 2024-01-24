@@ -1,97 +1,8 @@
-An R package for named capture regular expressions
+DEPRECATED: An R package for named capture regular expressions
 
-| [[file:tests/testthat][tests]]    | [[https://travis-ci.org/tdhock/namedCapture][https://travis-ci.org/tdhock/namedCapture.png?branch=master]]                           |
-| [[https://github.com/jimhester/covr][coverage]] | [[https://coveralls.io/github/tdhock/namedCapture?branch=master][https://coveralls.io/repos/tdhock/namedCapture/badge.svg?branch=master&service=github]] |
-
-The namedCapture package provides user-friendly functions for
-extracting data tables from non-tabular text, using named capture
-regular expressions, which look like =(?P<fruit>orange|apple)=. That
-pattern has one group named =fruit= that matches either =orange= or
-=apple=.
-
-#+BEGIN_SRC R
-  food.vec <- c(one="apple", nope="courgette", two="orange")
-  namedCapture::str_match_named(food.vec, "(?P<fruit>orange|apple)")
-  #>      fruit   
-  #> one  "apple" 
-  #> nope NA      
-  #> two  "orange"
-  namedCapture::str_match_variable(food.vec, fruit="orange|apple")
-  #>      fruit   
-  #> one  "apple" 
-  #> nope NA      
-  #> two  "orange"
-#+END_SRC
-
-Both results are character matrices with one row for each match and
-one named column for each capture group. The second version is the
-preferred syntax, which generates a named capture group for each named
-R argument. See also: the newer [[https://github.com/tdhock/nc][nc]] package, which provides similar
-functionality, but also supports the ICU regex engine (in addition to
-the PCRE and RE2 engines).
-
-** Installation
-
-#+BEGIN_SRC R
-install.packages("namedCapture")
-##OR:
-if(!require(devtools))install.packages("devtools")
-devtools::install_github("tdhock/namedCapture")
-#+END_SRC
-
-** Usage overview
-
-There are five main functions provided in namedCapture:
-
-|                             | Extract first match  | Extract each match       |
-| chr subject + two arguments | =str_match_named=    | =str_match_all_named=    |
-| chr subject + variable args | =str_match_variable= | =str_match_all_variable= |
-| df subject + variable args  | =df_match_variable=  | Not implemented          |
-
-The function prefix indicates the type of the first argument, which
-must contain the subject:
-- =str_*= means a character vector -- each of these functions uses a
-  single named capture regular expression to extract data from a
-  character vector subject.
-- =df_*= means a data.frame -- the =df_match_variable= function uses a
-  different named capture regular expression to extract data from each
-  of several specified character column subjects. 
-The function suffix indicates the type of the other arguments (after
-the first):
-- =*_named= means three arguments: subject, pattern, functions. The
-  pattern should be a length-1 character vector that contains named
-  capture groups, e.g. "(?P<groupName1>subPattern1)", read the [[https://cloud.r-project.org/web/packages/namedCapture/vignettes/v1-old-syntax.html][Old three
-  argument syntax]] vignette for more info.
-- =*_variable= means a variable number of arguments in which the
-  pattern is specified using character strings, type conversion
-  functions, and lists. Read the [[https://cloud.r-project.org/web/packages/namedCapture/vignettes/v2-recommended-syntax.html][Recommended variable argument syntax]] vignette for
-  more info about this powerful and user-friendly syntax, which is the
-  suggested way of using namedCapture.
-  
-Additional vignettes:
-- [[https://cloud.r-project.org/web/packages/namedCapture/vignettes/v3-verbose.html][Comparing verbose regex syntax]] shows comparisons with =PCRE_EXTENDED= mode and the =rex= R package.
-- [[https://cloud.r-project.org/web/packages/namedCapture/vignettes/v4-data-frames.html][Comparing regex functions for data.frames]] shows comparisons with the =tidyr= R package.
-
-** Choice of regex engine
-
-By default, namedCapture uses RE2 if the re2r package is available,
-and PCRE otherwise. 
-- RE2 uses a polynomial time matching algorithm, so can be faster than
-  PCRE (worst case exponential time).
-- RE2 does not support [[https://www.regular-expressions.info/backref.html][backreferences]], but PCRE does.
-- RE2 only supports =(?P<groupName>groupPattern)= syntax for named
-  groups, whereas PCRE also supports =(?<groupName>groupPattern)=
-  syntax (without the initial P).
-
-To tell namedCapture that you would like to use PCRE even if RE2 is available, use
-#+BEGIN_SRC R
-options(namedCapture.engine="PCRE")
-#+END_SRC
-
-** Named capture regular expressions tutorial
-
-For a more complete introduction to named capture regular expressions
-in R and Python, see https://github.com/tdhock/regex-tutorial
+For named capture regex in R, please use [[https://github.com/tdhock/nc][nc]], which provides functions
+similar to =namedCapture::*_variable= but with additional support
+for the ICU regex engine.
 
 ** Related work
 See my [[https://github.com/tdhock/namedCapture-article][journal paper about namedCapture]] for a detailed discussion of R
@@ -99,6 +10,5 @@ regex packages.
 - [[https://github.com/tdhock/revector][revector]] provides fast C code for a *vector* of named capture
   regular expressions (namedCapture and base R and only provide
   functions for a single regular expression).
-- [[https://github.com/tdhock/nc][nc]] provides functions similar to =namedCapture::*_variable= but with
-  additional support for the ICU regex engine.
+
 

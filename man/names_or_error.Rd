@@ -7,8 +7,7 @@ capture groups, or if there are any capture groups without names.}
     pattern)}
 \arguments{
   \item{vec.with.attrs}{Output from g?regexpr.}
-  \item{pattern}{
-}
+  \item{pattern}{pattern }
 }
 
 \value{Character vector.}

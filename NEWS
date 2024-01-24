@@ -1,152 +1,85 @@
-2020.4.1
+Changes in version 2024.1.24
 
-qinwf/re2r URL in DESCRIPTION.
+- update NEWS and Rd files for CRAN.
 
-2020.3.30
+Changes in version 2020.4.1
 
-reformat DESCRIPTION for CRAN (URL for R Journal paper).
+- qinwf/re2r URL in DESCRIPTION.
 
-2020.3.25
+Changes in version 2020.3.30
 
-test_engines uses available engines.
+- reformat DESCRIPTION for CRAN (URL for R Journal paper).
 
-bugfix in engine docs: namedCapture.engine is the option name.
+Changes in version 2020.3.25
 
-2020.3.2
+- test_engines uses available engines.
+- bugfix in engine docs: namedCapture.engine is the option name.
 
-Use stringsAsFactors=TRUE in test-CRAN-df.
+Changes in version 2020.3.2
 
-2019.8.13 PR#13 R Journal reviews
+- Use stringsAsFactors=TRUE in test-CRAN-df.
 
-namedCapture.engine -> engine.
+Changes in version 2019.8.7
 
-CONTRIBUTING.org
+- str_match_variable(nomatch.error=TRUE) means to stop with an error if any subjects do not match -- error message shows pattern and subjects which do not match. This is fully backwards compatible since arguments with names that contain dots resulted in an error (group names can not contain dots).
+- cbind in for loop used in df_match_variable for speed.
+- tried parallelizing df_match_variable over subject columns using future, but no significant speedups.
+- tried re2_match(parallel=TRUE) but no significant speedups.
+- show generated pattern in stop_for_names.
+- document/export variable_args_list for viewing generated pattern.
+- bugfix for df_match_variable with only one group = name.
 
-2019.8.9 PR#12
+Changes in version 2019.7.30
 
-df_match_variable(subject.df, column=list(nomatch.error=TRUE)).
+- namedCapture.engine() only used for getting, not setting, option.
+- Better examples for *_variable.
+- New vignette names.
+- Links in docs.
 
-2019.8.8 PR#11
+Changes in version 2019.02.28
 
-subject.vec is now first arg of str_*_variable; subject is no longer
-passed to variable_args_list. Usage is same as before but docs should
-be easier to understand.
+- new verbose syntax comparison vignette with PCRE_EXTENDED (?x)
+- df syntax comparison vignette.
 
-2019.8.7
+Changes in version 2019.02.25
 
-str_match_variable(nomatch.error=TRUE) means to stop with an error if
-any subjects do not match -- error message shows pattern and subjects
-which do not match. This is fully backwards compatible since arguments
-with names that contain dots resulted in an error (group names can not
-contain dots).
+- vignette typo fixes.
 
-cbind in for loop used in df_match_variable for speed.
+Changes in version 2019.02.21
 
-tried parallelizing df_match_variable over subject columns using
-future, but no significant speedups.
+- Suggest re2r, namedCapture.engine()
 
-tried re2_match(parallel=TRUE) but no significant speedups.
+Changes in version 2019.01.14
 
-show generated pattern in stop_for_names.
+- un-named list interpreted as non-capturing group.
+- vignettes.
 
-document/export variable_args_list for viewing generated pattern.
+Changes in version 2019.01.09
 
-bugfix for df_match_variable with only one group = name.
+- nested capture groups syntax in *_variable using named list.
+- inst/extdata/trackDb.txt.gz
 
-2019.7.30
+Changes in version 2018.11.23
 
-namedCapture.engine() only used for getting, not setting, option.
+- remove subject arg from df_match_variable in order to support column named "subject"
 
-Better examples for *_variable.
+Changes in version 2015.10.20
 
-New vignette names.
+- str_match_named was sometimes incorrectly issuing a warning when given NA subjects, but this is now fixed.
+- When type.list is supplied, data.frame(stringsAsFactors=FALSE) is now used to create the data.frame from the character match groups matrix. This allows simple numerical conversions using functions like as.numeric and as.integer (before, we got unexpected results since those functions take the factor ID number).
 
-Links in docs.
+Changes in version 2015.10.15
 
-2019.02.28
+- Test optional groups, set NA before calling substring to avoid "NAs introduced by coercion" warning.
 
-new verbose syntax comparison vignette with PCRE_EXTENDED (?x)
+Changes in version 2015.10.07
 
-df syntax comparison vignette.
+- stop with informative errors for pathological subjects and patterns.
 
-2019.02.25
+Changes in version 2015.10.05
 
-vignette typo fixes.
-
-2019.02.21
-
-Suggest re2r, namedCapture.engine()
-
-2019.01.14
-
-un-named list interpreted as non-capturing group.
-
-vignettes.
-
-2019.01.09
-
-nested capture groups syntax in *_variable using named list.
-
-inst/extdata/trackDb.txt.gz
-
-2018.11.23
-
-remove subject arg from df_match_variable in order to support column
-named "subject"
-
-2018.11.21 PR#6
-
-df_match_variable
-
-more informative error messages for str_match*named functions.
-
-Suggest data.table for testing.
-
-2018.11.20 PR#5
-
-*_variable functions accept lists which are parsed recursively.
-
-2018.11.19 PR#4
-
-*_variable functions which use variable number of arguments.
-
-2017.06.01 PR#3
-
-examples.
-
-2017.01.15 PR#2
-
-Informative errors when type.list is unusual.
-
-2015.12.01 PR#1
-
-Coveralls badge, 100% test coverage via jimhester/covr.
-
-2015.10.20
-
-str_match_named was sometimes incorrectly issuing a warning when given
-NA subjects, but this is now fixed.
-
-When type.list is supplied, data.frame(stringsAsFactors=FALSE) is now
-used to create the data.frame from the character match groups
-matrix. This allows simple numerical conversions using functions like
-as.numeric and as.integer (before, we got unexpected results since
-those functions take the factor ID number).
-
-2015.10.15
-
-Test optional groups, set NA before calling substring to avoid "NAs
-introduced by coercion" warning.
-
-2015.10.07
-
-stop with informative errors for pathological subjects and patterns.
-
-2015.10.05
-
-first version forked from str_match*perl in my .Rprofile. There are
-several differences: 
-- the "name" group is used for rownames, 
+- first version forked from str_match*perl in my .Rprofile. There are several differences:
+- the "name" group is used for rownames,
 - the entire match is not returned (only the groups),
 - str_match_named is vectorized (str_match_perl was not),
 - names are taken from subject if present.
